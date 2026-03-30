@@ -557,6 +557,41 @@
     .nav-btn.hidden {
       display: none;
     }
+
+    details.field-group {
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      background: white;
+      overflow: hidden;
+    }
+    details.field-group > summary {
+      padding: 0.85rem 1rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--color-primary);
+      background: #f0f4ef;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      min-height: 48px;
+      user-select: none;
+    }
+    details.field-group > summary::-webkit-details-marker { display: none; }
+    details.field-group > summary::before {
+      content: '▶';
+      font-size: 0.7rem;
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+    details.field-group[open] > summary::before {
+      transform: rotate(90deg);
+    }
+    details.field-group > .field-group-content {
+      padding: 0.75rem 1rem;
+    }
   </style>
 </head>
 <body>
@@ -586,79 +621,97 @@
       </div>
 
       <form id="form-standort">
-        <div class="form-group">
-          <label>Plot-ID *</label>
-          <input type="text" id="plot_id" placeholder="z.B. SH_01" required>
-        </div>
-        <div class="form-group">
-          <label>Aufnehmer *</label>
-          <input type="text" id="aufnehmer" placeholder="Name" required>
-        </div>
-        <div class="form-group">
-          <label>Datum Termin 1 *</label>
-          <input type="date" id="datum_t1" required>
-        </div>
-        <div class="form-group">
-          <label>Datum Termin 2 *</label>
-          <input type="date" id="datum_t2" required>
-        </div>
-        <div class="form-group">
-          <label>GPS Standort *</label>
-          <div id="gps-standort" class="gps-widget">
-            <div class="gps-widget-row"><span class="gps-widget-label">Status:</span> <span class="gps-widget-value">Nicht erfasst</span></div>
+        <!-- Gruppe 1: Aufnahme-Info (immer offen) -->
+        <details class="field-group" open>
+          <summary>📋 Aufnahme-Info</summary>
+          <div class="field-group-content">
+            <div class="form-group">
+              <label>Plot-ID *</label>
+              <input type="text" id="plot_id" placeholder="z.B. SH_01" required>
+            </div>
+            <div class="form-group">
+              <label>Aufnehmer *</label>
+              <input type="text" id="aufnehmer" placeholder="Name" required>
+            </div>
+            <div class="form-group">
+              <label>Datum Termin 1 *</label>
+              <input type="date" id="datum_t1" required>
+            </div>
+            <div class="form-group">
+              <label>Datum Termin 2 *</label>
+              <input type="date" id="datum_t2" required>
+            </div>
           </div>
-          <button type="button" class="btn btn-full" onclick="captureStandortGPS()">📍 GPS holen</button>
-        </div>
-        <div class="form-group">
-          <label>Höhe ü.M. (m) *</label>
-          <input type="number" id="hoehe_mue" placeholder="z.B. 520 (auto bei GPS)" required>
-          <div id="hoehe-auto-status" style="font-size: 0.8rem; color: var(--color-muted); margin-top: 0.25rem;"></div>
-        </div>
-        <div class="form-group">
-          <label>Vegetationshöhenstufe (NaiS)</label>
-          <select id="vegetationshoehenstufe">
-            <option value="">-- Wählen / Auto bei GPS --</option>
-            <option value="collin">collin</option>
-            <option value="hyperinsubrisch">hyperinsubrisch</option>
-            <option value="collin mit Buche">collin mit Buche</option>
-            <option value="submontan">submontan</option>
-            <option value="untermontan">untermontan</option>
-            <option value="obermontan">obermontan</option>
-            <option value="hochmontan im Tannen-Hauptareal">hochmontan im Tannen-Hauptareal</option>
-            <option value="hochmontan im Tannen-Nebenareal">hochmontan im Tannen-Nebenareal</option>
-            <option value="hochmontan im Tannen-Reliktareal">hochmontan im Tannen-Reliktareal</option>
-            <option value="subalpin">subalpin</option>
-            <option value="obersubalpin">obersubalpin</option>
-          </select>
-          <div id="hoehenstufe-auto-status" style="font-size: 0.8rem; color: var(--color-muted); margin-top: 0.25rem;"></div>
-        </div>
-        <div class="form-group">
-          <label>Exposition *</label>
-          <select id="exposition" required>
-            <option value="">-- Wählen --</option>
-            <option value="N">N (Nord)</option>
-            <option value="NO">NO (Nordost)</option>
-            <option value="O">O (Ost)</option>
-            <option value="SO">SO (Südost)</option>
-            <option value="S">S (Süd)</option>
-            <option value="SW">SW (Südwest)</option>
-            <option value="W">W (West)</option>
-            <option value="NW">NW (Nordwest)</option>
-            <option value="eben">eben</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Baumartenmischung *</label>
-          <div id="baumarten-container"></div>
-          <div id="baumarten-sum"></div>
-        </div>
-        <div class="form-group">
-          <label>Bodenvegetation *</label>
-          <div id="bodenvegetation-container"></div>
-          <div id="bodenvegetation-sum"></div>
-        </div>
-        <div class="form-group">
-          <label>Waldgesellschaft (NaiS) *</label>
+        </details>
+
+        <!-- Gruppe 2: GPS & Lage -->
+        <details class="field-group" open>
+          <summary>📍 GPS & Lage</summary>
+          <div class="field-group-content">
+            <div class="form-group">
+              <label>GPS Standort *</label>
+              <div id="gps-standort" class="gps-widget">
+                <div class="gps-widget-row"><span class="gps-widget-label">Status:</span> <span class="gps-widget-value">Nicht erfasst</span></div>
+              </div>
+              <button type="button" class="btn btn-full" onclick="captureStandortGPS()">📍 GPS holen</button>
+            </div>
+            <div class="form-group">
+              <label>Höhe ü.M. (m) *</label>
+              <input type="number" id="hoehe_mue" placeholder="z.B. 520 (auto bei GPS)" required>
+              <div id="hoehe-auto-status" style="font-size: 0.8rem; color: var(--color-muted); margin-top: 0.25rem;"></div>
+            </div>
+            <div class="form-group">
+              <label>Vegetationshöhenstufe (NaiS)</label>
+              <select id="vegetationshoehenstufe">
+                <option value="">-- Wählen / Auto bei GPS --</option>
+                <option value="collin">collin</option>
+                <option value="hyperinsubrisch">hyperinsubrisch</option>
+                <option value="collin mit Buche">collin mit Buche</option>
+                <option value="submontan">submontan</option>
+                <option value="untermontan">untermontan</option>
+                <option value="obermontan">obermontan</option>
+                <option value="hochmontan im Tannen-Hauptareal">hochmontan im Tannen-Hauptareal</option>
+                <option value="hochmontan im Tannen-Nebenareal">hochmontan im Tannen-Nebenareal</option>
+                <option value="hochmontan im Tannen-Reliktareal">hochmontan im Tannen-Reliktareal</option>
+                <option value="subalpin">subalpin</option>
+                <option value="obersubalpin">obersubalpin</option>
+              </select>
+              <div id="hoehenstufe-auto-status" style="font-size: 0.8rem; color: var(--color-muted); margin-top: 0.25rem;"></div>
+            </div>
+            <div class="form-group">
+              <label>Exposition *</label>
+              <select id="exposition" required>
+                <option value="">-- Wählen --</option>
+                <option value="N">N (Nord)</option>
+                <option value="NO">NO (Nordost)</option>
+                <option value="O">O (Ost)</option>
+                <option value="SO">SO (Südost)</option>
+                <option value="S">S (Süd)</option>
+                <option value="SW">SW (Südwest)</option>
+                <option value="W">W (West)</option>
+                <option value="NW">NW (Nordwest)</option>
+                <option value="eben">eben</option>
+              </select>
+            </div>
+          </div>
+        </details>
+
+        <!-- Gruppe 3: Bestandesbeschreibung -->
+        <details class="field-group">
+          <summary>🌲 Bestandesbeschreibung</summary>
+          <div class="field-group-content">
+            <div class="form-group">
+              <label>Baumartenmischung *</label>
+              <div id="baumarten-container"></div>
+              <div id="baumarten-sum"></div>
+            </div>
+            <div class="form-group">
+              <label>Bodenvegetation *</label>
+              <div id="bodenvegetation-container"></div>
+              <div id="bodenvegetation-sum"></div>
+            </div>
+            <div class="form-group">
+              <label>Waldgesellschaft (NaiS) *</label>
           <input type="text" id="waldgesellschaft" list="nais-types" placeholder="Tippen zum Suchen (Nr. oder Name)" autocomplete="off" required>
           <datalist id="nais-types">
             <option value="1 - Typischer Hainsimsen-Bu-Wald">
@@ -846,11 +899,20 @@
             <option value="71 - Torfmoos-Bergföhrenwald">
             <option value="72 - Nordalpen-Arvenwald">
           </datalist>
-        </div>
-        <div class="form-group">
-          <label>Bemerkungen</label>
-          <textarea id="bemerkungen_standort" placeholder="Optional"></textarea>
-        </div>
+            </div>
+          </div>
+        </details>
+
+        <!-- Gruppe 4: Bemerkungen -->
+        <details class="field-group">
+          <summary>📝 Bemerkungen</summary>
+          <div class="field-group-content">
+            <div class="form-group">
+              <label>Bemerkungen</label>
+              <textarea id="bemerkungen_standort" placeholder="Optional"></textarea>
+            </div>
+          </div>
+        </details>
       </form>
     </div>
 
