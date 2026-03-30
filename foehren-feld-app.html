@@ -1074,6 +1074,9 @@ function switchSection(sectionId) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
 
+  if (sectionId === 'section-diplodia') {
+    initDiplodia();
+  }
   if (sectionId === 'section-blutzikade') {
     updateC2C2bPages();
   }
