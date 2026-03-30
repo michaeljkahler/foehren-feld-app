@@ -605,10 +605,6 @@
           <input type="text" id="bodenvegetation" placeholder="z.B. Brombeeren, Moos" required>
         </div>
         <div class="form-group">
-          <label>Bodentyp *</label>
-          <input type="text" id="bodentyp" placeholder="z.B. Braunerde" required>
-        </div>
-        <div class="form-group">
           <label>Waldgesellschaft (NaiS) *</label>
           <input type="text" id="waldgesellschaft" list="nais-types" placeholder="Tippen zum Suchen (Nr. oder Name)" autocomplete="off" required>
           <datalist id="nais-types">
@@ -1113,7 +1109,7 @@ function switchTermin(termin) {
 }
 
 function initStandort() {
-  const fields = ['plot_id', 'aufnehmer', 'datum_t1', 'datum_t2', 'hoehe_mue', 'vegetationshoehenstufe', 'exposition', 'baumarten_mischung', 'bodenvegetation', 'bodentyp', 'waldgesellschaft', 'bemerkungen_standort'];
+  const fields = ['plot_id', 'aufnehmer', 'datum_t1', 'datum_t2', 'hoehe_mue', 'vegetationshoehenstufe', 'exposition', 'baumarten_mischung', 'bodenvegetation', 'waldgesellschaft', 'bemerkungen_standort'];
   fields.forEach(field => {
     const elem = document.getElementById(field);
     if (elem) {
@@ -2172,7 +2168,7 @@ function exportCSV() {
     'plot_id', 'aufnehmer', 'datum_t1', 'datum_t2',
     'koordinate_lat', 'koordinate_lon', 'koordinate_e_lv95', 'koordinate_n_lv95',
     'hoehe_mue', 'vegetationshoehenstufe', 'exposition', 'baumarten_mischung', 'bodenvegetation',
-    'bodentyp', 'waldgesellschaft', 'bemerkungen_standort',
+    'waldgesellschaft', 'bemerkungen_standort',
     'diplodia_zapfen_anzahl', 'diplodia_zapfen_sack_id', 'diplodia_zapfen_bemerkung',
     'diplodia_methodenkritik'
   ];
@@ -2180,7 +2176,7 @@ function exportCSV() {
     ...['plot_id', 'aufnehmer', 'datum_t1', 'datum_t2',
         'koordinate_lat', 'koordinate_lon', 'koordinate_e_lv95', 'koordinate_n_lv95',
         'hoehe_mue', 'vegetationshoehenstufe', 'exposition', 'baumarten_mischung', 'bodenvegetation',
-        'bodentyp', 'waldgesellschaft', 'bemerkungen_standort'
+        'waldgesellschaft', 'bemerkungen_standort'
     ].map(h => csvQuote(app.data.standort[h] != null ? app.data.standort[h] : '')),
     csvQuote(zapfen.diplodia_zapfen_anzahl || ''),
     csvQuote(zapfen.diplodia_zapfen_sack_id || ''),
@@ -2298,7 +2294,6 @@ function exportGeoJSON() {
         exposition: app.data.standort.exposition,
         baumarten_mischung: app.data.standort.baumarten_mischung,
         bodenvegetation: app.data.standort.bodenvegetation,
-        bodentyp: app.data.standort.bodentyp,
         waldgesellschaft: app.data.standort.waldgesellschaft,
         bemerkungen_standort: app.data.standort.bemerkungen_standort,
         diplodia_zapfen_anzahl: zapfen.diplodia_zapfen_anzahl || null,
@@ -2466,7 +2461,7 @@ async function exportGeoPackage() {
       id INTEGER PRIMARY KEY, plot_id TEXT, aufnehmer TEXT, datum_t1 TEXT, datum_t2 TEXT,
       koordinate_e_lv95 REAL, koordinate_n_lv95 REAL, hoehe_mue INTEGER, vegetationshoehenstufe TEXT,
       exposition TEXT, baumarten_mischung TEXT, bodenvegetation TEXT,
-      bodentyp TEXT, waldgesellschaft TEXT, bemerkungen_standort TEXT,
+      waldgesellschaft TEXT, bemerkungen_standort TEXT,
       diplodia_zapfen_anzahl INTEGER, diplodia_zapfen_sack_id TEXT,
       diplodia_zapfen_bemerkung TEXT, diplodia_methodenkritik TEXT,
       geometry BLOB
@@ -2505,12 +2500,12 @@ async function exportGeoPackage() {
     if (standort.koordinate_lat && standort.koordinate_lon) {
       const geom = createGpkgPoint(standort.koordinate_lon, standort.koordinate_lat);
       const gpkgZapfen = diplodia.zapfen || {};
-      db.run(`INSERT INTO standorte VALUES (1,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, [
+      db.run(`INSERT INTO standorte VALUES (1,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, [
         standort.plot_id, standort.aufnehmer, standort.datum_t1, standort.datum_t2,
         standort.koordinate_e_lv95, standort.koordinate_n_lv95, standort.hoehe_mue,
         standort.vegetationshoehenstufe || null,
         standort.exposition, standort.baumarten_mischung, standort.bodenvegetation,
-        standort.bodentyp, standort.waldgesellschaft, standort.bemerkungen_standort,
+        standort.waldgesellschaft, standort.bemerkungen_standort,
         gpkgZapfen.diplodia_zapfen_anzahl || null,
         gpkgZapfen.diplodia_zapfen_sack_id || null,
         gpkgZapfen.diplodia_zapfen_bemerkung || null,
