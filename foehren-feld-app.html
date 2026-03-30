@@ -1557,6 +1557,7 @@ function showTreeEdit(baum_id) {
         </div>
         <div class="form-group">
           <label>Kronenverlichtung (SANASILVA) *</label>
+          <img src="sanasilva-kronenverlichtung.png" alt="SANASILVA Kronenverlichtung Referenz: 0% - 25% - 60% - 70%" style="width:100%; border-radius:6px; margin-bottom:0.5rem; border:1px solid var(--color-border);">
           <input type="range" class="slider" id="edit-kronenverlichtung" min="0" max="100" step="5" value="${tree.kronenverlichtung_pct || 0}" oninput="updateSliderDisplay('edit-kronenverlichtung')">
           <div class="slider-value" id="edit-kronenverlichtung-value">${tree.kronenverlichtung_pct || 0}%</div>
         </div>
@@ -2835,6 +2836,7 @@ function updateUI() {
 document.addEventListener('DOMContentLoaded', () => {
   updateUI();
   checkEmptyState();
+  switchTermin(1); // Termin 1 als Default beim App-Start
 });
 
 function checkEmptyState() {
