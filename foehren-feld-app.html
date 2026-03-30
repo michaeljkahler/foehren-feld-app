@@ -560,7 +560,26 @@
         </div>
         <div class="form-group">
           <label>Höhe ü.M. (m) *</label>
-          <input type="number" id="hoehe_mue" placeholder="z.B. 520" required>
+          <input type="number" id="hoehe_mue" placeholder="z.B. 520 (auto bei GPS)" required>
+          <div id="hoehe-auto-status" style="font-size: 0.8rem; color: var(--color-muted); margin-top: 0.25rem;"></div>
+        </div>
+        <div class="form-group">
+          <label>Vegetationshöhenstufe (NaiS)</label>
+          <select id="vegetationshoehenstufe">
+            <option value="">-- Wählen / Auto bei GPS --</option>
+            <option value="collin">collin</option>
+            <option value="hyperinsubrisch">hyperinsubrisch</option>
+            <option value="collin mit Buche">collin mit Buche</option>
+            <option value="submontan">submontan</option>
+            <option value="untermontan">untermontan</option>
+            <option value="obermontan">obermontan</option>
+            <option value="hochmontan">hochmontan</option>
+            <option value="hochmontan im Tannen-Nebenareal">hochmontan im Tannen-Nebenareal</option>
+            <option value="hochmontan im Tannen-Reliktareal">hochmontan im Tannen-Reliktareal</option>
+            <option value="subalpin">subalpin</option>
+            <option value="obersubalpin">obersubalpin</option>
+          </select>
+          <div id="hoehenstufe-auto-status" style="font-size: 0.8rem; color: var(--color-muted); margin-top: 0.25rem;"></div>
         </div>
         <div class="form-group">
           <label>Exposition *</label>
@@ -1094,7 +1113,7 @@ function switchTermin(termin) {
 }
 
 function initStandort() {
-  const fields = ['plot_id', 'aufnehmer', 'datum_t1', 'datum_t2', 'hoehe_mue', 'exposition', 'baumarten_mischung', 'bodenvegetation', 'bodentyp', 'waldgesellschaft', 'bemerkungen_standort'];
+  const fields = ['plot_id', 'aufnehmer', 'datum_t1', 'datum_t2', 'hoehe_mue', 'vegetationshoehenstufe', 'exposition', 'baumarten_mischung', 'bodenvegetation', 'bodentyp', 'waldgesellschaft', 'bemerkungen_standort'];
   fields.forEach(field => {
     const elem = document.getElementById(field);
     if (elem) {
@@ -1119,6 +1138,67 @@ function initStandort() {
 
 const GPS_OPTIONS = { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 };
 
+function fetchElevation(e, n) {
+  const statusEl = document.getElementById('hoehe-auto-status');
+  statusEl.textContent = '⏳ Höhe wird abgerufen…';
+  fetch(`https://api3.geo.admin.ch/rest/services/height?easting=${e}&northing=${n}&sr=2056`)
+    .then(r => r.json())
+    .then(data => {
+      if (data.height) {
+        const h = Math.round(parseFloat(data.height));
+        document.getElementById('hoehe_mue').value = h;
+        app.data.standort.hoehe_mue = h;
+        storage.save(app.data);
+        statusEl.textContent = `✅ Auto: ${h} m ü.M. (swisstopo)`;
+      }
+    })
+    .catch(() => { statusEl.textContent = '⚠️ Offline — bitte manuell eingeben'; });
+}
+
+function fetchVegetationshoehenstufe(e, n) {
+  const statusEl = document.getElementById('hoehenstufe-auto-status');
+  statusEl.textContent = '⏳ Höhenstufe wird abgerufen…';
+  const bbox = `${e-10},${n-10},${e+10},${n+10}`;
+  const url = `https://wms.geo.admin.ch/?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetFeatureInfo&LAYERS=ch.bafu.wald-vegetationshoehenstufen_1975&QUERY_LAYERS=ch.bafu.wald-vegetationshoehenstufen_1975&CRS=EPSG:2056&BBOX=${bbox}&WIDTH=20&HEIGHT=20&I=10&J=10&INFO_FORMAT=application/json&FEATURE_COUNT=1`;
+  fetch(url)
+    .then(r => r.json())
+    .then(data => {
+      const features = data.features || [];
+      if (features.length > 0) {
+        const props = features[0].properties;
+        const stufe = props.hoehenstufen_de;
+        if (stufe && stufe !== '-') {
+          const sel = document.getElementById('vegetationshoehenstufe');
+          // Try exact match first, then partial
+          let matched = false;
+          for (const opt of sel.options) {
+            if (opt.value === stufe || (stufe.includes(opt.value) && opt.value)) {
+              sel.value = opt.value;
+              matched = true;
+              break;
+            }
+          }
+          if (!matched) {
+            // Add as new option if not in list
+            const newOpt = document.createElement('option');
+            newOpt.value = stufe;
+            newOpt.textContent = stufe;
+            sel.appendChild(newOpt);
+            sel.value = stufe;
+          }
+          app.data.standort.vegetationshoehenstufe = sel.value;
+          storage.save(app.data);
+          statusEl.textContent = `✅ Auto: ${sel.value} (BAFU 1975)`;
+        } else {
+          statusEl.textContent = 'ℹ️ Keine Waldfläche an dieser Position';
+        }
+      } else {
+        statusEl.textContent = 'ℹ️ Keine Daten für diese Position';
+      }
+    })
+    .catch(() => { statusEl.textContent = '⚠️ Offline — bitte manuell wählen'; });
+}
+
 function captureStandortGPS() {
   const btn = event.target;
   btn.disabled = true;
@@ -1138,6 +1218,9 @@ function captureStandortGPS() {
       updateGPSWidget('gps-standort', lat, lon, acc, lv95);
       btn.disabled = false;
       btn.textContent = '📍 GPS aktualisieren';
+      // Auto-fetch Höhe und Vegetationshöhenstufe via geo.admin.ch
+      fetchElevation(lv95.E, lv95.N);
+      fetchVegetationshoehenstufe(lv95.E, lv95.N);
     },
     (err) => {
       alert('GPS nicht verfügbar: ' + err.message);
@@ -2088,7 +2171,7 @@ function exportCSV() {
   const standort_headers = [
     'plot_id', 'aufnehmer', 'datum_t1', 'datum_t2',
     'koordinate_lat', 'koordinate_lon', 'koordinate_e_lv95', 'koordinate_n_lv95',
-    'hoehe_mue', 'exposition', 'baumarten_mischung', 'bodenvegetation',
+    'hoehe_mue', 'vegetationshoehenstufe', 'exposition', 'baumarten_mischung', 'bodenvegetation',
     'bodentyp', 'waldgesellschaft', 'bemerkungen_standort',
     'diplodia_zapfen_anzahl', 'diplodia_zapfen_sack_id', 'diplodia_zapfen_bemerkung',
     'diplodia_methodenkritik'
@@ -2096,7 +2179,7 @@ function exportCSV() {
   const standort_vals = [
     ...['plot_id', 'aufnehmer', 'datum_t1', 'datum_t2',
         'koordinate_lat', 'koordinate_lon', 'koordinate_e_lv95', 'koordinate_n_lv95',
-        'hoehe_mue', 'exposition', 'baumarten_mischung', 'bodenvegetation',
+        'hoehe_mue', 'vegetationshoehenstufe', 'exposition', 'baumarten_mischung', 'bodenvegetation',
         'bodentyp', 'waldgesellschaft', 'bemerkungen_standort'
     ].map(h => csvQuote(app.data.standort[h] != null ? app.data.standort[h] : '')),
     csvQuote(zapfen.diplodia_zapfen_anzahl || ''),
@@ -2211,6 +2294,7 @@ function exportGeoJSON() {
         koordinate_e_lv95: app.data.standort.koordinate_e_lv95,
         koordinate_n_lv95: app.data.standort.koordinate_n_lv95,
         hoehe_mue: app.data.standort.hoehe_mue,
+            vegetationshoehenstufe: app.data.standort.vegetationshoehenstufe,
         exposition: app.data.standort.exposition,
         baumarten_mischung: app.data.standort.baumarten_mischung,
         bodenvegetation: app.data.standort.bodenvegetation,
@@ -2380,7 +2464,7 @@ async function exportGeoPackage() {
     // Feature tables
     db.run(`CREATE TABLE standorte (
       id INTEGER PRIMARY KEY, plot_id TEXT, aufnehmer TEXT, datum_t1 TEXT, datum_t2 TEXT,
-      koordinate_e_lv95 REAL, koordinate_n_lv95 REAL, hoehe_mue INTEGER,
+      koordinate_e_lv95 REAL, koordinate_n_lv95 REAL, hoehe_mue INTEGER, vegetationshoehenstufe TEXT,
       exposition TEXT, baumarten_mischung TEXT, bodenvegetation TEXT,
       bodentyp TEXT, waldgesellschaft TEXT, bemerkungen_standort TEXT,
       diplodia_zapfen_anzahl INTEGER, diplodia_zapfen_sack_id TEXT,
@@ -2421,9 +2505,10 @@ async function exportGeoPackage() {
     if (standort.koordinate_lat && standort.koordinate_lon) {
       const geom = createGpkgPoint(standort.koordinate_lon, standort.koordinate_lat);
       const gpkgZapfen = diplodia.zapfen || {};
-      db.run(`INSERT INTO standorte VALUES (1,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, [
+      db.run(`INSERT INTO standorte VALUES (1,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, [
         standort.plot_id, standort.aufnehmer, standort.datum_t1, standort.datum_t2,
         standort.koordinate_e_lv95, standort.koordinate_n_lv95, standort.hoehe_mue,
+        standort.vegetationshoehenstufe || null,
         standort.exposition, standort.baumarten_mischung, standort.bodenvegetation,
         standort.bodentyp, standort.waldgesellschaft, standort.bemerkungen_standort,
         gpkgZapfen.diplodia_zapfen_anzahl || null,
