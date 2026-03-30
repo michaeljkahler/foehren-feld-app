@@ -917,27 +917,31 @@
     </div>
 
     <div class="page">
-      <h2 style="margin-bottom: 1rem; color: var(--color-primary);">🌳 Einzelbaum-Erfassung</h2>
-      <div class="info-box">
-        💡 <strong>Hinweis:</strong> Bäume nach der Messung mit Kreide oder Bändeli markieren, damit sie bei Termin 2 wiedergefunden werden.
-      </div>
-      <div style="margin-bottom: 1rem;">
-        <div class="progress-text">Bäume BHD >20 cm:</div>
-        <div class="progress-bar">
-          <div id="progress-bhd-large" class="progress-fill" style="width: 0%">0 / 20</div>
+      <details class="field-group" open>
+        <summary>🌳 Einzelbaum-Erfassung</summary>
+        <div class="field-group-content">
+          <div class="info-box">
+            💡 <strong>Hinweis:</strong> Bäume nach der Messung mit Kreide oder Bändeli markieren, damit sie bei Termin 2 wiedergefunden werden.
+          </div>
+          <div style="margin-bottom: 1rem;">
+            <div class="progress-text">Bäume BHD >20 cm:</div>
+            <div class="progress-bar">
+              <div id="progress-bhd-large" class="progress-fill" style="width: 0%">0 / 20</div>
+            </div>
+          </div>
+          <div style="margin-bottom: 1.5rem;">
+            <div class="progress-text">Bäume BHD <20 cm:</div>
+            <div class="progress-bar">
+              <div id="progress-bhd-small" class="progress-fill" style="width: 0%">0 / 20</div>
+            </div>
+          </div>
+          <div class="btn-group">
+            <button class="btn" id="btn-add-large" onclick="addTree('large')">+ BHD >20 cm</button>
+            <button class="btn" id="btn-add-small" onclick="addTree('small')">+ BHD <20 cm</button>
+          </div>
+          <div id="trees-container"></div>
         </div>
-      </div>
-      <div style="margin-bottom: 1.5rem;">
-        <div class="progress-text">Bäume BHD <20 cm:</div>
-        <div class="progress-bar">
-          <div id="progress-bhd-small" class="progress-fill" style="width: 0%">0 / 20</div>
-        </div>
-      </div>
-      <div class="btn-group">
-        <button class="btn" id="btn-add-large" onclick="addTree('large')">+ BHD >20 cm</button>
-        <button class="btn" id="btn-add-small" onclick="addTree('small')">+ BHD <20 cm</button>
-      </div>
-      <div id="trees-container"></div>
+      </details>
     </div>
   </section>
 
