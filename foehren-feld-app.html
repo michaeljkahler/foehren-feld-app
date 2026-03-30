@@ -249,6 +249,57 @@
       margin-top: 0.5rem;
     }
 
+    .species-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0;
+      border-bottom: 1px solid #eee;
+      min-height: 44px;
+    }
+    .species-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      border: 1px solid rgba(0,0,0,0.2);
+    }
+    .species-cb {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+      accent-color: var(--color-primary);
+    }
+    .species-label {
+      font-size: 0.85rem;
+      min-width: 90px;
+      flex-shrink: 0;
+    }
+    .species-slider {
+      flex: 1;
+      height: 28px;
+      min-width: 60px;
+    }
+    .species-pct {
+      font-weight: bold;
+      font-size: 0.85rem;
+      min-width: 36px;
+      text-align: right;
+    }
+    .sum-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      margin-top: 0.5rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .sum-ok { background: #d4edda; color: #155724; }
+    .sum-warn { background: #fff3cd; color: #856404; }
+    .sum-over { background: #f8d7da; color: #721c24; }
+
     .card {
       background: #f9f7f2;
       border: 1px solid var(--color-border);
@@ -598,11 +649,13 @@
         </div>
         <div class="form-group">
           <label>Baumartenmischung *</label>
-          <input type="text" id="baumarten_mischung" placeholder="z.B. Waldföhre 90%, Buche 10%" required>
+          <div id="baumarten-container"></div>
+          <div id="baumarten-sum"></div>
         </div>
         <div class="form-group">
           <label>Bodenvegetation *</label>
-          <input type="text" id="bodenvegetation" placeholder="z.B. Brombeeren, Moos" required>
+          <div id="bodenvegetation-container"></div>
+          <div id="bodenvegetation-sum"></div>
         </div>
         <div class="form-group">
           <label>Waldgesellschaft (NaiS) *</label>
@@ -1112,7 +1165,7 @@ function switchTermin(termin) {
 }
 
 function initStandort() {
-  const fields = ['plot_id', 'aufnehmer', 'datum_t1', 'datum_t2', 'hoehe_mue', 'vegetationshoehenstufe', 'exposition', 'baumarten_mischung', 'bodenvegetation', 'waldgesellschaft', 'bemerkungen_standort'];
+  const fields = ['plot_id', 'aufnehmer', 'datum_t1', 'datum_t2', 'hoehe_mue', 'vegetationshoehenstufe', 'exposition', 'waldgesellschaft', 'bemerkungen_standort'];
   fields.forEach(field => {
     const elem = document.getElementById(field);
     if (elem) {
@@ -1132,7 +1185,152 @@ function initStandort() {
     document.getElementById('empty-state-banner').style.display = 'none';
   }
 
+  initBaumartenMischung();
+  initBodenvegetation();
   renderTrees();
+}
+
+// === BAUMARTENMISCHUNG ===
+const BAUMARTEN = [
+  { name: 'Fichte', color: '#5a5a00', code: 'PicAbie' },
+  { name: 'Weisstanne', color: '#b4b400', code: 'AbiAlba' },
+  { name: 'Waldföhre', color: '#f5f51e', code: 'PinSylv' },
+  { name: 'Lärche', color: '#f5f582', code: 'LarDeci' },
+  { name: 'Douglasie', color: '#333333', code: 'PseMenz' },
+  { name: 'Buche', color: '#b4f5f5', code: 'FagSylv' },
+  { name: 'Eiche', color: '#7878eb', code: 'Que' },
+  { name: 'Ahorn', color: '#1e1e96', code: 'AcePseu' },
+  { name: 'Gem. Esche', color: '#0a0ae1', code: 'FraExce' },
+  { name: 'Übr. Nadelholz', color: '#c8c8a0', code: 'ConEtc' },
+  { name: 'Übr. Laubholz', color: '#4a4a6e', code: 'FolEtc' }
+];
+
+function initBaumartenMischung() {
+  const container = document.getElementById('baumarten-container');
+  const saved = app.data.standort.baumarten_detail || [];
+  let html = '';
+  BAUMARTEN.forEach((ba, i) => {
+    const sv = saved.find(s => s.name === ba.name);
+    const active = sv ? sv.active : false;
+    const pct = sv ? sv.pct : 0;
+    html += `<div class="species-row">
+      <span class="species-dot" style="background:${ba.color}"></span>
+      <input type="checkbox" class="species-cb" id="ba-cb-${i}" ${active ? 'checked' : ''} onchange="saveBaumartenMischung()">
+      <span class="species-label">${ba.name}</span>
+      <input type="range" class="species-slider" id="ba-sl-${i}" min="0" max="100" step="5" value="${pct}" ${!active ? 'disabled' : ''} oninput="document.getElementById('ba-pct-${i}').textContent=this.value+'%'; saveBaumartenMischung()">
+      <span class="species-pct" id="ba-pct-${i}">${active ? pct + '%' : ''}</span>
+    </div>`;
+  });
+  container.innerHTML = html;
+  // Wire checkboxes to enable/disable sliders
+  BAUMARTEN.forEach((_, i) => {
+    document.getElementById(`ba-cb-${i}`).addEventListener('change', function() {
+      const sl = document.getElementById(`ba-sl-${i}`);
+      const pctEl = document.getElementById(`ba-pct-${i}`);
+      sl.disabled = !this.checked;
+      if (!this.checked) { sl.value = 0; pctEl.textContent = ''; }
+      else { sl.value = sl.value || 10; pctEl.textContent = sl.value + '%'; }
+      saveBaumartenMischung();
+    });
+  });
+  updateBaumartenSum();
+}
+
+function saveBaumartenMischung() {
+  const detail = [];
+  const parts = [];
+  BAUMARTEN.forEach((ba, i) => {
+    const active = document.getElementById(`ba-cb-${i}`).checked;
+    const pct = parseInt(document.getElementById(`ba-sl-${i}`).value) || 0;
+    detail.push({ name: ba.name, code: ba.code, active, pct });
+    if (active && pct > 0) parts.push(`${ba.name} ${pct}%`);
+  });
+  app.data.standort.baumarten_detail = detail;
+  app.data.standort.baumarten_mischung = parts.join(', ');
+  storage.save(app.data);
+  updateBaumartenSum();
+}
+
+function updateBaumartenSum() {
+  let total = 0;
+  BAUMARTEN.forEach((_, i) => {
+    if (document.getElementById(`ba-cb-${i}`).checked) {
+      total += parseInt(document.getElementById(`ba-sl-${i}`).value) || 0;
+    }
+  });
+  const el = document.getElementById('baumarten-sum');
+  const cls = total === 100 ? 'sum-ok' : total > 100 ? 'sum-over' : 'sum-warn';
+  const icon = total === 100 ? '✅' : total > 100 ? '🔴' : '⚠️';
+  el.innerHTML = `<div class="sum-bar ${cls}">${icon} Summe: ${total}%</div>`;
+}
+
+// === BODENVEGETATION ===
+const BODENVEGETATION = [
+  { name: 'Moos' },
+  { name: 'Brombeeren' },
+  { name: 'Adlerfarn' },
+  { name: 'Heidelbeere' },
+  { name: 'Gräser/Reitgras' },
+  { name: 'Naturverjüngung' },
+  { name: 'Bärlauch' },
+  { name: 'Kräuter (diverse)' },
+  { name: 'Flechten' },
+  { name: 'Offener Boden/Streu' }
+];
+
+function initBodenvegetation() {
+  const container = document.getElementById('bodenvegetation-container');
+  const saved = app.data.standort.bodenvegetation_detail || [];
+  let html = '';
+  BODENVEGETATION.forEach((bv, i) => {
+    const sv = saved.find(s => s.name === bv.name);
+    const active = sv ? sv.active : false;
+    const pct = sv ? sv.pct : 0;
+    html += `<div class="species-row">
+      <input type="checkbox" class="species-cb" id="bv-cb-${i}" ${active ? 'checked' : ''} onchange="saveBodenvegetation()">
+      <span class="species-label">${bv.name}</span>
+      <input type="range" class="species-slider" id="bv-sl-${i}" min="0" max="100" step="5" value="${pct}" ${!active ? 'disabled' : ''} oninput="document.getElementById('bv-pct-${i}').textContent=this.value+'%'; saveBodenvegetation()">
+      <span class="species-pct" id="bv-pct-${i}">${active ? pct + '%' : ''}</span>
+    </div>`;
+  });
+  container.innerHTML = html;
+  BODENVEGETATION.forEach((_, i) => {
+    document.getElementById(`bv-cb-${i}`).addEventListener('change', function() {
+      const sl = document.getElementById(`bv-sl-${i}`);
+      const pctEl = document.getElementById(`bv-pct-${i}`);
+      sl.disabled = !this.checked;
+      if (!this.checked) { sl.value = 0; pctEl.textContent = ''; }
+      else { sl.value = sl.value || 10; pctEl.textContent = sl.value + '%'; }
+      saveBodenvegetation();
+    });
+  });
+  updateBodenvegetationSum();
+}
+
+function saveBodenvegetation() {
+  const detail = [];
+  const parts = [];
+  BODENVEGETATION.forEach((bv, i) => {
+    const active = document.getElementById(`bv-cb-${i}`).checked;
+    const pct = parseInt(document.getElementById(`bv-sl-${i}`).value) || 0;
+    detail.push({ name: bv.name, active, pct });
+    if (active && pct > 0) parts.push(`${bv.name} ${pct}%`);
+  });
+  app.data.standort.bodenvegetation_detail = detail;
+  app.data.standort.bodenvegetation = parts.join(', ');
+  storage.save(app.data);
+  updateBodenvegetationSum();
+}
+
+function updateBodenvegetationSum() {
+  let total = 0;
+  BODENVEGETATION.forEach((_, i) => {
+    if (document.getElementById(`bv-cb-${i}`).checked) {
+      total += parseInt(document.getElementById(`bv-sl-${i}`).value) || 0;
+    }
+  });
+  const el = document.getElementById('bodenvegetation-sum');
+  el.innerHTML = `<div class="sum-bar sum-ok">📊 Deckung gesamt: ${total}%</div>`;
 }
 
 const GPS_OPTIONS = { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 };
