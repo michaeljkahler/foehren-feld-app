@@ -1,10 +1,8 @@
-const CACHE_NAME = 'foehren-app-v1.3.0';
+const CACHE_NAME = 'foehren-app-v1.4.0';
 const ASSETS = [
   './',
   './foehren-feld-app.html',
-  './manifest.json',
-  'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.wasm'
+  './manifest.json'
 ];
 
 // Install: cache all core assets, activate immediately
@@ -43,7 +41,7 @@ self.addEventListener('fetch', event => {
       )
     );
   } else {
-    // External resources (sql.js CDN): network-first with cache fallback
+    // External resources: network-first with cache fallback
     event.respondWith(
       fetch(event.request).then(response => {
         if (response.ok) {

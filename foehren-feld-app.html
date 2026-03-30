@@ -923,6 +923,7 @@
         </div>
       </form>
       <div id="diplodia-summary"></div>
+      <button class="btn btn-secondary btn-full" style="margin-top: 1.5rem;" onclick="backupToJSON()">💾 Zwischenstand sichern (JSON)</button>
     </div>
   </section>
 
@@ -954,12 +955,13 @@
       </div>
       <div id="spinner-trees-container"></div>
       <div id="spinner-summary" style="margin-top: 1.5rem;"></div>
+      <button class="btn btn-secondary btn-full" style="margin-top: 1.5rem;" onclick="backupToJSON()">💾 Zwischenstand sichern (JSON)</button>
     </div>
   </section>
 
   <!-- MODUL C: BLUTZIKADE -->
   <section id="section-blutzikade" class="section">
-    <div class="page">
+    <div class="page" id="c1-page">
       <h2 style="margin-bottom: 1rem; color: var(--color-primary);">🪤 Kiefernblutzikade</h2>
       <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">C1: Klebefallen Installation (Termin 1)</h3>
       <div class="info-box">
@@ -984,6 +986,7 @@
       </div>
       <div id="c2b-fallen-container"></div>
       <div id="blutzikade-summary" style="margin-top: 1.5rem;"></div>
+      <button class="btn btn-secondary btn-full" style="margin-top: 1.5rem;" onclick="backupToJSON()">💾 Zwischenstand sichern (JSON)</button>
     </div>
   </section>
 
@@ -991,11 +994,11 @@
   <section id="section-export" class="section">
     <div class="page">
       <h2 style="margin-bottom: 1rem; color: var(--color-primary);">📤 Daten exportieren</h2>
+      <div id="export-termin-info" class="info-box" style="margin-bottom: 1rem;"></div>
       <div id="export-status" style="margin-bottom: 1rem;"></div>
-      <p style="margin-bottom: 1.5rem; color: var(--color-muted); font-size: 0.9rem;">Export enthält immer <strong>alle vorhandenen Daten</strong> aus allen Modulen. Leere Felder werden als leer exportiert.</p>
+      <p style="margin-bottom: 1.5rem; color: var(--color-muted); font-size: 0.9rem;">Export enthält immer <strong>alle vorhandenen Daten</strong> aus allen Modulen.</p>
       <button class="btn btn-full" style="margin-bottom: 0.5rem;" onclick="exportCSV()">📄 CSV exportieren (3 Dateien)</button>
-      <button class="btn btn-full" style="margin-bottom: 0.5rem;" onclick="exportGeoJSON()">🗺️ GeoJSON exportieren</button>
-      <button class="btn btn-full" style="margin-bottom: 1.5rem;" onclick="exportGeoPackage()">📦 GeoPackage exportieren</button>
+      <button class="btn btn-full" style="margin-bottom: 1.5rem;" onclick="exportGeoJSON()">🗺️ GeoJSON exportieren</button>
       <hr style="border: none; border-top: 2px solid var(--color-border); margin: 1.5rem 0;">
       <h3 style="margin-bottom: 0.75rem; color: var(--color-primary); font-size: 1rem;">💾 Datensicherung (JSON)</h3>
       <p style="margin-bottom: 0.75rem; color: var(--color-muted); font-size: 0.85rem;">Zwischenstände sichern und bei Termin 2 wieder laden:</p>
@@ -1937,18 +1940,19 @@ function updateSpinnerSummary() {
 }
 
 function updateC2C2bPages() {
+  const c1_page = document.getElementById('c1-page');
   const c2_page = document.getElementById('c2-page');
   const c2b_page = document.getElementById('c2b-page');
   const small_trees = app.data.baeume.filter(b => b.bhd_klasse === '<20cm');
-  if (small_trees.length > 0) {
-    c2_page.style.display = 'block';
-  }
-  if (app.data.blutzikade.fallen && app.data.blutzikade.fallen.length > 0) {
-    c2b_page.style.display = 'block';
-  }
-  initC1();
-  initC2();
-  initC2b();
+
+  // Termin 1: nur C1 (Klebefallen Installation)
+  // Termin 2: nur C2 (Saugschäden) + C2b (Klebefallen Abbau)
+  c1_page.style.display = currentTermin === 1 ? 'block' : 'none';
+  c2_page.style.display = currentTermin === 2 && small_trees.length > 0 ? 'block' : 'none';
+  c2b_page.style.display = currentTermin === 2 && app.data.blutzikade.fallen && app.data.blutzikade.fallen.length > 0 ? 'block' : 'none';
+
+  if (currentTermin === 1) initC1();
+  if (currentTermin === 2) { initC2(); initC2b(); }
 }
 
 function initC1() {
@@ -2583,7 +2587,8 @@ function exportGeoJSON() {
   URL.revokeObjectURL(link.href);
 }
 
-async function exportGeoPackage() {
+/* GeoPackage-Export entfernt — GeoJSON reicht für QGIS-Import.
+async function exportGeoPackage_REMOVED() {
   const standort = app.data.standort || {};
   const baeume = app.data.baeume || [];
   const blutzikade = app.data.blutzikade || {};
@@ -2768,8 +2773,16 @@ async function exportGeoPackage() {
     console.error(err);
   }
 }
+*/
 
 function updateExportStatus() {
+  // Termin-Info
+  const tInfo = document.getElementById('export-termin-info');
+  if (tInfo) {
+    tInfo.innerHTML = currentTermin === 1
+      ? '📋 <strong>Termin 1:</strong> Export enthält Standort, Bäume, Diplodia-Befall, Klebefallen-Installation. <br>⚠️ Sichern Sie danach unbedingt ein JSON-Backup für Termin 2!'
+      : '📋 <strong>Termin 2:</strong> Export enthält alle T1-Daten + Spinner, Saugschäden, Klebefallen-Abbau.';
+  }
   const el = document.getElementById('export-status');
   if (!el) return;
   const baeume = app.data.baeume || [];
