@@ -474,6 +474,38 @@
     input[type="file"] {
       display: none;
     }
+
+    .termin-bar {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      background: var(--color-bg-dark);
+      border-radius: 8px;
+    }
+
+    .termin-btn {
+      flex: 1;
+      padding: 0.75rem;
+      border: 2px solid transparent;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.6);
+      transition: all 0.2s;
+    }
+
+    .termin-btn.active {
+      background: var(--color-primary-lt);
+      color: white;
+      border-color: var(--color-accent);
+    }
+
+    .nav-btn.hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -482,6 +514,10 @@
   <header>
     <h1>🌲 Föhrengesundheit</h1>
     <p>Feldaufnahme-App v1.0</p>
+    <div class="termin-bar">
+      <button class="termin-btn active" onclick="switchTermin(1)">Termin 1 (Apr)</button>
+      <button class="termin-btn" onclick="switchTermin(2)">Termin 2 (Mai)</button>
+    </div>
   </header>
 
   <!-- MODUL 0: STANDORT -->
@@ -494,7 +530,8 @@
       <div id="empty-state-banner" class="empty-state" style="display: none;">
         <div class="empty-state-title">📂 Keine Daten vorhanden</div>
         <div class="empty-state-text">Falls Sie bereits Daten bei Termin 1 erfasst haben, laden Sie Ihr Backup:</div>
-        <button class="btn btn-secondary btn-full" onclick="triggerBackupLoad()">📂 JSON-Backup laden</button>
+        <button class="btn btn-secondary btn-full" style="margin-bottom: 0.5rem;" onclick="triggerBackupLoad()">📂 JSON-Backup laden</button>
+        <button class="btn btn-full" onclick="document.getElementById('empty-state-banner').style.display='none'">🌲 Neue Aufnahme starten</button>
       </div>
 
       <form id="form-standort">
@@ -688,6 +725,9 @@
 
     <div class="page" style="display: none;" id="c2b-page">
       <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">C2b: Klebefallen Abbau (Termin 2)</h3>
+      <div class="info-box">
+        📋 <strong>Abbau-Vorgaben:</strong> Fallen vorsichtig abnehmen und in Cellophanfolie einwickeln. In Zip-Beutel verpacken und im Kühlschrank lagern. Bestimmung an HAFL unter Stereolupe: Adulte Blutzikaden ~7 mm, rot-schwarz. Verdachtsproben zur Validierung an WSS einsenden.
+      </div>
       <div id="c2b-fallen-container"></div>
       <div id="blutzikade-summary" style="margin-top: 1.5rem;"></div>
     </div>
@@ -717,23 +757,23 @@
 </div>
 
 <nav>
-  <button class="nav-btn active" data-section="section-standort" onclick="switchSection('section-standort')">
+  <button class="nav-btn active" data-section="section-standort" data-termin="1" onclick="switchSection('section-standort')">
     <span class="nav-icon">🗺️</span>
     <span>Standort</span>
   </button>
-  <button class="nav-btn" data-section="section-diplodia" onclick="switchSection('section-diplodia')">
+  <button class="nav-btn" data-section="section-diplodia" data-termin="1" onclick="switchSection('section-diplodia')">
     <span class="nav-icon">🍄</span>
     <span>Diplodia</span>
   </button>
-  <button class="nav-btn" data-section="section-spinner" onclick="switchSection('section-spinner')">
+  <button class="nav-btn" data-section="section-spinner" data-termin="2" onclick="switchSection('section-spinner')">
     <span class="nav-icon">🐛</span>
     <span>Spinner</span>
   </button>
-  <button class="nav-btn" data-section="section-blutzikade" onclick="switchSection('section-blutzikade')">
+  <button class="nav-btn" data-section="section-blutzikade" data-termin="12" onclick="switchSection('section-blutzikade')">
     <span class="nav-icon">🪤</span>
     <span>Blutzikade</span>
   </button>
-  <button class="nav-btn" data-section="section-export" onclick="switchSection('section-export')">
+  <button class="nav-btn" data-section="section-export" data-termin="12" onclick="switchSection('section-export')">
     <span class="nav-icon">📤</span>
     <span>Export</span>
   </button>
@@ -844,6 +884,29 @@ function switchSection(sectionId) {
   }
 }
 
+let currentTermin = 1;
+
+function switchTermin(termin) {
+  currentTermin = termin;
+  document.querySelectorAll('.termin-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === termin - 1);
+  });
+  // Show/hide nav buttons based on termin
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    const dt = btn.dataset.termin;
+    if (dt.includes(String(termin))) {
+      btn.classList.remove('hidden');
+    } else {
+      btn.classList.add('hidden');
+    }
+  });
+  // Switch to first visible section of this termin
+  const firstBtn = document.querySelector(`.nav-btn:not(.hidden)`);
+  if (firstBtn) {
+    switchSection(firstBtn.dataset.section);
+  }
+}
+
 function initStandort() {
   const fields = ['plot_id', 'aufnehmer', 'datum_t1', 'datum_t2', 'hoehe_mue', 'exposition', 'baumarten_mischung', 'bodenvegetation', 'bodentyp', 'waldgesellschaft', 'bemerkungen_standort'];
   fields.forEach(field => {
@@ -909,17 +972,25 @@ function updateGPSWidget(elemId, lat, lon, acc, lv95) {
 }
 
 function addTree(bhd_class) {
-  const bhd_trees = app.data.baeume.filter(b => b.bhd_klasse === (bhd_class === 'large' ? '>20cm' : '<20cm'));
+  const prefix = bhd_class === 'large' ? 'BHD>20' : 'BHD<20';
+  const klasse = bhd_class === 'large' ? '>20cm' : '<20cm';
+  const bhd_trees = app.data.baeume.filter(b => b.bhd_klasse === klasse);
   if (bhd_trees.length >= 20) {
     alert('Maximum 20 Bäume pro Klasse erreicht');
     return;
   }
-  const next_num = bhd_trees.length + 1;
-  const bhd_id = bhd_class === 'large' ? `BHD>20_${next_num}` : `BHD<20_${next_num}`;
+  // Find next free number (avoids duplicates after deletion)
+  const existing_nums = bhd_trees.map(b => {
+    const m = b.baum_id.match(/_(\d+)$/);
+    return m ? parseInt(m[1]) : 0;
+  });
+  let next_num = 1;
+  while (existing_nums.includes(next_num)) next_num++;
+  const bhd_id = `${prefix}_${next_num}`;
   const tree = {
     baum_id: bhd_id,
-    bhd_klasse: bhd_class === 'large' ? '>20cm' : '<20cm',
-    bhd_cm: 0,
+    bhd_klasse: klasse,
+    bhd_cm: null,
     lat: null,
     lon: null,
     e_lv95: null,
@@ -1239,6 +1310,15 @@ function updateDiplodiaKrone(baum_id, field, value) {
   const krone = app.data.diplodia.kronen.find(k => k.baum_id === baum_id);
   if (krone) {
     krone[field] = parseInt(value) || 0;
+    // Validate: infiziert <= total for each branch
+    for (let i = 1; i <= 3; i++) {
+      const total = krone[`ast${i}_triebe_total`];
+      const infiz = krone[`ast${i}_triebe_infiziert`];
+      if (infiz > total) {
+        krone[`ast${i}_triebe_infiziert`] = total;
+        alert(`Ast ${i}: Infizierte Triebe (${infiz}) auf Total (${total}) korrigiert.`);
+      }
+    }
     krone.befallsintensitaet_pct = calculateDiplodiaIntensity(krone);
     krone.befallskategorie = getDiplodiaCategory(krone.befallsintensitaet_pct);
     storage.save(app.data);
@@ -2038,22 +2118,22 @@ function exportGeoJSON() {
 }
 
 async function exportGeoPackage() {
-  const standort = storage.get('standort') || {};
-  const baeume = storage.get('baeume') || [];
-  const blutzikade = storage.get('blutzikade') || {};
-  const diplodia = storage.get('diplodia') || {};
-  const spinnerData = storage.get('spinner') || [];
+  const standort = app.data.standort || {};
+  const baeume = app.data.baeume || [];
+  const blutzikade = app.data.blutzikade || {};
+  const diplodia = app.data.diplodia || {};
+  const spinnerData = app.data.spinner || [];
   const plot_id = standort.plot_id || 'unbekannt';
   const date_str = new Date().toISOString().split('T')[0];
 
-  // Load sql.js dynamically
+  // Load sql.js dynamically (cached by Service Worker for offline use)
   if (typeof initSqlJs === 'undefined') {
     try {
       await new Promise((resolve, reject) => {
         const s = document.createElement('script');
         s.src = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js';
         s.onload = resolve;
-        s.onerror = () => reject(new Error('sql.js konnte nicht geladen werden. Internetverbindung prüfen.'));
+        s.onerror = () => reject(new Error('sql.js konnte nicht geladen werden. Bitte einmal mit Internetverbindung die App öffnen, damit sql.js für den Offline-Betrieb gecached wird.'));
         document.head.appendChild(s);
       });
     } catch (e) {

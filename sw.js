@@ -1,8 +1,10 @@
-const CACHE_NAME = 'foehren-app-v1.0.0';
+const CACHE_NAME = 'foehren-app-v1.1.0';
 const ASSETS = [
   './',
   './foehren-feld-app.html',
-  './manifest.json'
+  './manifest.json',
+  'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.wasm'
 ];
 
 // Install: cache all core assets
