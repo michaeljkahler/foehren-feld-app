@@ -3,6 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Föhren-App">
+  <meta name="theme-color" content="#2D5A27">
+  <link rel="manifest" href="manifest.json">
   <title>Föhrengesundheit Feld-App</title>
   <style>
     :root {
@@ -863,7 +868,12 @@ function initStandort() {
   renderTrees();
 }
 
+const GPS_OPTIONS = { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 };
+
 function captureStandortGPS() {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.textContent = '📍 GPS wird gesucht…';
   navigator.geolocation.getCurrentPosition(
     (pos) => {
       const lat = pos.coords.latitude;
@@ -877,8 +887,15 @@ function captureStandortGPS() {
       app.data.standort.koordinate_accuracy = acc;
       storage.save(app.data);
       updateGPSWidget('gps-standort', lat, lon, acc, lv95);
+      btn.disabled = false;
+      btn.textContent = '📍 GPS aktualisieren';
     },
-    (err) => alert('GPS nicht verfügbar: ' + err.message)
+    (err) => {
+      alert('GPS nicht verfügbar: ' + err.message);
+      btn.disabled = false;
+      btn.textContent = '📍 GPS holen';
+    },
+    GPS_OPTIONS
   );
 }
 
@@ -1027,6 +1044,9 @@ function updateSliderDisplay(slider_id) {
 }
 
 function captureTreeGPS(baum_id) {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.textContent = '📍 GPS wird gesucht…';
   navigator.geolocation.getCurrentPosition(
     (pos) => {
       const lat = pos.coords.latitude;
@@ -1039,14 +1059,22 @@ function captureTreeGPS(baum_id) {
       tree.e_lv95 = lv95.E;
       tree.n_lv95 = lv95.N;
       tree.gps_accuracy = acc;
+      storage.save(app.data);
       const widget = document.getElementById('edit-gps-widget');
       widget.innerHTML = `
         <div class="gps-widget-row"><span class="gps-widget-label">📍 GPS:</span> <span class="gps-widget-value">${lat.toFixed(4)}° N | ${lon.toFixed(4)}° E</span></div>
         <div class="gps-widget-row"><span class="gps-widget-label">LV95:</span> <span class="gps-widget-value">E ${lv95.E.toLocaleString('de-CH')} | N ${lv95.N.toLocaleString('de-CH')}</span></div>
         <div class="gps-widget-row"><span class="gps-widget-label">Genauigkeit:</span> <span class="gps-widget-value">±${acc}m</span></div>
       `;
+      btn.disabled = false;
+      btn.textContent = '📍 GPS aktualisieren';
     },
-    (err) => alert('GPS nicht verfügbar: ' + err.message)
+    (err) => {
+      alert('GPS nicht verfügbar: ' + err.message);
+      btn.disabled = false;
+      btn.textContent = '📍 GPS holen';
+    },
+    GPS_OPTIONS
   );
 }
 
@@ -1471,6 +1499,9 @@ function updateC1Field(falle_num, field, value) {
 }
 
 function captureC1GPS(falle_num) {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.textContent = '📍 GPS wird gesucht…';
   navigator.geolocation.getCurrentPosition(
     (pos) => {
       const lat = pos.coords.latitude;
@@ -1490,8 +1521,15 @@ function captureC1GPS(falle_num) {
         <div class="gps-widget-row"><span class="gps-widget-label">Genauigkeit:</span> <span class="gps-widget-value">±${acc}m</span></div>
       `;
       storage.save(app.data);
+      btn.disabled = false;
+      btn.textContent = '📍 GPS aktualisieren';
     },
-    (err) => alert('GPS nicht verfügbar: ' + err.message)
+    (err) => {
+      alert('GPS nicht verfügbar: ' + err.message);
+      btn.disabled = false;
+      btn.textContent = '📍 GPS holen';
+    },
+    GPS_OPTIONS
   );
 }
 
@@ -2246,6 +2284,17 @@ function checkEmptyState() {
   } else {
     banner.style.display = 'none';
   }
+}
+
+// Service Worker Registration for Offline Support
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      console.log('Service Worker registriert:', reg.scope);
+    }).catch(err => {
+      console.warn('Service Worker Registrierung fehlgeschlagen:', err);
+    });
+  });
 }
 </script>
 
