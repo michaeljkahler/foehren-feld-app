@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Föhren-App">
+  <meta name="apple-mobile-web-app-title" content="Appli Pins">
   <meta name="theme-color" content="#2D5A27">
   <link rel="manifest" href="manifest.json">
-  <title>Föhrengesundheit Feld-App</title>
+  <title>Santé des pins - Application terrain</title>
   <style>
     :root {
       --color-primary: #2D5A27;
@@ -599,49 +599,49 @@
 <div class="container">
   <header>
     <div style="display:flex; justify-content:space-between; align-items:center;">
-      <h1 style="margin:0;">🌲 Föhrengesundheit</h1>
-      <a href="foehren-feld-app-fr.html" style="color:white; background:rgba(255,255,255,0.2); padding:0.3rem 0.6rem; border-radius:4px; text-decoration:none; font-size:0.8rem; font-weight:600;">🇫🇷 FR</a>
+      <h1 style="margin:0;">🌲 Santé des pins</h1>
+      <a href="foehren-feld-app.html" style="color:white; background:rgba(255,255,255,0.2); padding:0.3rem 0.6rem; border-radius:4px; text-decoration:none; font-size:0.8rem; font-weight:600;">🇩🇪 DE</a>
     </div>
-    <p>Feldaufnahme-App v1.0</p>
+    <p>Application de relevé terrain v1.0</p>
     <div class="termin-bar">
-      <button class="termin-btn active" onclick="switchTermin(1)">Termin 1 (Apr)</button>
-      <button class="termin-btn" onclick="switchTermin(2)">Termin 2 (Mai)</button>
+      <button class="termin-btn active" onclick="switchTermin(1)">Campagne 1 (avr)</button>
+      <button class="termin-btn" onclick="switchTermin(2)">Campagne 2 (mai)</button>
     </div>
   </header>
 
   <!-- MODUL 0: STANDORT -->
   <section id="section-standort" class="section active">
     <div class="page">
-      <h2 style="margin-bottom: 1rem; color: var(--color-primary);">🗺️ Standort & Bestandesaufnahme</h2>
+      <h2 style="margin-bottom: 1rem; color: var(--color-primary);">🗺️ Site & inventaire</h2>
       <div style="margin-bottom: 1.5rem;">
-        <button class="btn btn-secondary btn-full" onclick="triggerBackupLoad()">📂 Daten laden (JSON)</button>
+        <button class="btn btn-secondary btn-full" onclick="triggerBackupLoad()">📂 Charger données (JSON)</button>
       </div>
       <div id="empty-state-banner" class="empty-state" style="display: none;">
-        <div class="empty-state-title">📂 Keine Daten vorhanden</div>
-        <div class="empty-state-text">Falls Sie bereits Daten bei Termin 1 erfasst haben, laden Sie Ihr Backup:</div>
-        <button class="btn btn-secondary btn-full" style="margin-bottom: 0.5rem;" onclick="triggerBackupLoad()">📂 JSON-Backup laden</button>
-        <button class="btn btn-full" onclick="document.getElementById('empty-state-banner').style.display='none'">🌲 Neue Aufnahme starten</button>
+        <div class="empty-state-title">📂 Aucune donnée disponible</div>
+        <div class="empty-state-text">Si vous avez déjà saisi des données lors de la campagne 1, chargez votre sauvegarde :</div>
+        <button class="btn btn-secondary btn-full" style="margin-bottom: 0.5rem;" onclick="triggerBackupLoad()">📂 Charger sauvegarde JSON</button>
+        <button class="btn btn-full" onclick="document.getElementById('empty-state-banner').style.display='none'">🌲 Démarrer un nouveau relevé</button>
       </div>
 
       <form id="form-standort">
         <!-- Gruppe 1: Aufnahme-Info (immer offen) -->
         <details class="field-group" open>
-          <summary>📋 Aufnahme-Info</summary>
+          <summary>📋 Informations de relevé</summary>
           <div class="field-group-content">
             <div class="form-group">
-              <label>Plot-ID *</label>
-              <input type="text" id="plot_id" placeholder="z.B. SH_01" required>
+              <label>ID du plot *</label>
+              <input type="text" id="plot_id" placeholder="p. ex. SH_01" required>
             </div>
             <div class="form-group">
-              <label>Aufnehmer *</label>
-              <input type="text" id="aufnehmer" placeholder="Name" required>
+              <label>Opérateur *</label>
+              <input type="text" id="aufnehmer" placeholder="Nom" required>
             </div>
             <div class="form-group">
-              <label>Datum Termin 1 *</label>
+              <label>Date campagne 1 *</label>
               <input type="date" id="datum_t1" required>
             </div>
             <div class="form-group">
-              <label>Datum Termin 2 *</label>
+              <label>Date campagne 2 *</label>
               <input type="date" id="datum_t2" required>
             </div>
           </div>
@@ -649,24 +649,24 @@
 
         <!-- Gruppe 2: GPS & Lage -->
         <details class="field-group" open>
-          <summary>📍 GPS & Lage</summary>
+          <summary>📍 GPS & situation</summary>
           <div class="field-group-content">
             <div class="form-group">
-              <label>GPS Standort *</label>
+              <label>GPS du site *</label>
               <div id="gps-standort" class="gps-widget">
-                <div class="gps-widget-row"><span class="gps-widget-label">Status:</span> <span class="gps-widget-value">Nicht erfasst</span></div>
+                <div class="gps-widget-row"><span class="gps-widget-label">Statut :</span> <span class="gps-widget-value">Non relevé</span></div>
               </div>
-              <button type="button" class="btn btn-full" onclick="captureStandortGPS()">📍 GPS holen</button>
+              <button type="button" class="btn btn-full" onclick="captureStandortGPS()">📍 Obtenir GPS</button>
             </div>
             <div class="form-group">
-              <label>Höhe ü.M. (m) *</label>
-              <input type="number" id="hoehe_mue" placeholder="z.B. 520 (auto bei GPS)" required>
+              <label>Altitude (m) *</label>
+              <input type="number" id="hoehe_mue" placeholder="p. ex. 520 (auto avec GPS)" required>
               <div id="hoehe-auto-status" style="font-size: 0.8rem; color: var(--color-muted); margin-top: 0.25rem;"></div>
             </div>
             <div class="form-group">
-              <label>Vegetationshöhenstufe (NaiS)</label>
+              <label>Étage de végétation (NaiS)</label>
               <select id="vegetationshoehenstufe">
-                <option value="">-- Wählen / Auto bei GPS --</option>
+                <option value="">-- Choisir / Auto avec GPS --</option>
                 <option value="collin">collin</option>
                 <option value="hyperinsubrisch">hyperinsubrisch</option>
                 <option value="collin mit Buche">collin mit Buche</option>
@@ -684,16 +684,16 @@
             <div class="form-group">
               <label>Exposition *</label>
               <select id="exposition" required>
-                <option value="">-- Wählen --</option>
+                <option value="">-- Choisir --</option>
                 <option value="N">N (Nord)</option>
-                <option value="NO">NO (Nordost)</option>
-                <option value="O">O (Ost)</option>
-                <option value="SO">SO (Südost)</option>
-                <option value="S">S (Süd)</option>
-                <option value="SW">SW (Südwest)</option>
-                <option value="W">W (West)</option>
-                <option value="NW">NW (Nordwest)</option>
-                <option value="eben">eben</option>
+                <option value="NO">NO (Nord-est)</option>
+                <option value="O">O (Est)</option>
+                <option value="SO">SO (Sud-est)</option>
+                <option value="S">S (Sud)</option>
+                <option value="SW">SW (Sud-ouest)</option>
+                <option value="W">W (Ouest)</option>
+                <option value="NW">NW (Nord-ouest)</option>
+                <option value="eben">plat</option>
               </select>
             </div>
           </div>
@@ -701,21 +701,21 @@
 
         <!-- Gruppe 3: Bestandesbeschreibung -->
         <details class="field-group">
-          <summary>🌲 Bestandesbeschreibung</summary>
+          <summary>🌲 Description du peuplement</summary>
           <div class="field-group-content">
             <div class="form-group">
-              <label>Baumartenmischung *</label>
+              <label>Mélange des essences *</label>
               <div id="baumarten-container"></div>
               <div id="baumarten-sum"></div>
             </div>
             <div class="form-group">
-              <label>Bodenvegetation *</label>
+              <label>Végétation au sol *</label>
               <div id="bodenvegetation-container"></div>
               <div id="bodenvegetation-sum"></div>
             </div>
             <div class="form-group">
-              <label>Waldgesellschaft (NaiS) *</label>
-          <input type="text" id="waldgesellschaft" list="nais-types" placeholder="Tippen zum Suchen (Nr. oder Name)" autocomplete="off" required>
+              <label>Association forestière (NaiS) *</label>
+          <input type="text" id="waldgesellschaft" list="nais-types" placeholder="Taper pour chercher (n° ou nom)" autocomplete="off" required>
           <datalist id="nais-types">
             <option value="1 - Typischer Hainsimsen-Bu-Wald">
             <option value="1h - Artenarmer Waldsimsen-Ta-Bu-Wald">
@@ -908,11 +908,11 @@
 
         <!-- Gruppe 4: Bemerkungen -->
         <details class="field-group">
-          <summary>📝 Bemerkungen</summary>
+          <summary>📝 Remarques</summary>
           <div class="field-group-content">
             <div class="form-group">
-              <label>Bemerkungen</label>
-              <textarea id="bemerkungen_standort" placeholder="Optional"></textarea>
+              <label>Remarques</label>
+              <textarea id="bemerkungen_standort" placeholder="Facultatif"></textarea>
             </div>
           </div>
         </details>
@@ -921,26 +921,26 @@
 
     <div class="page">
       <details class="field-group" open>
-        <summary>🌳 Einzelbaum-Erfassung</summary>
+        <summary>🌳 Relevé par arbre</summary>
         <div class="field-group-content">
           <div class="info-box">
-            💡 <strong>Hinweis:</strong> Bäume nach der Messung mit Kreide oder Bändeli markieren, damit sie bei Termin 2 wiedergefunden werden.
+            💡 <strong>Remarque :</strong> Marquer les arbres après la mesure avec de la craie ou ruban afin de les retrouver lors de la campagne 2.
           </div>
           <div style="margin-bottom: 1rem;">
-            <div class="progress-text">Bäume BHD >20 cm:</div>
+            <div class="progress-text">Arbres DHP >20 cm :</div>
             <div class="progress-bar">
               <div id="progress-bhd-large" class="progress-fill" style="width: 0%">0 / 20</div>
             </div>
           </div>
           <div style="margin-bottom: 1.5rem;">
-            <div class="progress-text">Bäume BHD <20 cm:</div>
+            <div class="progress-text">Arbres DHP <20 cm :</div>
             <div class="progress-bar">
               <div id="progress-bhd-small" class="progress-fill" style="width: 0%">0 / 20</div>
             </div>
           </div>
           <div class="btn-group">
-            <button class="btn" id="btn-add-large" onclick="addTree('large')">+ BHD >20 cm</button>
-            <button class="btn" id="btn-add-small" onclick="addTree('small')">+ BHD <20 cm</button>
+            <button class="btn" id="btn-add-large" onclick="addTree('large')">+ DHP >20 cm</button>
+            <button class="btn" id="btn-add-small" onclick="addTree('small')">+ DHP <20 cm</button>
           </div>
           <div id="trees-container"></div>
         </div>
@@ -952,47 +952,47 @@
   <section id="section-diplodia" class="section">
     <div class="page">
       <h2 style="margin-bottom: 1rem; color: var(--color-primary);">🍄 Diplodia sapinea</h2>
-      <h3 style="margin-top: 1.5rem; margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">A1: Zapfenbefall</h3>
+      <h3 style="margin-top: 1.5rem; margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">A1 : Infection des cônes</h3>
       <div class="info-box">
-        📝 <strong>Vorgaben:</strong> 20 Zapfen zufällig aufheben (noch nicht abgebaut) und in Papiersack mitnehmen. Sack beschriften: Standort, Baumnummer, Datum, Name.
+        📝 <strong>Consignes :</strong> Ramasser 20 cônes au hasard (pas encore dégradés) et les emporter dans un sac en papier. Étiqueter le sac : site, numéro d'arbre, date, nom.
       </div>
       <form id="form-diplodia-zapfen">
         <div class="form-group">
-          <label>Anzahl gesammelte Zapfen *</label>
-          <input type="number" id="diplodia_zapfen_anzahl" min="0" placeholder="Ziel: 20" required>
+          <label>Nombre de cônes récoltés *</label>
+          <input type="number" id="diplodia_zapfen_anzahl" min="0" placeholder="Objectif : 20" required>
         </div>
         <div class="form-group">
-          <label>Sack-Bezeichnung *</label>
-          <input type="text" id="diplodia_zapfen_sack_id" placeholder="z.B. ZAP-SH01-2026" required>
+          <label>ID du sac *</label>
+          <input type="text" id="diplodia_zapfen_sack_id" placeholder="p. ex. ZAP-SH01-2026" required>
         </div>
         <div class="form-group">
-          <label>Bemerkungen</label>
-          <textarea id="diplodia_zapfen_bemerkung" placeholder="Optional"></textarea>
+          <label>Remarques</label>
+          <textarea id="diplodia_zapfen_bemerkung" placeholder="Facultatif"></textarea>
         </div>
       </form>
     </div>
 
     <div class="page">
-      <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">A2: Kronenbefall (10 Bäume BHD >20)</h3>
+      <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">A2 : Infection de la couronne (10 arbres DHP >20)</h3>
       <div class="info-box">
-        📝 <strong>Vorgaben:</strong> 10 zufällig ausgewählte Bäume BHD >20 cm, pro Baum 3 Äste mit Triebzählung.
+        📝 <strong>Consignes :</strong> 10 arbres choisis au hasard DHP >20 cm, par arbre 3 branches avec comptage des pousses.
       </div>
       <div id="diplodia-kronen-container"></div>
     </div>
 
     <div class="page">
-      <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">A3: Methodenkritik</h3>
+      <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">A3 : Critique méthodologique</h3>
       <div class="info-box">
-        📝 <strong>Aufgabe:</strong> Stimmt die berechnete Befallsintensität mit Ihrem Gesamteindruck im Feld überein? Falls nein: Warum weichen sie ab?
+        📝 <strong>Tâche :</strong> L'intensité d'infection calculée correspond-elle à votre impression générale sur le terrain ? Si non : pourquoi y a-t-il un écart ?
       </div>
       <form id="form-diplodia-methodenkritik">
         <div class="form-group">
-          <label>Methodenkritik *</label>
-          <textarea id="diplodia_methodenkritik" placeholder="Ihre Einschätzung..." required></textarea>
+          <label>Critique méthodologique *</label>
+          <textarea id="diplodia_methodenkritik" placeholder="Votre évaluation..." required></textarea>
         </div>
       </form>
       <div id="diplodia-summary"></div>
-      <button class="btn btn-secondary btn-full" style="margin-top: 1.5rem;" onclick="backupToJSON()">💾 Zwischenstand sichern (JSON)</button>
+      <button class="btn btn-secondary btn-full" style="margin-top: 1.5rem;" onclick="backupToJSON()">💾 Sauvegarder l'état actuel (JSON)</button>
     </div>
   </section>
 
@@ -1000,84 +1000,84 @@
   <section id="section-spinner" class="section">
     <div id="safety-modal" class="modal">
       <div class="modal-content">
-        <div class="modal-title">⚠️ SICHERHEITSHINWEIS</div>
-        <div style="font-weight: bold; margin-bottom: 1rem; color: var(--color-primary);">Föhrenprozessionsspinner</div>
+        <div class="modal-title">⚠️ AVERTISSEMENT DE SÉCURITÉ</div>
+        <div style="font-weight: bold; margin-bottom: 1rem; color: var(--color-primary);">Processionnaire du pin</div>
         <div class="modal-text">
-          Die Raupen bilden ab dem 3. Larvenstadium <strong>BRENNHAARE</strong>, die starke Entzündungen von Augenschleimhäuten und Atemwegen sowie Allergien auslösen können.
+          Les chenilles forment à partir du 3e stade larvaire des <strong>POILS URTICANTS</strong> pouvant provoquer de fortes inflammations des muqueuses oculaires et des voies respiratoires ainsi que des allergies.
         </div>
         <div class="modal-list">
           <ul>
-            <li>🚫 Raupen NICHT berühren</li>
-            <li>🚫 Gespinstnester NICHT berühren</li>
-            <li>🚫 Auch ältere, verlassene Nester sind gefährlich</li>
-            <li>👖 Lange Hosen tragen</li>
+            <li>🚫 NE PAS toucher les chenilles</li>
+            <li>🚫 NE PAS toucher les nids</li>
+            <li>🚫 Les anciens nids abandonnés sont aussi dangereux</li>
+            <li>👖 Porter des pantalons longs</li>
           </ul>
         </div>
-        <button class="btn btn-full" onclick="closeSafetyModal()">Ich habe verstanden — Weiter</button>
+        <button class="btn btn-full" onclick="closeSafetyModal()">J'ai compris — Continuer</button>
       </div>
     </div>
 
     <div class="page">
-      <h2 style="margin-bottom: 1rem; color: var(--color-primary);">🐛 Föhrenprozessionsspinner</h2>
+      <h2 style="margin-bottom: 1rem; color: var(--color-primary);">🐛 Processionnaire du pin</h2>
       <div class="info-box">
-        📝 <strong>Aufgabe:</strong> ALLE Bäume kontrollieren. BHD >20 cm mit Fernglas, BHD <20 cm ohne Hilfsmittel. Pro Baum: Anzahl Gespinstnester notieren.
+        📝 <strong>Tâche :</strong> Contrôler TOUS les arbres. DHP >20 cm avec jumelles, DHP <20 cm sans instrument. Par arbre : noter le nombre de nids.
       </div>
       <div id="spinner-trees-container"></div>
       <div id="spinner-summary" style="margin-top: 1.5rem;"></div>
-      <button class="btn btn-secondary btn-full" style="margin-top: 1.5rem;" onclick="backupToJSON()">💾 Zwischenstand sichern (JSON)</button>
+      <button class="btn btn-secondary btn-full" style="margin-top: 1.5rem;" onclick="backupToJSON()">💾 Sauvegarder l'état actuel (JSON)</button>
     </div>
   </section>
 
   <!-- MODUL C: BLUTZIKADE -->
   <section id="section-blutzikade" class="section">
     <div class="page" id="c1-page">
-      <h2 style="margin-bottom: 1rem; color: var(--color-primary);">🪤 Kiefernblutzikade</h2>
-      <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">C1: Klebefallen Installation (Termin 1)</h3>
+      <h2 style="margin-bottom: 1rem; color: var(--color-primary);">🪤 Cicadelle du pin</h2>
+      <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">C1 : Installation des pièges collants (Campagne 1)</h3>
       <div class="info-box">
-        🪤 <strong>Vorgaben:</strong> 5 gelbe Klebefallen (Andermatt Giallo) an sonnenexponierten Jungbäumen (BHD <20 cm) nahe Wiesen installieren. Fallen auf der Sonnenseite fixieren (Kabelbinder).
+        🪤 <strong>Consignes :</strong> Installer 5 pièges collants jaunes (Andermatt Giallo) sur de jeunes arbres exposés au soleil (DHP <20 cm) près des prairies. Fixer les pièges côté soleil (serre-câbles).
       </div>
       <div id="c1-fallen-container"></div>
       <div id="c1-summary" style="margin-top: 1rem;"></div>
     </div>
 
     <div class="page" style="display: none;" id="c2-page">
-      <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">C2: Saugschäden (Termin 2, BHD <20 cm)</h3>
+      <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">C2 : Dégâts de succion (Campagne 2, DHP <20 cm)</h3>
       <div class="info-box">
-        🔍 <strong>Vorgaben:</strong> Pro Baum 5 sonnenexponierte Triebe untersuchen. Saugschäden = ringförmige, gelb-braune Nadelverfärbungen (ältere Nadeljahrgänge). 1 symptomatischen Trieb pro Standort als Beleg schneiden.
+        🔍 <strong>Consignes :</strong> Examiner 5 pousses exposées au soleil par arbre. Dégâts de succion = décolorations annulaires jaune-brun des aiguilles (anciennes pousses). Couper 1 pousse symptomatique par site comme échantillon.
       </div>
       <div id="c2-schaeden-container"></div>
     </div>
 
     <div class="page" style="display: none;" id="c2b-page">
-      <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">C2b: Klebefallen Abbau (Termin 2)</h3>
+      <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">C2b : Retrait des pièges collants (Campagne 2)</h3>
       <div class="info-box">
-        📋 <strong>Abbau-Vorgaben:</strong> Fallen vorsichtig abnehmen und in Cellophanfolie einwickeln. In Zip-Beutel verpacken und im Kühlschrank lagern. Bestimmung an HAFL unter Stereolupe: Adulte Blutzikaden ~7 mm, rot-schwarz. Verdachtsproben zur Validierung an WSS einsenden.
+        📋 <strong>Consignes de retrait :</strong> Retirer les pièges avec précaution et les envelopper dans du film cellophane. Emballer dans des sachets zip et conserver au réfrigérateur. Détermination à la HAFL sous loupe binoculaire : cicadelles adultes ~7 mm, rouge-noir. Envoyer les échantillons suspects au WSS pour validation.
       </div>
       <div id="c2b-fallen-container"></div>
       <div id="blutzikade-summary" style="margin-top: 1.5rem;"></div>
-      <button class="btn btn-secondary btn-full" style="margin-top: 1.5rem;" onclick="backupToJSON()">💾 Zwischenstand sichern (JSON)</button>
+      <button class="btn btn-secondary btn-full" style="margin-top: 1.5rem;" onclick="backupToJSON()">💾 Sauvegarder l'état actuel (JSON)</button>
     </div>
   </section>
 
   <!-- EXPORT -->
   <section id="section-export" class="section">
     <div class="page">
-      <h2 style="margin-bottom: 1rem; color: var(--color-primary);">📤 Daten exportieren</h2>
+      <h2 style="margin-bottom: 1rem; color: var(--color-primary);">📤 Exporter les données</h2>
       <div id="export-termin-info" class="info-box" style="margin-bottom: 1rem;"></div>
       <div id="export-status" style="margin-bottom: 1rem;"></div>
-      <p style="margin-bottom: 1.5rem; color: var(--color-muted); font-size: 0.9rem;">Export enthält immer <strong>alle vorhandenen Daten</strong> aus allen Modulen.</p>
-      <button class="btn btn-full" style="margin-bottom: 0.5rem;" onclick="exportCSV()">📄 CSV exportieren (3 Dateien)</button>
-      <button class="btn btn-full" style="margin-bottom: 1.5rem;" onclick="exportGeoJSON()">🗺️ GeoJSON exportieren</button>
+      <p style="margin-bottom: 1.5rem; color: var(--color-muted); font-size: 0.9rem;">L'export contient toujours <strong>toutes les données disponibles</strong> de tous les modules.</p>
+      <button class="btn btn-full" style="margin-bottom: 0.5rem;" onclick="exportCSV()">📄 Exporter CSV (3 fichiers)</button>
+      <button class="btn btn-full" style="margin-bottom: 1.5rem;" onclick="exportGeoJSON()">🗺️ Exporter GeoJSON</button>
       <hr style="border: none; border-top: 2px solid var(--color-border); margin: 1.5rem 0;">
-      <h3 style="margin-bottom: 0.75rem; color: var(--color-primary); font-size: 1rem;">💾 Datensicherung (JSON)</h3>
-      <p style="margin-bottom: 0.75rem; color: var(--color-muted); font-size: 0.85rem;">Zwischenstände sichern und bei Termin 2 wieder laden:</p>
-      <button class="btn btn-secondary btn-full" style="margin-bottom: 0.5rem;" onclick="backupToJSON()">💾 Daten sichern (JSON)</button>
-      <button class="btn btn-secondary btn-full" onclick="document.getElementById('backup-file-input').click()">📂 Daten laden (JSON)</button>
+      <h3 style="margin-bottom: 0.75rem; color: var(--color-primary); font-size: 1rem;">💾 Sauvegarde des données (JSON)</h3>
+      <p style="margin-bottom: 0.75rem; color: var(--color-muted); font-size: 0.85rem;">Sauvegarder les états intermédiaires et les recharger lors de la campagne 2 :</p>
+      <button class="btn btn-secondary btn-full" style="margin-bottom: 0.5rem;" onclick="backupToJSON()">💾 Sauvegarder (JSON)</button>
+      <button class="btn btn-secondary btn-full" onclick="document.getElementById('backup-file-input').click()">📂 Charger données (JSON)</button>
       <div class="info-box" style="margin-top: 1.5rem;">
-        ⚠️ <strong>Wichtig nach Termin 1:</strong> Sichern Sie Ihre Daten als JSON-Backup, damit sie bei Termin 2 (Mai) verfügbar sind!
+        ⚠️ <strong>Important après la campagne 1 :</strong> Sauvegardez vos données en JSON pour qu'elles soient disponibles lors de la campagne 2 (mai) !
       </div>
       <hr style="border: none; border-top: 2px solid var(--color-border); margin: 1.5rem 0;">
-      <button class="btn btn-danger btn-full" onclick="confirmReset()">🔄 Alle Daten löschen</button>
+      <button class="btn btn-danger btn-full" onclick="confirmReset()">🔄 Supprimer toutes les données</button>
     </div>
   </section>
 </div>
@@ -1085,7 +1085,7 @@
 <nav>
   <button class="nav-btn active" data-section="section-standort" data-termin="1" onclick="switchSection('section-standort')">
     <span class="nav-icon">🗺️</span>
-    <span>Standort</span>
+    <span>Site</span>
   </button>
   <button class="nav-btn" data-section="section-diplodia" data-termin="1" onclick="switchSection('section-diplodia')">
     <span class="nav-icon">🍄</span>
@@ -1093,11 +1093,11 @@
   </button>
   <button class="nav-btn" data-section="section-spinner" data-termin="2" onclick="switchSection('section-spinner')">
     <span class="nav-icon">🐛</span>
-    <span>Spinner</span>
+    <span>Processionnaire</span>
   </button>
   <button class="nav-btn" data-section="section-blutzikade" data-termin="12" onclick="switchSection('section-blutzikade')">
     <span class="nav-icon">🪤</span>
-    <span>Blutzikade</span>
+    <span>Cicadelle</span>
   </button>
   <button class="nav-btn" data-section="section-export" data-termin="12" onclick="switchSection('section-export')">
     <span class="nav-icon">📤</span>
@@ -1264,17 +1264,17 @@ function initStandort() {
 
 // === BAUMARTENMISCHUNG ===
 const BAUMARTEN = [
-  { name: 'Fichte', color: '#5a5a00', code: 'PicAbie' },
-  { name: 'Weisstanne', color: '#b4b400', code: 'AbiAlba' },
-  { name: 'Waldföhre', color: '#f5f51e', code: 'PinSylv' },
-  { name: 'Lärche', color: '#f5f582', code: 'LarDeci' },
-  { name: 'Douglasie', color: '#333333', code: 'PseMenz' },
-  { name: 'Buche', color: '#b4f5f5', code: 'FagSylv' },
-  { name: 'Eiche', color: '#7878eb', code: 'Que' },
-  { name: 'Ahorn', color: '#1e1e96', code: 'AcePseu' },
-  { name: 'Gem. Esche', color: '#0a0ae1', code: 'FraExce' },
-  { name: 'Übr. Nadelholz', color: '#c8c8a0', code: 'ConEtc' },
-  { name: 'Übr. Laubholz', color: '#4a4a6e', code: 'FolEtc' }
+  { name: 'Épicéa', color: '#5a5a00', code: 'PicAbie' },
+  { name: 'Sapin blanc', color: '#b4b400', code: 'AbiAlba' },
+  { name: 'Pin sylvestre', color: '#f5f51e', code: 'PinSylv' },
+  { name: 'Mélèze', color: '#f5f582', code: 'LarDeci' },
+  { name: 'Douglas', color: '#333333', code: 'PseMenz' },
+  { name: 'Hêtre', color: '#b4f5f5', code: 'FagSylv' },
+  { name: 'Chêne', color: '#7878eb', code: 'Que' },
+  { name: 'Érable', color: '#1e1e96', code: 'AcePseu' },
+  { name: 'Frêne', color: '#0a0ae1', code: 'FraExce' },
+  { name: 'Autres résineux', color: '#c8c8a0', code: 'ConEtc' },
+  { name: 'Autres feuillus', color: '#4a4a6e', code: 'FolEtc' }
 ];
 
 function initBaumartenMischung() {
@@ -1333,21 +1333,21 @@ function updateBaumartenSum() {
   const el = document.getElementById('baumarten-sum');
   const cls = total === 100 ? 'sum-ok' : total > 100 ? 'sum-over' : 'sum-warn';
   const icon = total === 100 ? '✅' : total > 100 ? '🔴' : '⚠️';
-  el.innerHTML = `<div class="sum-bar ${cls}">${icon} Summe: ${total}%</div>`;
+  el.innerHTML = `<div class="sum-bar ${cls}">${icon} Total : ${total}%</div>`;
 }
 
 // === BODENVEGETATION ===
 const BODENVEGETATION = [
-  { name: 'Moos' },
-  { name: 'Brombeeren' },
-  { name: 'Adlerfarn' },
-  { name: 'Heidelbeere' },
-  { name: 'Gräser/Reitgras' },
-  { name: 'Naturverjüngung' },
-  { name: 'Bärlauch' },
-  { name: 'Kräuter (diverse)' },
-  { name: 'Flechten' },
-  { name: 'Offener Boden/Streu' }
+  { name: 'Mousse' },
+  { name: 'Ronces' },
+  { name: 'Fougère aigle' },
+  { name: 'Myrtille' },
+  { name: 'Graminées' },
+  { name: 'Régénération naturelle' },
+  { name: 'Ail des ours' },
+  { name: 'Herbacées (diverses)' },
+  { name: 'Lichens' },
+  { name: 'Sol nu/litière' }
 ];
 
 function initBodenvegetation() {
@@ -1402,14 +1402,14 @@ function updateBodenvegetationSum() {
     }
   });
   const el = document.getElementById('bodenvegetation-sum');
-  el.innerHTML = `<div class="sum-bar sum-ok">📊 Deckung gesamt: ${total}%</div>`;
+  el.innerHTML = `<div class="sum-bar sum-ok">📊 Couverture totale : ${total}%</div>`;
 }
 
 const GPS_OPTIONS = { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 };
 
 function fetchElevation(e, n) {
   const statusEl = document.getElementById('hoehe-auto-status');
-  statusEl.textContent = '⏳ Höhe wird abgerufen…';
+  statusEl.textContent = '⏳ Récupération de l\'altitude…';
   fetch(`https://api3.geo.admin.ch/rest/services/height?easting=${e}&northing=${n}&sr=2056`)
     .then(r => r.json())
     .then(data => {
@@ -1418,15 +1418,15 @@ function fetchElevation(e, n) {
         document.getElementById('hoehe_mue').value = h;
         app.data.standort.hoehe_mue = h;
         storage.save(app.data);
-        statusEl.textContent = `✅ Auto: ${h} m ü.M. (swisstopo)`;
+        statusEl.textContent = `✅ Auto : ${h} m alt. (swisstopo)`;
       }
     })
-    .catch(() => { statusEl.textContent = '⚠️ Offline — bitte manuell eingeben'; });
+    .catch(() => { statusEl.textContent = '⚠️ Hors ligne — saisir manuellement'; });
 }
 
 function fetchVegetationshoehenstufe(e, n) {
   const statusEl = document.getElementById('hoehenstufe-auto-status');
-  statusEl.textContent = '⏳ Höhenstufe wird abgerufen…';
+  statusEl.textContent = '⏳ Récupération de l\'étage…';
   const bbox = `${e-10},${n-10},${e+10},${n+10}`;
   const url = `https://wms.geo.admin.ch/?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetFeatureInfo&LAYERS=ch.bafu.wald-vegetationshoehenstufen_1975&QUERY_LAYERS=ch.bafu.wald-vegetationshoehenstufen_1975&CRS=EPSG:2056&BBOX=${bbox}&WIDTH=20&HEIGHT=20&I=10&J=10&INFO_FORMAT=application/json&FEATURE_COUNT=1`;
   fetch(url)
@@ -1457,21 +1457,21 @@ function fetchVegetationshoehenstufe(e, n) {
           }
           app.data.standort.vegetationshoehenstufe = sel.value;
           storage.save(app.data);
-          statusEl.textContent = `✅ Auto: ${sel.value} (BAFU 1975)`;
+          statusEl.textContent = `✅ Auto : ${sel.value} (OFEV 1975)`;
         } else {
-          statusEl.textContent = 'ℹ️ Keine Waldfläche an dieser Position';
+          statusEl.textContent = 'ℹ️ Pas de surface forestière à cette position';
         }
       } else {
-        statusEl.textContent = 'ℹ️ Keine Daten für diese Position';
+        statusEl.textContent = 'ℹ️ Aucune donnée pour cette position';
       }
     })
-    .catch(() => { statusEl.textContent = '⚠️ Offline — bitte manuell wählen'; });
+    .catch(() => { statusEl.textContent = '⚠️ Hors ligne — choisir manuellement'; });
 }
 
 function captureStandortGPS() {
   const btn = event.target;
   btn.disabled = true;
-  btn.textContent = '📍 GPS wird gesucht…';
+  btn.textContent = '📍 Recherche GPS…';
   navigator.geolocation.getCurrentPosition(
     (pos) => {
       const lat = pos.coords.latitude;
@@ -1486,15 +1486,15 @@ function captureStandortGPS() {
       storage.save(app.data);
       updateGPSWidget('gps-standort', lat, lon, acc, lv95);
       btn.disabled = false;
-      btn.textContent = '📍 GPS aktualisieren';
+      btn.textContent = '📍 Actualiser GPS';
       // Auto-fetch Höhe und Vegetationshöhenstufe via geo.admin.ch
       fetchElevation(lv95.E, lv95.N);
       fetchVegetationshoehenstufe(lv95.E, lv95.N);
     },
     (err) => {
-      alert('GPS nicht verfügbar: ' + err.message);
+      alert('GPS non disponible : ' + err.message);
       btn.disabled = false;
-      btn.textContent = '📍 GPS holen';
+      btn.textContent = '📍 Obtenir GPS';
     },
     GPS_OPTIONS
   );
@@ -1505,7 +1505,7 @@ function updateGPSWidget(elemId, lat, lon, acc, lv95) {
   elem.innerHTML = `
     <div class="gps-widget-row"><span class="gps-widget-label">📍 GPS:</span> <span class="gps-widget-value">${lat.toFixed(4)}° N | ${lon.toFixed(4)}° E</span></div>
     <div class="gps-widget-row"><span class="gps-widget-label">LV95:</span> <span class="gps-widget-value">E ${lv95.E.toLocaleString('de-CH')} | N ${lv95.N.toLocaleString('de-CH')}</span></div>
-    <div class="gps-widget-row"><span class="gps-widget-label">Genauigkeit:</span> <span class="gps-widget-value">±${acc}m</span></div>
+    <div class="gps-widget-row"><span class="gps-widget-label">Précision :</span> <span class="gps-widget-value">±${acc}m</span></div>
   `;
 }
 
@@ -1514,7 +1514,7 @@ function addTree(bhd_class) {
   const klasse = bhd_class === 'large' ? '>20cm' : '<20cm';
   const bhd_trees = app.data.baeume.filter(b => b.bhd_klasse === klasse);
   if (bhd_trees.length >= 20) {
-    alert('Maximum 20 Bäume pro Klasse erreicht');
+    alert('Maximum de 20 arbres par classe atteint');
     return;
   }
   // Find next free number (avoids duplicates after deletion)
@@ -1543,7 +1543,7 @@ function addTree(bhd_class) {
 }
 
 function deleteTree(baum_id) {
-  if (confirm(`Baum ${baum_id} wirklich löschen?`)) {
+  if (confirm(`Arbre ${baum_id} vraiment supprimer ?`)) {
     app.data.baeume = app.data.baeume.filter(b => b.baum_id !== baum_id);
     if (app.data.diplodia.kronen) {
       app.data.diplodia.kronen = app.data.diplodia.kronen.filter(k => k.baum_id !== baum_id);
@@ -1580,22 +1580,22 @@ function renderTrees() {
   all_trees.forEach((tree) => {
     const card = document.createElement('div');
     card.className = 'tree-card';
-    const gps_str = tree.lat ? `${tree.lat.toFixed(4)}° N | ${tree.lon.toFixed(4)}° E (±${tree.gps_accuracy}m)` : 'Nicht erfasst';
+    const gps_str = tree.lat ? `${tree.lat.toFixed(4)}° N | ${tree.lon.toFixed(4)}° E (±${tree.gps_accuracy}m)` : 'Non relevé';
     const lv95_str = tree.e_lv95 ? `E ${tree.e_lv95.toLocaleString('de-CH')} | N ${tree.n_lv95.toLocaleString('de-CH')}` : '';
     card.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
         <span style="font-weight: bold; color: var(--color-primary); font-size: 1.05rem;">${tree.baum_id}</span>
-        <button class="btn btn-danger" style="padding: 0.5rem 0.75rem; font-size: 0.8rem;" onclick="deleteTree('${tree.baum_id}')">Entfernen</button>
+        <button class="btn btn-danger" style="padding: 0.5rem 0.75rem; font-size: 0.8rem;" onclick="deleteTree('${tree.baum_id}')">Supprimer</button>
       </div>
       <div class="card-info" style="margin-bottom: 0.75rem;">
-        <div><strong>BHD:</strong> ${tree.bhd_cm || '—'} cm</div>
-        <div style="margin-top: 0.5rem;"><strong>📍 GPS:</strong> ${gps_str}</div>
-        ${lv95_str ? `<div style="margin-top: 0.25rem;"><strong>LV95:</strong> ${lv95_str}</div>` : ''}
-        <div style="margin-top: 0.5rem;"><strong>Kronenverlichtung:</strong> ${tree.kronenverlichtung_pct}%</div>
-        ${tree.bemerkungen_baum ? `<div style="margin-top: 0.5rem;"><strong>Bemerkungen:</strong> ${tree.bemerkungen_baum}</div>` : ''}
+        <div><strong>DHP :</strong> ${tree.bhd_cm || '—'} cm</div>
+        <div style="margin-top: 0.5rem;"><strong>📍 GPS :</strong> ${gps_str}</div>
+        ${lv95_str ? `<div style="margin-top: 0.25rem;"><strong>LV95 :</strong> ${lv95_str}</div>` : ''}
+        <div style="margin-top: 0.5rem;"><strong>Défoliation :</strong> ${tree.kronenverlichtung_pct}%</div>
+        ${tree.bemerkungen_baum ? `<div style="margin-top: 0.5rem;"><strong>Remarques :</strong> ${tree.bemerkungen_baum}</div>` : ''}
       </div>
       <div style="margin-top: 0.75rem;">
-        <button class="btn btn-secondary btn-full" style="margin-bottom: 0.5rem;" onclick="showTreeEdit('${tree.baum_id}')">✎ Bearbeiten</button>
+        <button class="btn btn-secondary btn-full" style="margin-bottom: 0.5rem;" onclick="showTreeEdit('${tree.baum_id}')">✎ Modifier</button>
       </div>
     `;
     container.appendChild(card);
@@ -1610,33 +1610,33 @@ function showTreeEdit(baum_id) {
       <div class="modal-content" style="max-width: 95%; width: 400px;">
         <h3 style="color: var(--color-primary); margin-bottom: 1rem;">${baum_id}</h3>
         <div class="form-group">
-          <label>BHD (cm) *</label>
+          <label>DHP (cm) *</label>
           <input type="number" id="edit-bhd_cm" step="0.1" value="${tree.bhd_cm || 0}">
         </div>
         <div class="form-group">
-          <label>GPS Baum *</label>
+          <label>GPS arbre *</label>
           <div id="edit-gps-widget" class="gps-widget">
             ${tree.lat ? `
               <div class="gps-widget-row"><span class="gps-widget-label">📍 GPS:</span> <span class="gps-widget-value">${tree.lat.toFixed(4)}° N | ${tree.lon.toFixed(4)}° E</span></div>
               <div class="gps-widget-row"><span class="gps-widget-label">LV95:</span> <span class="gps-widget-value">E ${tree.e_lv95.toLocaleString('de-CH')} | N ${tree.n_lv95.toLocaleString('de-CH')}</span></div>
-              <div class="gps-widget-row"><span class="gps-widget-label">Genauigkeit:</span> <span class="gps-widget-value">±${tree.gps_accuracy}m</span></div>
-            ` : `<div class="gps-widget-row"><span class="gps-widget-label">Status:</span> <span class="gps-widget-value">Nicht erfasst</span></div>`}
+              <div class="gps-widget-row"><span class="gps-widget-label">Précision :</span> <span class="gps-widget-value">±${tree.gps_accuracy}m</span></div>
+            ` : `<div class="gps-widget-row"><span class="gps-widget-label">Statut :</span> <span class="gps-widget-value">Non relevé</span></div>`}
           </div>
-          <button type="button" class="btn btn-full" onclick="captureTreeGPS('${baum_id}')">📍 GPS holen</button>
+          <button type="button" class="btn btn-full" onclick="captureTreeGPS('${baum_id}')">📍 Obtenir GPS</button>
         </div>
         <div class="form-group">
-          <label>Kronenverlichtung (SANASILVA) *</label>
-          <img src="sanasilva-kronenverlichtung.png" alt="SANASILVA Kronenverlichtung Referenz: 0% - 25% - 60% - 70%" style="width:100%; border-radius:6px; margin-bottom:0.5rem; border:1px solid var(--color-border);">
+          <label>Défoliation (SANASILVA) *</label>
+          <img src="sanasilva-kronenverlichtung.png" alt="SANASILVA Défoliation Référence : 0% - 25% - 60% - 70%" style="width:100%; border-radius:6px; margin-bottom:0.5rem; border:1px solid var(--color-border);">
           <input type="range" class="slider" id="edit-kronenverlichtung" min="0" max="100" step="5" value="${tree.kronenverlichtung_pct || 0}" oninput="updateSliderDisplay('edit-kronenverlichtung')">
           <div class="slider-value" id="edit-kronenverlichtung-value">${tree.kronenverlichtung_pct || 0}%</div>
         </div>
         <div class="form-group">
-          <label>Bemerkungen</label>
+          <label>Remarques</label>
           <textarea id="edit-bemerkungen">${tree.bemerkungen_baum || ''}</textarea>
         </div>
         <div class="btn-group">
-          <button class="btn" onclick="saveTreeEdit('${baum_id}')">💾 Speichern</button>
-          <button class="btn btn-secondary" onclick="closeTreeEdit()">Abbrechen</button>
+          <button class="btn" onclick="saveTreeEdit('${baum_id}')">💾 Enregistrer</button>
+          <button class="btn btn-secondary" onclick="closeTreeEdit()">Annuler</button>
         </div>
       </div>
     </div>
@@ -1656,7 +1656,7 @@ function updateSliderDisplay(slider_id) {
 function captureTreeGPS(baum_id) {
   const btn = event.target;
   btn.disabled = true;
-  btn.textContent = '📍 GPS wird gesucht…';
+  btn.textContent = '📍 Recherche GPS…';
   navigator.geolocation.getCurrentPosition(
     (pos) => {
       const lat = pos.coords.latitude;
@@ -1674,15 +1674,15 @@ function captureTreeGPS(baum_id) {
       widget.innerHTML = `
         <div class="gps-widget-row"><span class="gps-widget-label">📍 GPS:</span> <span class="gps-widget-value">${lat.toFixed(4)}° N | ${lon.toFixed(4)}° E</span></div>
         <div class="gps-widget-row"><span class="gps-widget-label">LV95:</span> <span class="gps-widget-value">E ${lv95.E.toLocaleString('de-CH')} | N ${lv95.N.toLocaleString('de-CH')}</span></div>
-        <div class="gps-widget-row"><span class="gps-widget-label">Genauigkeit:</span> <span class="gps-widget-value">±${acc}m</span></div>
+        <div class="gps-widget-row"><span class="gps-widget-label">Précision :</span> <span class="gps-widget-value">±${acc}m</span></div>
       `;
       btn.disabled = false;
-      btn.textContent = '📍 GPS aktualisieren';
+      btn.textContent = '📍 Actualiser GPS';
     },
     (err) => {
-      alert('GPS nicht verfügbar: ' + err.message);
+      alert('GPS non disponible : ' + err.message);
       btn.disabled = false;
-      btn.textContent = '📍 GPS holen';
+      btn.textContent = '📍 Obtenir GPS';
     },
     GPS_OPTIONS
   );
@@ -1737,13 +1737,13 @@ function initDiplodiaKronen() {
   const container = document.getElementById('diplodia-kronen-container');
   container.innerHTML = '';
   if (large_trees.length === 0) {
-    container.innerHTML = '<div class="info-box" style="margin-bottom: 1rem;">⚠️ Noch keine Bäume BHD &gt;20 cm erfasst. Bitte zuerst Bäume in Modul 0 aufnehmen.</div>';
+    container.innerHTML = '<div class="info-box" style="margin-bottom: 1rem;">⚠️ Aucun arbre DHP &gt;20 cm encore relevé. Veuillez d\'abord saisir des arbres dans le module 0.</div>';
     return;
   }
   container.insertAdjacentHTML('beforeend', `
     <div class="info-box" style="margin-bottom: 1rem;">
-      🔭 <strong>Material: Feldstecher.</strong> Pro Baum 3 gut sichtbare, noch lebende Äste (Stamm bis Astspitze) beurteilen.
-      <br>Bäume angezeigt: <strong>${large_trees.length} / 10</strong> (erste 10 BHD &gt;20 cm aus Modul 0)
+      🔭 <strong>Matériel : jumelles.</strong> Par arbre, évaluer 3 branches bien visibles et encore vivantes (du tronc à l'extrémité).
+      <br>Arbres affichés : <strong>${large_trees.length} / 10</strong> (10 premiers DHP &gt;20 cm du module 0)
     </div>
   `);
   large_trees.forEach((tree) => {
@@ -1770,12 +1770,12 @@ function initDiplodiaKronen() {
     // Tree reference info from Modul 0
     const gpsInfo = (tree.lat && tree.lon)
       ? `📍 ${tree.lat.toFixed(4)}° N | ${tree.lon.toFixed(4)}° E  ±${tree.gps_accuracy || '?'}m`
-      : '📍 kein GPS';
+      : '📍 pas de GPS';
     const lv95Info = (tree.e_lv95 && tree.n_lv95)
       ? `LV95: E ${Math.round(tree.e_lv95).toLocaleString('de-CH')} | N ${Math.round(tree.n_lv95).toLocaleString('de-CH')}`
       : '';
-    const bhdInfo = tree.bhd_cm ? `BHD: ${tree.bhd_cm} cm` : '';
-    const kvInfo = tree.kronenverlichtung_pct != null ? `Kronenverlichtung: ${tree.kronenverlichtung_pct}%` : '';
+    const bhdInfo = tree.bhd_cm ? `DHP : ${tree.bhd_cm} cm` : '';
+    const kvInfo = tree.kronenverlichtung_pct != null ? `Défoliation : ${tree.kronenverlichtung_pct}%` : '';
     const bemInfo = tree.bemerkungen_baum ? `📝 ${tree.bemerkungen_baum}` : '';
 
     const card_html = `
@@ -1791,36 +1791,36 @@ function initDiplodiaKronen() {
           ${bemInfo ? `<div style="margin-top: 0.35rem; font-style: italic;">${bemInfo}</div>` : ''}
         </div>
         <div style="margin-bottom: 0.75rem;">
-          <label>Ast 1 – Triebe total:</label>
+          <label>Branche 1 – Pousses totales :</label>
           <input type="number" min="0" value="${krone_data.ast1_triebe_total || 0}" onchange="updateDiplodiaKrone('${tree.baum_id}', 'ast1_triebe_total', this.value)" style="width: 100%;">
         </div>
         <div style="margin-bottom: 0.75rem;">
-          <label>Ast 1 – Triebe infiziert:</label>
+          <label>Branche 1 – Pousses infectées :</label>
           <input type="number" min="0" value="${krone_data.ast1_triebe_infiziert || 0}" onchange="updateDiplodiaKrone('${tree.baum_id}', 'ast1_triebe_infiziert', this.value)" style="width: 100%;">
         </div>
         <div style="margin-bottom: 0.75rem;">
-          <label>Ast 2 – Triebe total:</label>
+          <label>Branche 2 – Pousses totales :</label>
           <input type="number" min="0" value="${krone_data.ast2_triebe_total || 0}" onchange="updateDiplodiaKrone('${tree.baum_id}', 'ast2_triebe_total', this.value)" style="width: 100%;">
         </div>
         <div style="margin-bottom: 0.75rem;">
-          <label>Ast 2 – Triebe infiziert:</label>
+          <label>Branche 2 – Pousses infectées :</label>
           <input type="number" min="0" value="${krone_data.ast2_triebe_infiziert || 0}" onchange="updateDiplodiaKrone('${tree.baum_id}', 'ast2_triebe_infiziert', this.value)" style="width: 100%;">
         </div>
         <div style="margin-bottom: 0.75rem;">
-          <label>Ast 3 – Triebe total:</label>
+          <label>Branche 3 – Pousses totales :</label>
           <input type="number" min="0" value="${krone_data.ast3_triebe_total || 0}" onchange="updateDiplodiaKrone('${tree.baum_id}', 'ast3_triebe_total', this.value)" style="width: 100%;">
         </div>
         <div style="margin-bottom: 0.75rem;">
-          <label>Ast 3 – Triebe infiziert:</label>
+          <label>Branche 3 – Pousses infectées :</label>
           <input type="number" min="0" value="${krone_data.ast3_triebe_infiziert || 0}" onchange="updateDiplodiaKrone('${tree.baum_id}', 'ast3_triebe_infiziert', this.value)" style="width: 100%;">
         </div>
         <div class="summary-card" style="margin: 0.75rem 0; padding: 1rem;">
           <div class="summary-item">
-            <span>Befallsintensität:</span>
+            <span>Intensité d'infection :</span>
             <strong>${befallsintensitaet.toFixed(1)}%</strong>
           </div>
           <div class="summary-item">
-            <span>Kategorie:</span>
+            <span>Catégorie :</span>
             <strong>${befallskategorie}</strong>
           </div>
         </div>
@@ -1839,10 +1839,10 @@ function calculateDiplodiaIntensity(krone_data) {
 }
 
 function getDiplodiaCategory(intensity) {
-  if (intensity < 25) return 'nicht befallen';
-  if (intensity < 50) return 'kaum befallen';
-  if (intensity < 75) return 'mittelstark befallen';
-  return 'stark befallen';
+  if (intensity < 25) return 'non infecté';
+  if (intensity < 50) return 'faiblement infecté';
+  if (intensity < 75) return 'moyennement infecté';
+  return 'fortement infecté';
 }
 
 function updateDiplodiaKrone(baum_id, field, value) {
@@ -1855,7 +1855,7 @@ function updateDiplodiaKrone(baum_id, field, value) {
       const infiz = krone[`ast${i}_triebe_infiziert`];
       if (infiz > total) {
         krone[`ast${i}_triebe_infiziert`] = total;
-        alert(`Ast ${i}: Infizierte Triebe (${infiz}) auf Total (${total}) korrigiert.`);
+        alert(`Branche ${i} : Pousses infectées (${infiz}) corrigé au total (${total}).`);
       }
     }
     krone.befallsintensitaet_pct = calculateDiplodiaIntensity(krone);
@@ -1894,18 +1894,18 @@ function updateDiplodiaMethodenkritik() {
   let not_count = 0;
   if (kronen_count > 0) {
     avg_intensity = kronen.reduce((sum, k) => sum + (k.befallsintensitaet_pct || 0), 0) / kronen_count;
-    strong_count = kronen.filter(k => k.befallskategorie === 'stark befallen').length;
-    not_count = kronen.filter(k => k.befallskategorie === 'nicht befallen').length;
+    strong_count = kronen.filter(k => k.befallskategorie === 'fortement infecté').length;
+    not_count = kronen.filter(k => k.befallskategorie === 'non infecté').length;
   }
   const summary_html = `
     <div class="summary-card">
-      <div class="summary-title">✅ DIPLODIA SAPINEA — Auswertung</div>
-      <div class="summary-item"><span>Zapfen gesammelt:</span> <strong>${zapfen_anzahl} / 20</strong></div>
-      <div class="summary-item"><span>Bäume (Krone):</span> <strong>${kronen_count} / 10</strong></div>
-      <div class="summary-item"><span>Ø Befallsintensität:</span> <strong>${avg_intensity.toFixed(1)}%</strong></div>
-      <div class="summary-item"><span>Kategorie (Mittel):</span> <strong>${getDiplodiaCategory(avg_intensity)}</strong></div>
-      <div class="summary-item"><span>Stark befallen:</span> <strong>${strong_count} Bäume</strong></div>
-      <div class="summary-item"><span>Nicht befallen:</span> <strong>${not_count} Bäume</strong></div>
+      <div class="summary-title">✅ DIPLODIA SAPINEA — Résultats</div>
+      <div class="summary-item"><span>Cônes récoltés :</span> <strong>${zapfen_anzahl} / 20</strong></div>
+      <div class="summary-item"><span>Arbres (couronne) :</span> <strong>${kronen_count} / 10</strong></div>
+      <div class="summary-item"><span>Ø Intensité d'infection :</span> <strong>${avg_intensity.toFixed(1)}%</strong></div>
+      <div class="summary-item"><span>Catégorie (moyenne) :</span> <strong>${getDiplodiaCategory(avg_intensity)}</strong></div>
+      <div class="summary-item"><span>Fortement infectés :</span> <strong>${strong_count} arbres</strong></div>
+      <div class="summary-item"><span>Non infectés :</span> <strong>${not_count} arbres</strong></div>
     </div>
   `;
   container.innerHTML = summary_html;
@@ -1937,7 +1937,7 @@ function initSpinner() {
       app.data.spinner.push({
         baum_id: tree.baum_id,
         bhd_klasse: tree.bhd_klasse,
-        methode: tree.bhd_klasse === '>20cm' ? 'Fernglas' : 'ohne Hilfsmittel',
+        methode: tree.bhd_klasse === '>20cm' ? 'Jumelles' : 'sans instrument',
         anzahl_nester: 0,
         befallen: false
       });
@@ -1945,15 +1945,15 @@ function initSpinner() {
   });
   storage.save(app.data);
   if (all_trees.length === 0) {
-    container.innerHTML = '<div class="info-box">⚠️ Noch keine Bäume erfasst. Bitte zuerst Bäume in Modul 0 aufnehmen.</div>';
+    container.innerHTML = '<div class="info-box">⚠️ Aucun arbre encore saisi. Veuillez d\'abord saisir des arbres dans le module 0.</div>';
     return;
   }
   all_trees.forEach(tree => {
     const spinner_data = app.data.spinner.find(s => s.baum_id === tree.baum_id);
-    const methode = tree.bhd_klasse === '>20cm' ? 'Fernglas' : 'ohne Hilfsmittel';
+    const methode = tree.bhd_klasse === '>20cm' ? 'Jumelles' : 'sans instrument';
     const befallen = spinner_data && spinner_data.anzahl_nester >= 1;
-    const treeGps = (tree.lat && tree.lon) ? `📍 ${tree.lat.toFixed(4)}° N | ${tree.lon.toFixed(4)}° E ±${tree.gps_accuracy||'?'}m` : '📍 kein GPS';
-    const treeBhd = tree.bhd_cm ? `BHD: ${tree.bhd_cm} cm` : '';
+    const treeGps = (tree.lat && tree.lon) ? `📍 ${tree.lat.toFixed(4)}° N | ${tree.lon.toFixed(4)}° E ±${tree.gps_accuracy||'?'}m` : '📍 pas de GPS';
+    const treeBhd = tree.bhd_cm ? `DHP : ${tree.bhd_cm} cm` : '';
     const card = document.createElement('div');
     card.className = 'card';
     card.innerHTML = `
@@ -1962,11 +1962,11 @@ function initSpinner() {
         <span><strong>${treeBhd}</strong></span> &nbsp; ${treeGps}
       </div>
       <div class="form-group" style="margin-bottom: 0.75rem;">
-        <label>Anzahl Gespinstnester:</label>
+        <label>Nombre de nids :</label>
         <input type="number" min="0" value="${spinner_data ? spinner_data.anzahl_nester : 0}" onchange="updateSpinnerNester('${tree.baum_id}', this.value)" style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-border); border-radius: 4px;">
       </div>
       <div style="text-align: center; padding: 0.5rem; background: ${befallen ? '#ffeaa7' : '#d4edda'}; border-radius: 4px; font-size: 0.9rem;">
-        ${befallen ? '⚠️ Befallen' : '✅ Frei'}
+        ${befallen ? '⚠️ Infecté' : '✅ Indemne'}
       </div>
     `;
     container.appendChild(card);
@@ -1997,13 +1997,13 @@ function updateSpinnerSummary() {
   const max_nester = all_spinners.length > 0 ? Math.max(...all_spinners.map(s => s.anzahl_nester)) : 0;
   const summary_html = `
     <div class="summary-card">
-      <div class="summary-title">✅ PROZESSIONSSPINNER — Auswertung</div>
-      <div class="summary-item"><span>Kontrollierte Bäume:</span> <strong>${total_count}</strong></div>
-      <div class="summary-item"><span style="padding-left: 1rem;">davon BHD >20:</span> <strong>${large_trees.length} (Fernglas)</strong></div>
-      <div class="summary-item"><span style="padding-left: 1rem;">davon BHD <20:</span> <strong>${small_trees.length} (ohne)</strong></div>
-      <div class="summary-item"><span>Befallene Bäume:</span> <strong>${befallen_count} (${befallen_pct.toFixed(1)}%)</strong></div>
-      <div class="summary-item"><span>Ø Nester pro Baum:</span> <strong>${avg_nester.toFixed(2)}</strong></div>
-      <div class="summary-item"><span>Max. Nester (Einzelbaum):</span> <strong>${max_nester}</strong></div>
+      <div class="summary-title">✅ PROCESSIONNAIRE — Résultats</div>
+      <div class="summary-item"><span>Arbres contrôlés :</span> <strong>${total_count}</strong></div>
+      <div class="summary-item"><span style="padding-left: 1rem;">dont DHP >20 :</span> <strong>${large_trees.length} (jumelles)</strong></div>
+      <div class="summary-item"><span style="padding-left: 1rem;">dont DHP <20 :</span> <strong>${small_trees.length} (sans)</strong></div>
+      <div class="summary-item"><span>Arbres infectés :</span> <strong>${befallen_count} (${befallen_pct.toFixed(1)}%)</strong></div>
+      <div class="summary-item"><span>Ø Nids par arbre :</span> <strong>${avg_nester.toFixed(2)}</strong></div>
+      <div class="summary-item"><span>Max. nids (arbre individuel) :</span> <strong>${max_nester}</strong></div>
     </div>
   `;
   container.innerHTML = summary_html;
@@ -2055,37 +2055,37 @@ function initC1() {
       };
       app.data.blutzikade.fallen.push(falle_data);
     }
-    const gps_str = falle_data.lat ? `${falle_data.lat.toFixed(4)}° N | ${falle_data.lon.toFixed(4)}° E (±${falle_data.gps_accuracy}m)` : 'Nicht erfasst';
+    const gps_str = falle_data.lat ? `${falle_data.lat.toFixed(4)}° N | ${falle_data.lon.toFixed(4)}° E (±${falle_data.gps_accuracy}m)` : 'Non relevé';
     const lv95_str = falle_data.e_lv95 ? `E ${falle_data.e_lv95.toLocaleString('de-CH')} | N ${falle_data.n_lv95.toLocaleString('de-CH')}` : '';
     const tree_dropdown = `
       <select id="c1-baum_ref-${i}" onchange="updateC1Field(${i}, 'baum_ref', this.value)">
-        <option value="">-- Baum wählen --</option>
+        <option value="">-- Choisir arbre --</option>
         ${small_trees.map(t => `<option value="${t.baum_id}" ${falle_data.baum_ref === t.baum_id ? 'selected' : ''}>${t.baum_id}</option>`).join('')}
       </select>
     `;
     const card_html = `
       <div class="card" style="margin-bottom: 1rem;">
-        <div class="card-title">Falle ${falle_id}</div>
+        <div class="card-title">Piège ${falle_id}</div>
         <div class="form-group" style="margin-bottom: 0.75rem;">
-          <label>Baum-Referenz *</label>
+          <label>Arbre de référence *</label>
           ${tree_dropdown}
         </div>
         <div class="form-group" style="margin-bottom: 0.75rem;">
-          <label>GPS Falle *</label>
+          <label>GPS piège *</label>
           <div id="c1-gps-${i}" class="gps-widget">
             ${falle_data.lat ? `
-              <div class="gps-widget-row"><span class="gps-widget-label">📍 GPS:</span> <span class="gps-widget-value">${gps_str}</span></div>
-              <div class="gps-widget-row"><span class="gps-widget-label">LV95:</span> <span class="gps-widget-value">${lv95_str}</span></div>
-            ` : `<div class="gps-widget-row"><span class="gps-widget-label">Status:</span> <span class="gps-widget-value">Nicht erfasst</span></div>`}
+              <div class="gps-widget-row"><span class="gps-widget-label">📍 GPS :</span> <span class="gps-widget-value">${gps_str}</span></div>
+              <div class="gps-widget-row"><span class="gps-widget-label">LV95 :</span> <span class="gps-widget-value">${lv95_str}</span></div>
+            ` : `<div class="gps-widget-row"><span class="gps-widget-label">Statut :</span> <span class="gps-widget-value">Non relevé</span></div>`}
           </div>
-          <button type="button" class="btn btn-full" onclick="captureC1GPS(${i})">📍 GPS holen</button>
+          <button type="button" class="btn btn-full" onclick="captureC1GPS(${i})">📍 Obtenir GPS</button>
         </div>
         <div class="form-group" style="margin-bottom: 0.75rem;">
-          <label>Abstand zum Boden (cm) *</label>
+          <label>Distance au sol (cm) *</label>
           <input type="number" id="c1-abstand-${i}" min="0" value="${falle_data.abstand_boden_cm || 0}" onchange="updateC1Field(${i}, 'abstand_boden_cm', this.value)">
         </div>
         <div class="form-group" style="margin-bottom: 0.75rem;">
-          <label>Exposition Falle *</label>
+          <label>Exposition piège *</label>
           <select id="c1-exposition-${i}" onchange="updateC1Field(${i}, 'exposition_falle', this.value)">
             <option value="N" ${falle_data.exposition_falle === 'N' ? 'selected' : ''}>N</option>
             <option value="NO" ${falle_data.exposition_falle === 'NO' ? 'selected' : ''}>NO</option>
@@ -2098,7 +2098,7 @@ function initC1() {
           </select>
         </div>
         <div class="form-group" style="margin-bottom: 0.75rem;">
-          <label>Datum Installation *</label>
+          <label>Date d'installation *</label>
           <input type="date" id="c1-datum-${i}" value="${falle_data.datum_installation || today()}" onchange="updateC1Field(${i}, 'datum_installation', this.value)">
         </div>
       </div>
@@ -2121,7 +2121,7 @@ function updateC1Field(falle_num, field, value) {
 function captureC1GPS(falle_num) {
   const btn = event.target;
   btn.disabled = true;
-  btn.textContent = '📍 GPS wird gesucht…';
+  btn.textContent = '📍 Recherche GPS…';
   navigator.geolocation.getCurrentPosition(
     (pos) => {
       const lat = pos.coords.latitude;
@@ -2138,16 +2138,16 @@ function captureC1GPS(falle_num) {
       widget.innerHTML = `
         <div class="gps-widget-row"><span class="gps-widget-label">📍 GPS:</span> <span class="gps-widget-value">${lat.toFixed(4)}° N | ${lon.toFixed(4)}° E</span></div>
         <div class="gps-widget-row"><span class="gps-widget-label">LV95:</span> <span class="gps-widget-value">E ${lv95.E.toLocaleString('de-CH')} | N ${lv95.N.toLocaleString('de-CH')}</span></div>
-        <div class="gps-widget-row"><span class="gps-widget-label">Genauigkeit:</span> <span class="gps-widget-value">±${acc}m</span></div>
+        <div class="gps-widget-row"><span class="gps-widget-label">Précision :</span> <span class="gps-widget-value">±${acc}m</span></div>
       `;
       storage.save(app.data);
       btn.disabled = false;
-      btn.textContent = '📍 GPS aktualisieren';
+      btn.textContent = '📍 Actualiser GPS';
     },
     (err) => {
-      alert('GPS nicht verfügbar: ' + err.message);
+      alert('GPS non disponible : ' + err.message);
       btn.disabled = false;
-      btn.textContent = '📍 GPS holen';
+      btn.textContent = '📍 Obtenir GPS';
     },
     GPS_OPTIONS
   );
@@ -2158,8 +2158,8 @@ function updateC1Summary() {
   const fallen_count = app.data.blutzikade.fallen.filter(f => f.baum_ref).length;
   const summary_html = `
     <div class="summary-card">
-      <div class="summary-title">✅ KLEBEFALLEN — Installation</div>
-      <div class="summary-item"><span>Installierte Fallen:</span> <strong>${fallen_count} / 5</strong></div>
+      <div class="summary-title">✅ PIÈGES COLLANTS — Installation</div>
+      <div class="summary-item"><span>Pièges installés :</span> <strong>${fallen_count} / 5</strong></div>
     </div>
   `;
   container.innerHTML = summary_html;
@@ -2196,8 +2196,8 @@ function initC2() {
     const befallte_triebe_count = [schaeden_data.trieb1_befallene_nadeln_pct, schaeden_data.trieb2_befallene_nadeln_pct,
                                      schaeden_data.trieb3_befallene_nadeln_pct, schaeden_data.trieb4_befallene_nadeln_pct,
                                      schaeden_data.trieb5_befallene_nadeln_pct].filter(p => p > 0).length;
-    const treeGpsC2 = (tree.lat && tree.lon) ? `📍 ${tree.lat.toFixed(4)}° N | ${tree.lon.toFixed(4)}° E ±${tree.gps_accuracy||'?'}m` : '📍 kein GPS';
-    const treeBhdC2 = tree.bhd_cm ? `BHD: ${tree.bhd_cm} cm` : '';
+    const treeGpsC2 = (tree.lat && tree.lon) ? `📍 ${tree.lat.toFixed(4)}° N | ${tree.lon.toFixed(4)}° E ±${tree.gps_accuracy||'?'}m` : '📍 pas de GPS';
+    const treeBhdC2 = tree.bhd_cm ? `DHP : ${tree.bhd_cm} cm` : '';
     const card = document.createElement('div');
     card.className = 'card';
     card.innerHTML = `
@@ -2206,40 +2206,40 @@ function initC2() {
         <span><strong>${treeBhdC2}</strong></span> &nbsp; ${treeGpsC2}
       </div>
       <div style="margin-bottom: 1rem;">
-        <label>Trieb 1 – Befallene Nadeln (%)</label>
+        <label>Pousse 1 – Aiguilles infectées (%)</label>
         <input type="range" class="slider" min="0" max="100" step="5" value="${schaeden_data.trieb1_befallene_nadeln_pct}" oninput="updateC2Trieb('${tree.baum_id}', 1, this.value)">
         <div class="slider-value" id="c2-trieb1-${tree.baum_id}-value" style="text-align: center; margin-top: 0.5rem;">${schaeden_data.trieb1_befallene_nadeln_pct}%</div>
       </div>
       <div style="margin-bottom: 1rem;">
-        <label>Trieb 2 – Befallene Nadeln (%)</label>
+        <label>Pousse 2 – Aiguilles infectées (%)</label>
         <input type="range" class="slider" min="0" max="100" step="5" value="${schaeden_data.trieb2_befallene_nadeln_pct}" oninput="updateC2Trieb('${tree.baum_id}', 2, this.value)">
         <div class="slider-value" id="c2-trieb2-${tree.baum_id}-value" style="text-align: center; margin-top: 0.5rem;">${schaeden_data.trieb2_befallene_nadeln_pct}%</div>
       </div>
       <div style="margin-bottom: 1rem;">
-        <label>Trieb 3 – Befallene Nadeln (%)</label>
+        <label>Pousse 3 – Aiguilles infectées (%)</label>
         <input type="range" class="slider" min="0" max="100" step="5" value="${schaeden_data.trieb3_befallene_nadeln_pct}" oninput="updateC2Trieb('${tree.baum_id}', 3, this.value)">
         <div class="slider-value" id="c2-trieb3-${tree.baum_id}-value" style="text-align: center; margin-top: 0.5rem;">${schaeden_data.trieb3_befallene_nadeln_pct}%</div>
       </div>
       <div style="margin-bottom: 1rem;">
-        <label>Trieb 4 – Befallene Nadeln (%)</label>
+        <label>Pousse 4 – Aiguilles infectées (%)</label>
         <input type="range" class="slider" min="0" max="100" step="5" value="${schaeden_data.trieb4_befallene_nadeln_pct}" oninput="updateC2Trieb('${tree.baum_id}', 4, this.value)">
         <div class="slider-value" id="c2-trieb4-${tree.baum_id}-value" style="text-align: center; margin-top: 0.5rem;">${schaeden_data.trieb4_befallene_nadeln_pct}%</div>
       </div>
       <div style="margin-bottom: 1rem;">
-        <label>Trieb 5 – Befallene Nadeln (%)</label>
+        <label>Pousse 5 – Aiguilles infectées (%)</label>
         <input type="range" class="slider" min="0" max="100" step="5" value="${schaeden_data.trieb5_befallene_nadeln_pct}" oninput="updateC2Trieb('${tree.baum_id}', 5, this.value)">
         <div class="slider-value" id="c2-trieb5-${tree.baum_id}-value" style="text-align: center; margin-top: 0.5rem;">${schaeden_data.trieb5_befallene_nadeln_pct}%</div>
       </div>
       <div style="margin-bottom: 1rem; border-top: 1px solid var(--color-border); padding-top: 1rem;">
-        <label>Belegprobe gesammelt:</label>
+        <label>Échantillon prélevé :</label>
         <div class="toggle-group">
-          <button type="button" class="toggle-btn ${!schaeden_data.belegprobe_gesammelt ? 'active' : ''}" onclick="updateC2Belegprobe('${tree.baum_id}', false)">Nein</button>
-          <button type="button" class="toggle-btn ${schaeden_data.belegprobe_gesammelt ? 'active' : ''}" onclick="updateC2Belegprobe('${tree.baum_id}', true)">Ja</button>
+          <button type="button" class="toggle-btn ${!schaeden_data.belegprobe_gesammelt ? 'active' : ''}" onclick="updateC2Belegprobe('${tree.baum_id}', false)">Non</button>
+          <button type="button" class="toggle-btn ${schaeden_data.belegprobe_gesammelt ? 'active' : ''}" onclick="updateC2Belegprobe('${tree.baum_id}', true)">Oui</button>
         </div>
       </div>
       <div style="background: #f0f4ef; padding: 0.75rem; border-radius: 4px; font-size: 0.9rem;">
-        <div style="margin-bottom: 0.5rem;"><strong>Status:</strong> ${befallen ? '⚠️ Befallen (' + befallte_triebe_count + '/5 Triebe)' : '✅ Frei'}</div>
-        <div><strong>Ø Befallte Nadeln:</strong> ${(schaeden_data.mittl_befallene_triebe_pct || 0).toFixed(1)}%</div>
+        <div style="margin-bottom: 0.5rem;"><strong>Statut :</strong> ${befallen ? '⚠️ Infecté (' + befallte_triebe_count + '/5 pousses)' : '✅ Indemne'}</div>
+        <div><strong>Ø Aiguilles infectées :</strong> ${(schaeden_data.mittl_befallene_triebe_pct || 0).toFixed(1)}%</div>
       </div>
     `;
     container.appendChild(card);
@@ -2282,7 +2282,7 @@ function initC2b() {
   container.innerHTML = '';
   const fallen = app.data.blutzikade.fallen || [];
   fallen.forEach(falle => {
-    const gps_str = falle.lat ? `${falle.lat.toFixed(4)}° N | ${falle.lon.toFixed(4)}° E` : 'Nicht erfasst';
+    const gps_str = falle.lat ? `${falle.lat.toFixed(4)}° N | ${falle.lon.toFixed(4)}° E` : 'Non relevé';
     const gps_display = falle.lat ? `
       <div class="gps-widget-row"><span class="gps-widget-label">📍 GPS:</span> <span class="gps-widget-value">${gps_str}</span></div>
       <div class="gps-widget-row"><span class="gps-widget-label">LV95:</span> <span class="gps-widget-value">E ${falle.e_lv95.toLocaleString('de-CH')} | N ${falle.n_lv95.toLocaleString('de-CH')}</span></div>
@@ -2292,24 +2292,24 @@ function initC2b() {
     card.innerHTML = `
       <div class="card-title">${falle.falle_id} — ${falle.baum_ref}</div>
       <div class="form-group" style="margin-bottom: 0.75rem;">
-        <label>Datum Abbau *</label>
+        <label>Date de retrait *</label>
         <input type="date" value="${falle.datum_abbau || today()}" onchange="updateC2bField('${falle.falle_id}', 'datum_abbau', this.value)">
       </div>
       <div class="form-group" style="margin-bottom: 0.75rem;">
-        <label>Anzahl Zikaden *</label>
+        <label>Nombre de cicadelles *</label>
         <input type="number" min="0" value="${falle.anzahl_zikaden || 0}" onchange="updateC2bField('${falle.falle_id}', 'anzahl_zikaden', this.value)">
       </div>
       <div class="form-group" style="margin-bottom: 0.75rem;">
-        <label>Verdachtsprobe WSS:</label>
+        <label>Échantillon suspect WSS :</label>
         <div class="toggle-group">
-          <button type="button" class="toggle-btn ${!falle.verdachtsprobe_wss ? 'active' : ''}" onclick="updateC2bField('${falle.falle_id}', 'verdachtsprobe_wss', false)">Nein</button>
-          <button type="button" class="toggle-btn ${falle.verdachtsprobe_wss ? 'active' : ''}" onclick="updateC2bField('${falle.falle_id}', 'verdachtsprobe_wss', true)">Ja</button>
+          <button type="button" class="toggle-btn ${!falle.verdachtsprobe_wss ? 'active' : ''}" onclick="updateC2bField('${falle.falle_id}', 'verdachtsprobe_wss', false)">Non</button>
+          <button type="button" class="toggle-btn ${falle.verdachtsprobe_wss ? 'active' : ''}" onclick="updateC2bField('${falle.falle_id}', 'verdachtsprobe_wss', true)">Oui</button>
         </div>
       </div>
       <div style="background: #f0f4ef; padding: 1rem; border-radius: 4px; font-size: 0.9rem; line-height: 1.6;">
-        <div style="margin-bottom: 0.5rem;"><strong>Installation:</strong> ${falle.datum_installation}</div>
-        <div style="margin-bottom: 0.5rem;"><strong>Expositionsdauer:</strong> ${falle.expositionsdauer_tage || '—'} Tage</div>
-        <div><strong>Nachweis:</strong> ${falle.nachweis_zikade ? '✅ Ja (' + falle.anzahl_zikaden + ' Zikaden)' : '❌ Nein'}</div>
+        <div style="margin-bottom: 0.5rem;"><strong>Installation :</strong> ${falle.datum_installation}</div>
+        <div style="margin-bottom: 0.5rem;"><strong>Durée d'exposition :</strong> ${falle.expositionsdauer_tage || '—'} jours</div>
+        <div><strong>Détection :</strong> ${falle.nachweis_zikade ? '✅ Oui (' + falle.anzahl_zikaden + ' cicadelles)' : '❌ Non'}</div>
       </div>
     `;
     container.appendChild(card);
@@ -2347,7 +2347,7 @@ function updateC2bSummary() {
   const befallene_pct = kontrollierte_baeume > 0 ? (befallene_baeume / kontrollierte_baeume) * 100 : 0;
   const avg_befallene_nadeln = schaeden.length > 0 ? schaeden.reduce((sum, s) => sum + (s.mittl_befallene_triebe_pct || 0), 0) / schaeden.length : 0;
   const belegprobe_count = schaeden.filter(s => s.belegprobe_gesammelt).length;
-  const belegprobe_str = belegprobe_count > 0 ? '✅ Ja' : '❌ Nein';
+  const belegprobe_str = belegprobe_count > 0 ? '✅ Oui' : '❌ Non';
   const fallen_mit_nachweis = fallen.filter(f => f.nachweis_zikade).length;
   const fallen_nachweis_pct = fallen.length > 0 ? (fallen_mit_nachweis / fallen.length) * 100 : 0;
   const avg_fangrate = fallen.length > 0 ? fallen.reduce((sum, f) => {
@@ -2357,20 +2357,20 @@ function updateC2bSummary() {
   const avg_expositionsdauer = fallen.length > 0 ? fallen.reduce((sum, f) => sum + (f.expositionsdauer_tage || 0), 0) / fallen.length : 0;
   const summary_html = `
     <div class="summary-card">
-      <div class="summary-title">✅ KIEFERNBLUTZIKADE — Auswertung</div>
+      <div class="summary-title">✅ CICADELLE DU PIN — Résultats</div>
       <div style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.2);">
-        <div style="font-weight: bold; margin-bottom: 0.5rem;">SAUGSCHÄDEN:</div>
-        <div class="summary-item"><span>Kontrollierte Bäume:</span> <strong>${kontrollierte_baeume}</strong></div>
-        <div class="summary-item"><span>Befallene Bäume:</span> <strong>${befallene_baeume} (${befallene_pct.toFixed(1)}%)</strong></div>
-        <div class="summary-item"><span>Ø Befallene Nadeln:</span> <strong>${avg_befallene_nadeln.toFixed(1)}%</strong></div>
-        <div class="summary-item"><span>Belegprobe gesammelt:</span> <strong>${belegprobe_str}</strong></div>
+        <div style="font-weight: bold; margin-bottom: 0.5rem;">DÉGÂTS DE SUCCION :</div>
+        <div class="summary-item"><span>Arbres contrôlés :</span> <strong>${kontrollierte_baeume}</strong></div>
+        <div class="summary-item"><span>Arbres infectés :</span> <strong>${befallene_baeume} (${befallene_pct.toFixed(1)}%)</strong></div>
+        <div class="summary-item"><span>Ø Aiguilles infectées :</span> <strong>${avg_befallene_nadeln.toFixed(1)}%</strong></div>
+        <div class="summary-item"><span>Échantillon prélevé :</span> <strong>${belegprobe_str}</strong></div>
       </div>
       <div>
-        <div style="font-weight: bold; margin-bottom: 0.5rem;">KLEBEFALLEN:</div>
-        <div class="summary-item"><span>Fallen mit Nachweis:</span> <strong>${fallen_mit_nachweis} / ${fallen.length} (${fallen_nachweis_pct.toFixed(0)}%)</strong></div>
-        <div class="summary-item"><span>Ø Tägliche Fangrate:</span> <strong>${avg_fangrate.toFixed(2)}</strong></div>
-        <div class="summary-item"><span>Verdachtsproben WSS:</span> <strong>${verdachtsprobe_count}</strong></div>
-        <div class="summary-item"><span>Ø Expositionsdauer:</span> <strong>${avg_expositionsdauer.toFixed(0)} Tage</strong></div>
+        <div style="font-weight: bold; margin-bottom: 0.5rem;">PIÈGES COLLANTS :</div>
+        <div class="summary-item"><span>Pièges avec détection :</span> <strong>${fallen_mit_nachweis} / ${fallen.length} (${fallen_nachweis_pct.toFixed(0)}%)</strong></div>
+        <div class="summary-item"><span>Ø Taux de capture quotidien :</span> <strong>${avg_fangrate.toFixed(2)}</strong></div>
+        <div class="summary-item"><span>Échantillons suspects WSS :</span> <strong>${verdachtsprobe_count}</strong></div>
+        <div class="summary-item"><span>Ø Durée d'exposition :</span> <strong>${avg_expositionsdauer.toFixed(0)} jours</strong></div>
       </div>
     </div>
   `;
@@ -2389,11 +2389,11 @@ function restoreFromJSON(event) {
     try {
       const backup = JSON.parse(e.target.result);
       if (!backup._backup_meta || !backup.foehren_app_standort) {
-        alert('Keine gültige Sicherungsdatei.');
+        alert('Fichier de sauvegarde invalide.');
         return;
       }
       const meta = backup._backup_meta;
-      const confirm_msg = `Sicherung vom ${meta.backup_datum.split('T')[0]} für Plot "${meta.plot_id}" laden?\n\nAktuelle Daten werden überschrieben.`;
+      const confirm_msg = `Charger la sauvegarde du ${meta.backup_datum.split('T')[0]} pour le plot "${meta.plot_id}" ?\n\nLes données actuelles seront écrasées.`;
       if (!confirm(confirm_msg)) {
         return;
       }
@@ -2404,7 +2404,7 @@ function restoreFromJSON(event) {
       });
       location.reload();
     } catch (err) {
-      alert('Fehler beim Laden: ' + err.message);
+      alert('Erreur lors du chargement : ' + err.message);
     }
   };
   reader.readAsText(file);
@@ -2416,7 +2416,7 @@ function backupToJSON() {
     _backup_meta: {
       app_version: '1.0.0',
       backup_datum: new Date().toISOString(),
-      plot_id: app.data.standort.plot_id || 'unbekannt'
+      plot_id: app.data.standort.plot_id || 'inconnu'
     }
   };
   Object.entries(storage.keys).forEach(([key, lsKey]) => {
@@ -2850,8 +2850,8 @@ function updateExportStatus() {
   const tInfo = document.getElementById('export-termin-info');
   if (tInfo) {
     tInfo.innerHTML = currentTermin === 1
-      ? '📋 <strong>Termin 1:</strong> Export enthält Standort, Bäume, Diplodia-Befall, Klebefallen-Installation. <br>⚠️ Sichern Sie danach unbedingt ein JSON-Backup für Termin 2!'
-      : '📋 <strong>Termin 2:</strong> Export enthält alle T1-Daten + Spinner, Saugschäden, Klebefallen-Abbau.';
+      ? '📋 <strong>Campagne 1 :</strong> L\'export contient site, arbres, infection Diplodia, installation des pièges collants. <br>⚠️ Sauvegardez impérativement un backup JSON pour la campagne 2 !'
+      : '📋 <strong>Campagne 2 :</strong> L\'export contient toutes les données C1 + processionnaire, dégâts de succion, retrait des pièges.';
   }
   const el = document.getElementById('export-status');
   if (!el) return;
@@ -2871,26 +2871,26 @@ function updateExportStatus() {
   const ok = '✅'; const no = '⬜';
   el.innerHTML = `
     <div class="card" style="background: #f0f4ef; padding: 1rem;">
-      <div style="font-weight: bold; margin-bottom: 0.75rem; color: var(--color-primary);">Datenübersicht</div>
+      <div style="font-weight: bold; margin-bottom: 0.75rem; color: var(--color-primary);">Aperçu des données</div>
       <div style="font-size: 0.9rem; line-height: 1.8;">
-        ${hasStandort ? ok : no} Standort<br>
-        ${large > 0 ? ok : no} Bäume BHD &gt;20: ${large}/20<br>
-        ${small > 0 ? ok : no} Bäume BHD &lt;20: ${small}/20<br>
-        ${hasZapfen ? ok : no} Diplodia Zapfen<br>
-        ${kronen > 0 ? ok : no} Diplodia Kronenbefall: ${kronen} Bäume<br>
-        ${hasMethodenkritik ? ok : no} Diplodia Methodenkritik<br>
-        ${spinner > 0 ? ok : no} Spinner: ${spinner} Bäume kontrolliert<br>
-        ${fallen > 0 ? ok : no} Klebefallen Installation: ${fallen}/5<br>
-        ${schaeden > 0 ? ok : no} Saugschäden: ${schaeden} Bäume<br>
-        ${fallenAbbau > 0 ? ok : no} Klebefallen Abbau: ${fallenAbbau}/5
+        ${hasStandort ? ok : no} Site<br>
+        ${large > 0 ? ok : no} Arbres DHP &gt;20 : ${large}/20<br>
+        ${small > 0 ? ok : no} Arbres DHP &lt;20 : ${small}/20<br>
+        ${hasZapfen ? ok : no} Diplodia cônes<br>
+        ${kronen > 0 ? ok : no} Diplodia infection couronne : ${kronen} arbres<br>
+        ${hasMethodenkritik ? ok : no} Diplodia critique méthodologique<br>
+        ${spinner > 0 ? ok : no} Processionnaire : ${spinner} arbres contrôlés<br>
+        ${fallen > 0 ? ok : no} Pièges collants installation : ${fallen}/5<br>
+        ${schaeden > 0 ? ok : no} Dégâts de succion : ${schaeden} arbres<br>
+        ${fallenAbbau > 0 ? ok : no} Pièges collants retrait : ${fallenAbbau}/5
       </div>
     </div>
   `;
 }
 
 function confirmReset() {
-  if (confirm('Alle Daten wirklich löschen? Dies kann nicht rückgängig gemacht werden.')) {
-    if (confirm('WARNUNG: Dies löscht ALLE Daten unwiderruflich. Sicher?')) {
+  if (confirm('Supprimer toutes les données ? Cette action est irréversible.')) {
+    if (confirm('AVERTISSEMENT : Ceci supprime TOUTES les données de manière irréversible. Êtes-vous sûr ?')) {
       storage.clear();
       location.reload();
     }
@@ -2905,7 +2905,7 @@ function updateUI() {
 document.addEventListener('DOMContentLoaded', () => {
   updateUI();
   checkEmptyState();
-  switchTermin(1); // Termin 1 als Default beim App-Start
+  switchTermin(1); // Campagne 1 par défaut au démarrage
 });
 
 function checkEmptyState() {
@@ -2921,9 +2921,9 @@ function checkEmptyState() {
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js').then(reg => {
-      console.log('Service Worker registriert:', reg.scope);
+      console.log('Service Worker enregistré :', reg.scope);
     }).catch(err => {
-      console.warn('Service Worker Registrierung fehlgeschlagen:', err);
+      console.warn('Enregistrement Service Worker échoué :', err);
     });
   });
 }
