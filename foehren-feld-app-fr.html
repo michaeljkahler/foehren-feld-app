@@ -695,6 +695,7 @@
                 <option value="NW">NW (Nord-ouest)</option>
                 <option value="eben">plat</option>
               </select>
+              <div id="exposition-auto-status" style="font-size: 0.8rem; color: var(--color-muted); margin-top: 0.25rem;"></div>
             </div>
           </div>
         </details>
@@ -1468,6 +1469,77 @@ function fetchVegetationshoehenstufe(e, n) {
     .catch(() => { statusEl.textContent = '⚠️ Hors ligne — choisir manuellement'; });
 }
 
+function fetchExposition(e, n) {
+  const statusEl = document.getElementById('exposition-auto-status');
+  if (!statusEl) return;
+  statusEl.textContent = '⏳ Exposition en cours de calcul…';
+  const offset = 25;
+  const heightUrl = (east, north) =>
+    `https://api3.geo.admin.ch/rest/services/height?easting=${east}&northing=${north}&sr=2056`;
+
+  const fetchH = (url) => Promise.race([
+    fetch(url).then(r => r.json()),
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 8000))
+  ]);
+
+  Promise.all([
+    fetchH(heightUrl(e, n)),
+    fetchH(heightUrl(e, n + offset)),
+    fetchH(heightUrl(e, n - offset)),
+    fetchH(heightUrl(e + offset, n)),
+    fetchH(heightUrl(e - offset, n))
+  ])
+  .then(([center, north, south, east, west]) => {
+    const parseH = (obj) => {
+      if (!obj || obj.height == null) return NaN;
+      return parseFloat(obj.height);
+    };
+    const h_n = parseH(north);
+    const h_s = parseH(south);
+    const h_e = parseH(east);
+    const h_w = parseH(west);
+
+    if ([h_n, h_s, h_e, h_w].some(h => isNaN(h))) {
+      statusEl.textContent = '⚠️ Données d\'altitude incomplètes — veuillez choisir manuellement';
+      return;
+    }
+
+    const dz_ew = (h_e - h_w) / (2 * offset);
+    const dz_ns = (h_n - h_s) / (2 * offset);
+    const slope = Math.sqrt(dz_ew * dz_ew + dz_ns * dz_ns);
+
+    let exposition_value;
+    if (slope < 0.02) {
+      exposition_value = 'eben';
+    } else {
+      const aspect_deg = (Math.atan2(-dz_ew, -dz_ns) * 180 / Math.PI + 360) % 360;
+      const sectors = [
+        { min: 337.5, max: 360, val: 'N' },
+        { min: 0,     max: 22.5, val: 'N' },
+        { min: 22.5,  max: 67.5, val: 'NO' },
+        { min: 67.5,  max: 112.5, val: 'O' },
+        { min: 112.5, max: 157.5, val: 'SO' },
+        { min: 157.5, max: 202.5, val: 'S' },
+        { min: 202.5, max: 247.5, val: 'SW' },
+        { min: 247.5, max: 292.5, val: 'W' },
+        { min: 292.5, max: 337.5, val: 'NW' }
+      ];
+      exposition_value = sectors.find(s => aspect_deg >= s.min && aspect_deg < s.max)?.val || 'N';
+    }
+
+    const sel = document.getElementById('exposition');
+    sel.value = exposition_value;
+    app.data.standort.exposition = exposition_value;
+    storage.save(app.data);
+
+    const slope_deg = Math.atan(slope) * 180 / Math.PI;
+    statusEl.textContent = `✅ Auto : ${exposition_value} (pente ~${slope_deg.toFixed(0)}°, swisstopo MNS)`;
+  })
+  .catch(() => {
+    statusEl.textContent = '⚠️ Hors ligne — veuillez choisir manuellement';
+  });
+}
+
 function captureStandortGPS() {
   const btn = event.target;
   btn.disabled = true;
@@ -1490,6 +1562,7 @@ function captureStandortGPS() {
       // Auto-fetch Höhe und Vegetationshöhenstufe via geo.admin.ch
       fetchElevation(lv95.E, lv95.N);
       fetchVegetationshoehenstufe(lv95.E, lv95.N);
+      fetchExposition(lv95.E, lv95.N);
     },
     (err) => {
       alert('GPS non disponible : ' + err.message);
