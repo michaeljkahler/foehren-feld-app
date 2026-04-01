@@ -592,6 +592,54 @@
     details.field-group > .field-group-content {
       padding: 0.75rem 1rem;
     }
+    /* Kronenverlichtung Slider Progress (Auftrag 10) */
+    .slider-progress-container { position: relative; margin-bottom: 0.5rem; }
+    .slider-progress-bar { height: 8px; border-radius: 4px; background: #e0e0e0; margin-bottom: 0.25rem; overflow: hidden; }
+    .slider-progress-fill { height: 100%; border-radius: 4px; transition: width 0.15s ease, background-color 0.15s ease; }
+    .slider-progress-labels { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--color-muted); padding: 0 2px; }
+    /* Lightbox pour images de référence (Auftrag 09) */
+    .lightbox-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .lightbox-overlay.active {
+      display: flex;
+    }
+    .lightbox-overlay img {
+      max-width: 95vw;
+      max-height: 90vh;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+    .lightbox-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      color: white;
+      font-size: 2rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      z-index: 10001;
+      padding: 0.5rem;
+      min-width: 44px;
+      min-height: 44px;
+    }
+    .lightbox-hint {
+      position: absolute;
+      bottom: 1rem;
+      color: rgba(255,255,255,0.7);
+      font-size: 0.85rem;
+      text-align: center;
+      width: 100%;
+    }
   </style>
 </head>
 <body>
@@ -907,6 +955,56 @@
           </div>
         </details>
 
+        <!-- Gruppe 3b: Mortalité (Auftrag 01) -->
+        <details class="field-group">
+          <summary>💀 Pins morts sur pied</summary>
+          <div class="field-group-content">
+            <div class="info-box">
+              📝 <strong>Consignes :</strong> Compter tous les pins morts sur pied (bois sec) dans la placette. Saisir séparément par classe de DHP.
+            </div>
+            <div class="form-group">
+              <label>Pins morts DHP ≥20 cm *</label>
+              <input type="number" id="tote_foehren_gross" min="0" value="0" placeholder="Nombre" required>
+            </div>
+            <div class="form-group">
+              <label>Pins morts DHP <20 cm *</label>
+              <input type="number" id="tote_foehren_klein" min="0" value="0" placeholder="Nombre" required>
+            </div>
+            <div id="tote-foehren-total" style="margin-top: 0.5rem; font-weight: bold; color: var(--color-primary);"></div>
+          </div>
+        </details>
+
+        <!-- Gruppe 3c: Profondeur du sol (Auftrag 02) -->
+        <details class="field-group">
+          <summary>🪨 Profondeur du sol (tige en fer)</summary>
+          <div class="field-group-content">
+            <div class="info-box">
+              📝 <strong>Consignes :</strong> Enfoncer la tige en fer à 5 points (centre + N/S/O/E, chacun à ~10m du centre de la placette). Mesurer la profondeur de pénétration en cm.
+            </div>
+            <div class="form-group">
+              <label>Centre (centre de la placette) — profondeur cm *</label>
+              <input type="number" id="boden_tiefe_mitte" min="0" step="1" placeholder="cm" required>
+            </div>
+            <div class="form-group">
+              <label>Nord (~10m) — profondeur cm *</label>
+              <input type="number" id="boden_tiefe_nord" min="0" step="1" placeholder="cm" required>
+            </div>
+            <div class="form-group">
+              <label>Sud (~10m) — profondeur cm *</label>
+              <input type="number" id="boden_tiefe_sued" min="0" step="1" placeholder="cm" required>
+            </div>
+            <div class="form-group">
+              <label>Ouest (~10m) — profondeur cm *</label>
+              <input type="number" id="boden_tiefe_west" min="0" step="1" placeholder="cm" required>
+            </div>
+            <div class="form-group">
+              <label>Est (~10m) — profondeur cm *</label>
+              <input type="number" id="boden_tiefe_ost" min="0" step="1" placeholder="cm" required>
+            </div>
+            <div id="boden-tiefe-mittelwert" style="margin-top: 0.75rem; padding: 0.75rem; background: #e8f5e9; border-radius: 8px; font-weight: bold; color: var(--color-primary);"></div>
+          </div>
+        </details>
+
         <!-- Gruppe 4: Bemerkungen -->
         <details class="field-group">
           <summary>📝 Remarques</summary>
@@ -1041,12 +1139,71 @@
       <div id="c1-summary" style="margin-top: 1rem;"></div>
     </div>
 
+    <div class="page" style="display: none;" id="c1b-page">
+      <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">C1b : Piège à insectes / Polytrap</h3>
+      <div class="info-box">
+        🪤 <strong>Consignes :</strong> Installer 1 piège Polytrap au centre de la placette.
+        Coordonnées GPS = GPS du site. Placer le piège sur un support stable, insérer le récipient de capture.
+      </div>
+      <form id="form-polytrap">
+        <div class="form-group">
+          <label>GPS Polytrap</label>
+          <div id="polytrap-gps-info" class="gps-widget" style="margin-bottom: 0.5rem;"></div>
+          <button type="button" class="btn btn-secondary btn-full" onclick="useStandortGPSForPolytrap()">📍 Reprendre GPS du site</button>
+        </div>
+        <div class="form-group">
+          <label>Statut *</label>
+          <select id="polytrap_status" required>
+            <option value="">-- Choisir --</option>
+            <option value="installiert">Installé (C1)</option>
+            <option value="geleert_entfernt">Vidé &amp; retiré (C2)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Date d'installation</label>
+          <input type="date" id="polytrap_datum_installation">
+        </div>
+        <div class="form-group" id="polytrap-t2-fields" style="display: none;">
+          <label>Date de vidange/retrait</label>
+          <input type="date" id="polytrap_datum_abbau">
+        </div>
+        <div class="form-group" id="polytrap-t2-probe" style="display: none;">
+          <label>Désignation de l'échantillon</label>
+          <input type="text" id="polytrap_probe_id" placeholder="p.ex. PT-SH01-2026">
+        </div>
+        <div class="form-group">
+          <label>Remarques</label>
+          <textarea id="polytrap_bemerkung" placeholder="Facultatif"></textarea>
+        </div>
+      </form>
+    </div>
+
     <div class="page" style="display: none;" id="c2-page">
       <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">C2 : Dégâts de succion (Campagne 2, DHP <20 cm)</h3>
       <div class="info-box">
-        🔍 <strong>Consignes :</strong> Examiner 5 pousses exposées au soleil par arbre. Dégâts de succion = décolorations annulaires jaune-brun des aiguilles (anciennes pousses). Couper 1 pousse symptomatique par site comme échantillon.
+        🔍 <strong>Consignes :</strong> Examiner 5 pousses exposées au soleil par arbre. Dégâts de succion = décolorations annulaires jaune-brun des aiguilles (anciennes pousses). Couper 3 branches (~30 cm chacune) avec des dégâts de succion visibles et les emballer dans un sac plastique pour le laboratoire (HAFL). Étiqueter le sac : site, date, nom.
       </div>
       <div id="c2-schaeden-container"></div>
+      <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 2px solid var(--color-border);">
+        <h4 style="margin-bottom: 0.75rem; color: var(--color-primary);">✂️ Prélèvement dégâts de succion</h4>
+        <div class="info-box">
+          ✂️ <strong>Consignes :</strong> Couper 3 branches (~30 cm chacune) avec des dégâts de succion visibles.
+          Emballer dans un sac plastique. Étiqueter le sac : site, date, nom.
+        </div>
+        <div class="form-group">
+          <label>Nombre de branches coupées *</label>
+          <input type="number" id="saugschaeden_aeste_anzahl" min="0" max="10" value="0" placeholder="Objectif : 3">
+        </div>
+        <div class="form-group">
+          <label>Désignation du sac *</label>
+          <input type="text" id="saugschaeden_sack_id" placeholder="p.ex. SS-SH01-2026">
+        </div>
+        <div class="form-group">
+          <label>Remarques prélèvement</label>
+          <textarea id="saugschaeden_probe_bemerkung" placeholder="p.ex. Branches de l'arbre X, Y, Z"></textarea>
+        </div>
+        <div id="saugschaeden-probe-status" style="margin-top: 0.5rem; padding: 0.5rem; border-radius: 4px; text-align: center;"></div>
+      </div>
     </div>
 
     <div class="page" style="display: none;" id="c2b-page">
@@ -1137,7 +1294,7 @@ const storage = {
       baeume: this.getJSON(this.keys.baeume) || [],
       diplodia: this.getJSON(this.keys.diplodia) || { zapfen: {}, kronen: [], methodenkritik: '' },
       spinner: this.getJSON(this.keys.spinner) || [],
-      blutzikade: this.getJSON(this.keys.blutzikade) || { schaeden: [], fallen: [] },
+      blutzikade: this.getJSON(this.keys.blutzikade) || { schaeden: [], fallen: [], polytrap: {}, saugschaeden_probe: {} },
       meta: this.getJSON(this.keys.meta) || { version: '1.0.0', erstellt_am: today() }
     };
   },
@@ -1238,7 +1395,7 @@ function switchTermin(termin) {
 }
 
 function initStandort() {
-  const fields = ['plot_id', 'aufnehmer', 'datum_t1', 'datum_t2', 'hoehe_mue', 'vegetationshoehenstufe', 'exposition', 'waldgesellschaft', 'bemerkungen_standort'];
+  const fields = ['plot_id', 'aufnehmer', 'datum_t1', 'datum_t2', 'hoehe_mue', 'vegetationshoehenstufe', 'exposition', 'waldgesellschaft', 'bemerkungen_standort', 'tote_foehren_gross', 'tote_foehren_klein', 'boden_tiefe_mitte', 'boden_tiefe_nord', 'boden_tiefe_sued', 'boden_tiefe_west', 'boden_tiefe_ost'];
   fields.forEach(field => {
     const elem = document.getElementById(field);
     if (elem) {
@@ -1258,9 +1415,45 @@ function initStandort() {
     document.getElementById('empty-state-banner').style.display = 'none';
   }
 
+  // Pins morts Total (Auftrag 01)
+  updateToteTotal();
+  ['tote_foehren_gross', 'tote_foehren_klein'].forEach(f => {
+    const el = document.getElementById(f);
+    if (el) el.addEventListener('input', updateToteTotal);
+  });
+
+  // Profondeur du sol Moyenne (Auftrag 02)
+  updateBodenMittelwert();
+  ['boden_tiefe_mitte', 'boden_tiefe_nord', 'boden_tiefe_sued', 'boden_tiefe_west', 'boden_tiefe_ost'].forEach(f => {
+    const el = document.getElementById(f);
+    if (el) el.addEventListener('input', updateBodenMittelwert);
+  });
+
   initBaumartenMischung();
   initBodenvegetation();
   renderTrees();
+}
+
+function updateToteTotal() {
+  const total_elem = document.getElementById('tote-foehren-total');
+  if (total_elem) {
+    const gross = parseInt(app.data.standort.tote_foehren_gross) || 0;
+    const klein = parseInt(app.data.standort.tote_foehren_klein) || 0;
+    total_elem.textContent = `Total pins morts : ${gross + klein}`;
+  }
+}
+
+function updateBodenMittelwert() {
+  const container = document.getElementById('boden-tiefe-mittelwert');
+  if (!container) return;
+  const fields = ['boden_tiefe_mitte', 'boden_tiefe_nord', 'boden_tiefe_sued', 'boden_tiefe_west', 'boden_tiefe_ost'];
+  const values = fields.map(f => parseFloat(app.data.standort[f])).filter(v => !isNaN(v) && v >= 0);
+  if (values.length === 0) {
+    container.textContent = 'Aucune mesure saisie.';
+    return;
+  }
+  const mittelwert = (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1);
+  container.textContent = `Ø Profondeur du sol : ${mittelwert} cm (${values.length}/5 mesures)`;
 }
 
 // === BAUMARTENMISCHUNG ===
@@ -1664,7 +1857,7 @@ function renderTrees() {
         <div><strong>DHP :</strong> ${tree.bhd_cm || '—'} cm</div>
         <div style="margin-top: 0.5rem;"><strong>📍 GPS :</strong> ${gps_str}</div>
         ${lv95_str ? `<div style="margin-top: 0.25rem;"><strong>LV95 :</strong> ${lv95_str}</div>` : ''}
-        <div style="margin-top: 0.5rem;"><strong>Défoliation :</strong> ${tree.kronenverlichtung_pct}%</div>
+        ${tree.bhd_klasse === '>20cm' ? `<div style="margin-top: 0.5rem;"><strong>Défoliation :</strong> ${tree.kronenverlichtung_pct}%</div>` : ''}
         ${tree.bemerkungen_baum ? `<div style="margin-top: 0.5rem;"><strong>Remarques :</strong> ${tree.bemerkungen_baum}</div>` : ''}
       </div>
       <div style="margin-top: 0.75rem;">
@@ -1697,12 +1890,21 @@ function showTreeEdit(baum_id) {
           </div>
           <button type="button" class="btn btn-full" onclick="captureTreeGPS('${baum_id}')">📍 Obtenir GPS</button>
         </div>
+        ${tree.bhd_klasse === '>20cm' ? `
         <div class="form-group">
           <label>Défoliation (SANASILVA) *</label>
-          <img src="sanasilva-kronenverlichtung.png" alt="SANASILVA Défoliation Référence : 0% - 25% - 60% - 70%" style="width:100%; border-radius:6px; margin-bottom:0.5rem; border:1px solid var(--color-border);">
-          <input type="range" class="slider" id="edit-kronenverlichtung" min="0" max="100" step="5" value="${tree.kronenverlichtung_pct || 0}" oninput="updateSliderDisplay('edit-kronenverlichtung')">
-          <div class="slider-value" id="edit-kronenverlichtung-value">${tree.kronenverlichtung_pct || 0}%</div>
+          <img src="sanasilva-kronenverlichtung.png" alt="SANASILVA Défoliation Référence : 0% - 25% - 60% - 70%" style="width:100%; border-radius:6px; margin-bottom:0.25rem; border:1px solid var(--color-border); cursor: pointer;" onclick="openLightbox(event, 'sanasilva-kronenverlichtung.png')" title="Appuyez pour agrandir">
+          <div style="text-align: center; font-size: 0.75rem; color: var(--color-muted); margin-bottom: 0.5rem;">🔍 Appuyez pour agrandir</div>
+          <div class="slider-progress-container">
+            <div class="slider-progress-bar">
+              <div class="slider-progress-fill" id="edit-kronenverlichtung-progress" style="width: ${tree.kronenverlichtung_pct || 0}%; background-color: ${getKVColor(tree.kronenverlichtung_pct || 0)};"></div>
+            </div>
+            <input type="range" class="slider" id="edit-kronenverlichtung" min="0" max="100" step="5" value="${tree.kronenverlichtung_pct || 0}" oninput="updateSliderWithProgress('edit-kronenverlichtung', this.value)">
+            <div class="slider-progress-labels"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+            <div class="slider-value" id="edit-kronenverlichtung-value" style="font-size: 1.1rem; font-weight: bold; color: ${getKVColor(tree.kronenverlichtung_pct || 0)};">${tree.kronenverlichtung_pct || 0}%</div>
+          </div>
         </div>
+        ` : ''}
         <div class="form-group">
           <label>Remarques</label>
           <textarea id="edit-bemerkungen">${tree.bemerkungen_baum || ''}</textarea>
@@ -1715,7 +1917,7 @@ function showTreeEdit(baum_id) {
     </div>
   `;
   document.body.insertAdjacentHTML('beforeend', modal_html);
-  updateSliderDisplay('edit-kronenverlichtung');
+  updateSliderWithProgress('edit-kronenverlichtung', document.getElementById('edit-kronenverlichtung')?.value || 0);
 }
 
 function updateSliderDisplay(slider_id) {
@@ -1815,7 +2017,7 @@ function initDiplodiaKronen() {
   }
   container.insertAdjacentHTML('beforeend', `
     <div class="info-box" style="margin-bottom: 1rem;">
-      🔭 <strong>Matériel : jumelles.</strong> Par arbre, évaluer 3 branches bien visibles et encore vivantes (du tronc à l'extrémité).
+      🔭 <strong>Matériel : jumelles.</strong> Par arbre, évaluer 3 branches bien visibles — estimer le % de pousses infectées.
       <br>Arbres affichés : <strong>${large_trees.length} / 10</strong> (10 premiers DHP &gt;20 cm du module 0)
     </div>
   `);
@@ -1824,16 +2026,27 @@ function initDiplodiaKronen() {
     if (!krone_data) {
       krone_data = {
         baum_id: tree.baum_id,
-        ast1_triebe_total: 0,
-        ast1_triebe_infiziert: 0,
-        ast2_triebe_total: 0,
-        ast2_triebe_infiziert: 0,
-        ast3_triebe_total: 0,
-        ast3_triebe_infiziert: 0,
+        ast1_befall_pct: 0,
+        ast2_befall_pct: 0,
+        ast3_befall_pct: 0,
         befallsintensitaet_pct: 0,
         befallskategorie: ''
       };
       app.data.diplodia.kronen.push(krone_data);
+    }
+    // Migration: ancien format Triebe → pourcentage
+    if (krone_data.ast1_triebe_total !== undefined) {
+      console.log('Migration Diplodia ' + krone_data.baum_id + ': ancien format → pourcentage');
+      for (let i = 1; i <= 3; i++) {
+        const total = krone_data['ast' + i + '_triebe_total'] || 0;
+        const infiz = krone_data['ast' + i + '_triebe_infiziert'] || 0;
+        krone_data['ast' + i + '_befall_pct'] = total > 0 ? Math.round((infiz / total) * 100 / 5) * 5 : 0;
+        delete krone_data['ast' + i + '_triebe_total'];
+        delete krone_data['ast' + i + '_triebe_infiziert'];
+      }
+      krone_data.befallsintensitaet_pct = calculateDiplodiaIntensity(krone_data);
+      krone_data.befallskategorie = getDiplodiaCategory(krone_data.befallsintensitaet_pct);
+      storage.save(app.data);
     }
     const befallsintensitaet = calculateDiplodiaIntensity(krone_data);
     const befallskategorie = getDiplodiaCategory(befallsintensitaet);
@@ -1864,28 +2077,25 @@ function initDiplodiaKronen() {
           ${bemInfo ? `<div style="margin-top: 0.35rem; font-style: italic;">${bemInfo}</div>` : ''}
         </div>
         <div style="margin-bottom: 0.75rem;">
-          <label>Branche 1 – Pousses totales :</label>
-          <input type="number" min="0" value="${krone_data.ast1_triebe_total || 0}" onchange="updateDiplodiaKrone('${tree.baum_id}', 'ast1_triebe_total', this.value)" style="width: 100%;">
+          <label>Branche 1 — Pousses infectées (%) :</label>
+          <input type="range" class="slider" min="0" max="100" step="5"
+                 value="${krone_data.ast1_befall_pct || 0}"
+                 oninput="updateDiplodiaKrone('${tree.baum_id}', 'ast1_befall_pct', this.value); this.nextElementSibling.textContent=this.value+'%'">
+          <div class="slider-value">${krone_data.ast1_befall_pct || 0}%</div>
         </div>
         <div style="margin-bottom: 0.75rem;">
-          <label>Branche 1 – Pousses infectées :</label>
-          <input type="number" min="0" value="${krone_data.ast1_triebe_infiziert || 0}" onchange="updateDiplodiaKrone('${tree.baum_id}', 'ast1_triebe_infiziert', this.value)" style="width: 100%;">
+          <label>Branche 2 — Pousses infectées (%) :</label>
+          <input type="range" class="slider" min="0" max="100" step="5"
+                 value="${krone_data.ast2_befall_pct || 0}"
+                 oninput="updateDiplodiaKrone('${tree.baum_id}', 'ast2_befall_pct', this.value); this.nextElementSibling.textContent=this.value+'%'">
+          <div class="slider-value">${krone_data.ast2_befall_pct || 0}%</div>
         </div>
         <div style="margin-bottom: 0.75rem;">
-          <label>Branche 2 – Pousses totales :</label>
-          <input type="number" min="0" value="${krone_data.ast2_triebe_total || 0}" onchange="updateDiplodiaKrone('${tree.baum_id}', 'ast2_triebe_total', this.value)" style="width: 100%;">
-        </div>
-        <div style="margin-bottom: 0.75rem;">
-          <label>Branche 2 – Pousses infectées :</label>
-          <input type="number" min="0" value="${krone_data.ast2_triebe_infiziert || 0}" onchange="updateDiplodiaKrone('${tree.baum_id}', 'ast2_triebe_infiziert', this.value)" style="width: 100%;">
-        </div>
-        <div style="margin-bottom: 0.75rem;">
-          <label>Branche 3 – Pousses totales :</label>
-          <input type="number" min="0" value="${krone_data.ast3_triebe_total || 0}" onchange="updateDiplodiaKrone('${tree.baum_id}', 'ast3_triebe_total', this.value)" style="width: 100%;">
-        </div>
-        <div style="margin-bottom: 0.75rem;">
-          <label>Branche 3 – Pousses infectées :</label>
-          <input type="number" min="0" value="${krone_data.ast3_triebe_infiziert || 0}" onchange="updateDiplodiaKrone('${tree.baum_id}', 'ast3_triebe_infiziert', this.value)" style="width: 100%;">
+          <label>Branche 3 — Pousses infectées (%) :</label>
+          <input type="range" class="slider" min="0" max="100" step="5"
+                 value="${krone_data.ast3_befall_pct || 0}"
+                 oninput="updateDiplodiaKrone('${tree.baum_id}', 'ast3_befall_pct', this.value); this.nextElementSibling.textContent=this.value+'%'">
+          <div class="slider-value">${krone_data.ast3_befall_pct || 0}%</div>
         </div>
         <div class="summary-card" style="margin: 0.75rem 0; padding: 1rem;">
           <div class="summary-item">
@@ -1905,10 +2115,10 @@ function initDiplodiaKronen() {
 }
 
 function calculateDiplodiaIntensity(krone_data) {
-  const total = krone_data.ast1_triebe_total + krone_data.ast2_triebe_total + krone_data.ast3_triebe_total;
-  const infiziert = krone_data.ast1_triebe_infiziert + krone_data.ast2_triebe_infiziert + krone_data.ast3_triebe_infiziert;
-  if (total === 0) return 0;
-  return (infiziert / total) * 100;
+  const values = [krone_data.ast1_befall_pct, krone_data.ast2_befall_pct, krone_data.ast3_befall_pct];
+  const valid = values.filter(v => v != null && v > 0);
+  if (valid.length === 0) return 0;
+  return valid.reduce((a, b) => a + b, 0) / valid.length;
 }
 
 function getDiplodiaCategory(intensity) {
@@ -1922,15 +2132,6 @@ function updateDiplodiaKrone(baum_id, field, value) {
   const krone = app.data.diplodia.kronen.find(k => k.baum_id === baum_id);
   if (krone) {
     krone[field] = parseInt(value) || 0;
-    // Validate: infiziert <= total for each branch
-    for (let i = 1; i <= 3; i++) {
-      const total = krone[`ast${i}_triebe_total`];
-      const infiz = krone[`ast${i}_triebe_infiziert`];
-      if (infiz > total) {
-        krone[`ast${i}_triebe_infiziert`] = total;
-        alert(`Branche ${i} : Pousses infectées (${infiz}) corrigé au total (${total}).`);
-      }
-    }
     krone.befallsintensitaet_pct = calculateDiplodiaIntensity(krone);
     krone.befallskategorie = getDiplodiaCategory(krone.befallsintensitaet_pct);
     storage.save(app.data);
@@ -2004,13 +2205,13 @@ function closeSafetyModal() {
 function initSpinner() {
   const container = document.getElementById('spinner-trees-container');
   container.innerHTML = '';
-  const all_trees = app.data.baeume;
+  const all_trees = app.data.baeume.filter(b => b.bhd_klasse === '>20cm');
   all_trees.forEach(tree => {
     if (!app.data.spinner.find(s => s.baum_id === tree.baum_id)) {
       app.data.spinner.push({
         baum_id: tree.baum_id,
         bhd_klasse: tree.bhd_klasse,
-        methode: tree.bhd_klasse === '>20cm' ? 'Jumelles' : 'sans instrument',
+        methode: 'Jumelles',
         anzahl_nester: 0,
         befallen: false
       });
@@ -2018,12 +2219,12 @@ function initSpinner() {
   });
   storage.save(app.data);
   if (all_trees.length === 0) {
-    container.innerHTML = '<div class="info-box">⚠️ Aucun arbre encore saisi. Veuillez d\'abord saisir des arbres dans le module 0.</div>';
+    container.innerHTML = '<div class="info-box">⚠️ Aucun arbre DHP ≥20 cm saisi. Veuillez d\'abord saisir des arbres dans le module 0.</div>';
     return;
   }
   all_trees.forEach(tree => {
     const spinner_data = app.data.spinner.find(s => s.baum_id === tree.baum_id);
-    const methode = tree.bhd_klasse === '>20cm' ? 'Jumelles' : 'sans instrument';
+    const methode = 'Jumelles';
     const befallen = spinner_data && spinner_data.anzahl_nester >= 1;
     const treeGps = (tree.lat && tree.lon) ? `📍 ${tree.lat.toFixed(4)}° N | ${tree.lon.toFixed(4)}° E ±${tree.gps_accuracy||'?'}m` : '📍 pas de GPS';
     const treeBhd = tree.bhd_cm ? `DHP : ${tree.bhd_cm} cm` : '';
@@ -2084,18 +2285,85 @@ function updateSpinnerSummary() {
 
 function updateC2C2bPages() {
   const c1_page = document.getElementById('c1-page');
+  const c1b_page = document.getElementById('c1b-page');
   const c2_page = document.getElementById('c2-page');
   const c2b_page = document.getElementById('c2b-page');
   const small_trees = app.data.baeume.filter(b => b.bhd_klasse === '<20cm');
 
-  // Termin 1: nur C1 (Klebefallen Installation)
-  // Termin 2: nur C2 (Saugschäden) + C2b (Klebefallen Abbau)
+  // Campagne 1: C1 (Klebefallen) + C1b (Polytrap)
+  // Campagne 2: C1b (Polytrap) + C2 (Saugschäden) + C2b (Klebefallen Abbau)
   c1_page.style.display = currentTermin === 1 ? 'block' : 'none';
+  if (c1b_page) c1b_page.style.display = 'block'; // Visible C1 et C2
   c2_page.style.display = currentTermin === 2 && small_trees.length > 0 ? 'block' : 'none';
   c2b_page.style.display = currentTermin === 2 && app.data.blutzikade.fallen && app.data.blutzikade.fallen.length > 0 ? 'block' : 'none';
 
+  // Rétrocompatibilité
+  if (!app.data.blutzikade.polytrap) app.data.blutzikade.polytrap = {};
+  if (!app.data.blutzikade.saugschaeden_probe) app.data.blutzikade.saugschaeden_probe = { aeste_anzahl: 0, sack_id: '', bemerkung: '' };
+
+  initPolytrap();
   if (currentTermin === 1) initC1();
   if (currentTermin === 2) { initC2(); initC2b(); }
+}
+
+function initPolytrap() {
+  const data = app.data.blutzikade.polytrap || {};
+
+  const gpsInfo = document.getElementById('polytrap-gps-info');
+  if (gpsInfo) {
+    if (data.lat && data.lon) {
+      const lv95 = wgs84ToLV95(data.lat, data.lon);
+      gpsInfo.innerHTML = `
+        <div class="gps-widget-row"><span class="gps-widget-label">📍 GPS :</span>
+        <span class="gps-widget-value">${data.lat.toFixed(4)}° N | ${data.lon.toFixed(4)}° E</span></div>
+        <div class="gps-widget-row"><span class="gps-widget-label">LV95 :</span>
+        <span class="gps-widget-value">E ${lv95.E.toLocaleString('de-CH')} | N ${lv95.N.toLocaleString('de-CH')}</span></div>
+      `;
+    } else {
+      gpsInfo.innerHTML = '<div class="gps-widget-row">Aucun GPS repris.</div>';
+    }
+  }
+
+  const fields = ['polytrap_status', 'polytrap_datum_installation', 'polytrap_datum_abbau', 'polytrap_probe_id', 'polytrap_bemerkung'];
+  fields.forEach(field_id => {
+    const elem = document.getElementById(field_id);
+    if (elem) {
+      const key = field_id.replace('polytrap_', '');
+      elem.value = data[key] || '';
+      if (!elem.dataset.polytrapInit) {
+        elem.dataset.polytrapInit = 'true';
+        elem.addEventListener('change', () => {
+          app.data.blutzikade.polytrap[key] = elem.value;
+          storage.save(app.data);
+          togglePolytrapT2Fields();
+        });
+      }
+    }
+  });
+  togglePolytrapT2Fields();
+}
+
+function togglePolytrapT2Fields() {
+  const status = document.getElementById('polytrap_status')?.value;
+  const t2Fields = document.getElementById('polytrap-t2-fields');
+  const t2Probe = document.getElementById('polytrap-t2-probe');
+  if (t2Fields) t2Fields.style.display = status === 'geleert_entfernt' ? 'block' : 'none';
+  if (t2Probe) t2Probe.style.display = status === 'geleert_entfernt' ? 'block' : 'none';
+}
+
+function useStandortGPSForPolytrap() {
+  const standort = app.data.standort;
+  if (standort.koordinate_lat && standort.koordinate_lon) {
+    if (!app.data.blutzikade.polytrap) app.data.blutzikade.polytrap = {};
+    app.data.blutzikade.polytrap.lat = standort.koordinate_lat;
+    app.data.blutzikade.polytrap.lon = standort.koordinate_lon;
+    app.data.blutzikade.polytrap.e_lv95 = standort.koordinate_e_lv95;
+    app.data.blutzikade.polytrap.n_lv95 = standort.koordinate_n_lv95;
+    storage.save(app.data);
+    initPolytrap();
+  } else {
+    alert('Veuillez d\'abord saisir le GPS du site dans le module 0.');
+  }
 }
 
 function initC1() {
@@ -2319,6 +2587,47 @@ function initC2() {
   });
   storage.save(app.data);
   updateC2Summary();
+
+  // Initialiser prélèvement dégâts de succion
+  const probe = app.data.blutzikade.saugschaeden_probe || {};
+  const probeFields = {
+    'saugschaeden_aeste_anzahl': 'aeste_anzahl',
+    'saugschaeden_sack_id': 'sack_id',
+    'saugschaeden_probe_bemerkung': 'bemerkung'
+  };
+  Object.entries(probeFields).forEach(([elem_id, key]) => {
+    const elem = document.getElementById(elem_id);
+    if (elem) {
+      elem.value = probe[key] || (key === 'aeste_anzahl' ? 0 : '');
+      if (!elem.dataset.probeInit) {
+        elem.dataset.probeInit = 'true';
+        const handler = () => {
+          if (!app.data.blutzikade.saugschaeden_probe) {
+            app.data.blutzikade.saugschaeden_probe = {};
+          }
+          app.data.blutzikade.saugschaeden_probe[key] = key === 'aeste_anzahl'
+            ? (parseInt(elem.value) || 0)
+            : elem.value;
+          storage.save(app.data);
+          updateSaugschaedenProbeStatus();
+        };
+        elem.addEventListener('change', handler);
+        elem.addEventListener('input', handler);
+      }
+    }
+  });
+  updateSaugschaedenProbeStatus();
+}
+
+function updateSaugschaedenProbeStatus() {
+  const container = document.getElementById('saugschaeden-probe-status');
+  if (!container) return;
+  const anzahl = app.data.blutzikade.saugschaeden_probe?.aeste_anzahl || 0;
+  const ok = anzahl >= 3;
+  container.style.background = ok ? '#d4edda' : '#fff3cd';
+  container.textContent = ok
+    ? '✅ ' + anzahl + ' branches coupées (objectif : 3)'
+    : '⚠️ ' + anzahl + ' / 3 branches coupées';
 }
 
 function updateC2Trieb(baum_id, trieb_num, value) {
@@ -2517,8 +2826,12 @@ function exportCSV() {
     'koordinate_lat', 'koordinate_lon', 'koordinate_e_lv95', 'koordinate_n_lv95',
     'hoehe_mue', 'vegetationshoehenstufe', 'exposition', 'baumarten_mischung', 'bodenvegetation',
     'waldgesellschaft', 'bemerkungen_standort',
+    'tote_foehren_gross', 'tote_foehren_klein',
+    'boden_tiefe_mitte', 'boden_tiefe_nord', 'boden_tiefe_sued', 'boden_tiefe_west', 'boden_tiefe_ost', 'boden_tiefe_mittelwert',
     'diplodia_zapfen_anzahl', 'diplodia_zapfen_sack_id', 'diplodia_zapfen_bemerkung',
-    'diplodia_methodenkritik'
+    'diplodia_methodenkritik',
+    'polytrap_status', 'polytrap_datum_installation', 'polytrap_datum_abbau', 'polytrap_probe_id', 'polytrap_bemerkung',
+    'saugschaeden_aeste_anzahl', 'saugschaeden_sack_id', 'saugschaeden_probe_bemerkung'
   ];
   const standort_vals = [
     ...['plot_id', 'aufnehmer', 'datum_t1', 'datum_t2',
@@ -2526,10 +2839,22 @@ function exportCSV() {
         'hoehe_mue', 'vegetationshoehenstufe', 'exposition', 'baumarten_mischung', 'bodenvegetation',
         'waldgesellschaft', 'bemerkungen_standort'
     ].map(h => csvQuote(app.data.standort[h] != null ? app.data.standort[h] : '')),
+    csvQuote(app.data.standort.tote_foehren_gross || 0),
+    csvQuote(app.data.standort.tote_foehren_klein || 0),
+    ...['boden_tiefe_mitte', 'boden_tiefe_nord', 'boden_tiefe_sued', 'boden_tiefe_west', 'boden_tiefe_ost'].map(f => csvQuote(app.data.standort[f] != null ? app.data.standort[f] : '')),
+    (() => { const vals = ['boden_tiefe_mitte','boden_tiefe_nord','boden_tiefe_sued','boden_tiefe_west','boden_tiefe_ost'].map(f => parseFloat(app.data.standort[f])).filter(v => !isNaN(v)); return vals.length > 0 ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : ''; })(),
     csvQuote(zapfen.diplodia_zapfen_anzahl || ''),
     csvQuote(zapfen.diplodia_zapfen_sack_id || ''),
     csvQuote(zapfen.diplodia_zapfen_bemerkung || ''),
-    csvQuote(app.data.diplodia.methodenkritik || '')
+    csvQuote(app.data.diplodia.methodenkritik || ''),
+    csvQuote(app.data.blutzikade.polytrap?.status || ''),
+    csvQuote(app.data.blutzikade.polytrap?.datum_installation || ''),
+    csvQuote(app.data.blutzikade.polytrap?.datum_abbau || ''),
+    csvQuote(app.data.blutzikade.polytrap?.probe_id || ''),
+    csvQuote(app.data.blutzikade.polytrap?.bemerkung || ''),
+    csvQuote(app.data.blutzikade.saugschaeden_probe?.aeste_anzahl || 0),
+    csvQuote(app.data.blutzikade.saugschaeden_probe?.sack_id || ''),
+    csvQuote(app.data.blutzikade.saugschaeden_probe?.bemerkung || '')
   ];
   const standort_csv = '\uFEFF' + standort_headers.join(';') + '\n' + standort_vals.join(';');
   downloadCSV(standort_csv, `foehren_${plot_id}_${date_str}_standort.csv`);
@@ -2538,9 +2863,7 @@ function exportCSV() {
   const baum_headers = [
     'baum_id', 'bhd_klasse', 'bhd_cm', 'lat', 'lon', 'e_lv95', 'n_lv95',
     'gps_accuracy', 'kronenverlichtung_pct', 'bemerkungen_baum',
-    'diplodia_ast1_total', 'diplodia_ast1_infiziert',
-    'diplodia_ast2_total', 'diplodia_ast2_infiziert',
-    'diplodia_ast3_total', 'diplodia_ast3_infiziert',
+    'diplodia_ast1_befall_pct', 'diplodia_ast2_befall_pct', 'diplodia_ast3_befall_pct',
     'diplodia_befallsintensitaet_pct', 'diplodia_befallskategorie',
     'spinner_anzahl_nester', 'spinner_befallen', 'spinner_methode',
     'blutzikade_trieb1_pct', 'blutzikade_trieb2_pct',
@@ -2558,9 +2881,7 @@ function exportCSV() {
       csvQuote(baum.baum_id), csvQuote(baum.bhd_klasse), v(baum.bhd_cm),
       v(baum.lat), v(baum.lon), v(baum.e_lv95), v(baum.n_lv95),
       v(baum.gps_accuracy), v(baum.kronenverlichtung_pct), csvQuote(baum.bemerkungen_baum || ''),
-      v(dip.ast1_triebe_total), v(dip.ast1_triebe_infiziert),
-      v(dip.ast2_triebe_total), v(dip.ast2_triebe_infiziert),
-      v(dip.ast3_triebe_total), v(dip.ast3_triebe_infiziert),
+      v(dip.ast1_befall_pct), v(dip.ast2_befall_pct), v(dip.ast3_befall_pct),
       v(dip.befallsintensitaet_pct), csvQuote(dip.befallskategorie || ''),
       v(sp.anzahl_nester), sp.befallen != null ? (sp.befallen ? 'ja' : 'nein') : '',
       csvQuote(sp.methode || ''),
@@ -2644,10 +2965,26 @@ function exportGeoJSON() {
         bodenvegetation: app.data.standort.bodenvegetation,
         waldgesellschaft: app.data.standort.waldgesellschaft,
         bemerkungen_standort: app.data.standort.bemerkungen_standort,
+        tote_foehren_gross: app.data.standort.tote_foehren_gross || 0,
+        tote_foehren_klein: app.data.standort.tote_foehren_klein || 0,
+        boden_tiefe_mitte: app.data.standort.boden_tiefe_mitte || null,
+        boden_tiefe_nord: app.data.standort.boden_tiefe_nord || null,
+        boden_tiefe_sued: app.data.standort.boden_tiefe_sued || null,
+        boden_tiefe_west: app.data.standort.boden_tiefe_west || null,
+        boden_tiefe_ost: app.data.standort.boden_tiefe_ost || null,
+        boden_tiefe_mittelwert: (() => { const vals = ['boden_tiefe_mitte','boden_tiefe_nord','boden_tiefe_sued','boden_tiefe_west','boden_tiefe_ost'].map(f => parseFloat(app.data.standort[f])).filter(v => !isNaN(v)); return vals.length > 0 ? parseFloat((vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1)) : null; })(),
         diplodia_zapfen_anzahl: zapfen.diplodia_zapfen_anzahl || null,
         diplodia_zapfen_sack_id: zapfen.diplodia_zapfen_sack_id || null,
         diplodia_zapfen_bemerkung: zapfen.diplodia_zapfen_bemerkung || null,
-        diplodia_methodenkritik: app.data.diplodia.methodenkritik || null
+        diplodia_methodenkritik: app.data.diplodia.methodenkritik || null,
+        polytrap_status: app.data.blutzikade.polytrap?.status || null,
+        polytrap_datum_installation: app.data.blutzikade.polytrap?.datum_installation || null,
+        polytrap_datum_abbau: app.data.blutzikade.polytrap?.datum_abbau || null,
+        polytrap_probe_id: app.data.blutzikade.polytrap?.probe_id || null,
+        polytrap_bemerkung: app.data.blutzikade.polytrap?.bemerkung || null,
+        saugschaeden_aeste_anzahl: app.data.blutzikade.saugschaeden_probe?.aeste_anzahl || 0,
+        saugschaeden_sack_id: app.data.blutzikade.saugschaeden_probe?.sack_id || null,
+        saugschaeden_probe_bemerkung: app.data.blutzikade.saugschaeden_probe?.bemerkung || null
       }
     });
   }
@@ -2668,12 +3005,9 @@ function exportGeoJSON() {
           n_lv95: baum.n_lv95,
           kronenverlichtung_pct: baum.kronenverlichtung_pct,
           bemerkungen_baum: baum.bemerkungen_baum,
-          diplodia_ast1_total: diplodia.ast1_triebe_total || null,
-          diplodia_ast1_infiziert: diplodia.ast1_triebe_infiziert || null,
-          diplodia_ast2_total: diplodia.ast2_triebe_total || null,
-          diplodia_ast2_infiziert: diplodia.ast2_triebe_infiziert || null,
-          diplodia_ast3_total: diplodia.ast3_triebe_total || null,
-          diplodia_ast3_infiziert: diplodia.ast3_triebe_infiziert || null,
+          diplodia_ast1_befall_pct: diplodia.ast1_befall_pct || null,
+          diplodia_ast2_befall_pct: diplodia.ast2_befall_pct || null,
+          diplodia_ast3_befall_pct: diplodia.ast3_befall_pct || null,
           diplodia_befallsintensitaet_pct: diplodia.befallsintensitaet_pct || null,
           diplodia_befallskategorie: diplodia.befallskategorie || null,
           spinner_anzahl_nester: spinner.anzahl_nester || null,
@@ -2729,194 +3063,6 @@ function exportGeoJSON() {
   link.click();
   URL.revokeObjectURL(link.href);
 }
-
-/* GeoPackage-Export entfernt — GeoJSON reicht für QGIS-Import.
-async function exportGeoPackage_REMOVED() {
-  const standort = app.data.standort || {};
-  const baeume = app.data.baeume || [];
-  const blutzikade = app.data.blutzikade || {};
-  const diplodia = app.data.diplodia || {};
-  const spinnerData = app.data.spinner || [];
-  const plot_id = standort.plot_id || 'unbekannt';
-  const date_str = new Date().toISOString().split('T')[0];
-
-  // Load sql.js dynamically (cached by Service Worker for offline use)
-  if (typeof initSqlJs === 'undefined') {
-    try {
-      await new Promise((resolve, reject) => {
-        const s = document.createElement('script');
-        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js';
-        s.onload = resolve;
-        s.onerror = () => reject(new Error('sql.js konnte nicht geladen werden. Bitte einmal mit Internetverbindung die App öffnen, damit sql.js für den Offline-Betrieb gecached wird.'));
-        document.head.appendChild(s);
-      });
-    } catch (e) {
-      alert(e.message);
-      return;
-    }
-  }
-
-  try {
-    const SQL = await initSqlJs({ locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${file}` });
-    const db = new SQL.Database();
-
-    // GeoPackage binary point geometry
-    function createGpkgPoint(lon, lat) {
-      const buf = new ArrayBuffer(29);
-      const v = new DataView(buf);
-      v.setUint8(0, 0x47);       // 'G'
-      v.setUint8(1, 0x50);       // 'P'
-      v.setUint8(2, 0x00);       // Version
-      v.setUint8(3, 0x01);       // Flags (little-endian, non-empty)
-      v.setInt32(4, 4326, true);  // SRS ID
-      v.setUint8(8, 0x01);       // WKB little endian
-      v.setUint32(9, 1, true);   // WKB Type = Point
-      v.setFloat64(13, lon, true);
-      v.setFloat64(21, lat, true);
-      return new Uint8Array(buf);
-    }
-
-    // OGC GeoPackage metadata tables
-    db.run(`CREATE TABLE gpkg_spatial_ref_sys (
-      srs_name TEXT NOT NULL, srs_id INTEGER NOT NULL PRIMARY KEY,
-      organization TEXT NOT NULL, organization_coordsys_id INTEGER NOT NULL,
-      definition TEXT NOT NULL, description TEXT
-    )`);
-    db.run(`INSERT INTO gpkg_spatial_ref_sys VALUES
-      ('WGS 84', 4326, 'EPSG', 4326, 'GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]]', NULL),
-      ('LV95', 2056, 'EPSG', 2056, 'PROJCS["CH1903+ / LV95",GEOGCS["CH1903+",DATUM["CH1903+",SPHEROID["Bessel 1841",6377397.155,299.1528128]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433]],PROJECTION["Hotine_Oblique_Mercator_Azimuth_Center"],PARAMETER["latitude_of_center",46.9524055555556],PARAMETER["longitude_of_center",7.43958333333333],PARAMETER["azimuth",90],PARAMETER["rectified_grid_angle",90],PARAMETER["scale_factor",1],PARAMETER["false_easting",2600000],PARAMETER["false_northing",1200000],UNIT["metre",1]]', NULL),
-      ('Undefined cartesian', -1, 'NONE', -1, 'undefined', NULL),
-      ('Undefined geographic', 0, 'NONE', 0, 'undefined', NULL)
-    `);
-
-    db.run(`CREATE TABLE gpkg_contents (
-      table_name TEXT NOT NULL PRIMARY KEY, data_type TEXT NOT NULL,
-      identifier TEXT UNIQUE, description TEXT DEFAULT '',
-      last_change DATETIME NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
-      min_x DOUBLE, min_y DOUBLE, max_x DOUBLE, max_y DOUBLE,
-      srs_id INTEGER, CONSTRAINT fk_gc_r_srs_id FOREIGN KEY (srs_id) REFERENCES gpkg_spatial_ref_sys(srs_id)
-    )`);
-
-    db.run(`CREATE TABLE gpkg_geometry_columns (
-      table_name TEXT NOT NULL, column_name TEXT NOT NULL, geometry_type_name TEXT NOT NULL,
-      srs_id INTEGER NOT NULL, z INTEGER NOT NULL, m INTEGER NOT NULL,
-      CONSTRAINT pk_geom_cols PRIMARY KEY (table_name, column_name),
-      CONSTRAINT fk_gc_tn FOREIGN KEY (table_name) REFERENCES gpkg_contents(table_name),
-      CONSTRAINT fk_gc_srs FOREIGN KEY (srs_id) REFERENCES gpkg_spatial_ref_sys(srs_id)
-    )`);
-
-    // Feature tables
-    db.run(`CREATE TABLE standorte (
-      id INTEGER PRIMARY KEY, plot_id TEXT, aufnehmer TEXT, datum_t1 TEXT, datum_t2 TEXT,
-      koordinate_e_lv95 REAL, koordinate_n_lv95 REAL, hoehe_mue INTEGER, vegetationshoehenstufe TEXT,
-      exposition TEXT, baumarten_mischung TEXT, bodenvegetation TEXT,
-      waldgesellschaft TEXT, bemerkungen_standort TEXT,
-      diplodia_zapfen_anzahl INTEGER, diplodia_zapfen_sack_id TEXT,
-      diplodia_zapfen_bemerkung TEXT, diplodia_methodenkritik TEXT,
-      geometry BLOB
-    )`);
-
-    db.run(`CREATE TABLE baeume (
-      id INTEGER PRIMARY KEY, baum_id TEXT, bhd_klasse TEXT, bhd_cm REAL,
-      e_lv95 REAL, n_lv95 REAL, kronenverlichtung_pct INTEGER, bemerkungen_baum TEXT,
-      diplodia_befallsintensitaet_pct REAL, diplodia_befallskategorie TEXT,
-      spinner_anzahl_nester INTEGER, spinner_befallen TEXT,
-      blutzikade_trieb1_pct INTEGER, blutzikade_trieb2_pct INTEGER,
-      blutzikade_trieb3_pct INTEGER, blutzikade_trieb4_pct INTEGER,
-      blutzikade_trieb5_pct INTEGER, blutzikade_belegprobe TEXT,
-      blutzikade_belegprobe_baum_id TEXT, blutzikade_befallen_baum TEXT,
-      geometry BLOB
-    )`);
-
-    db.run(`CREATE TABLE klebefallen (
-      id INTEGER PRIMARY KEY, falle_id TEXT, baum_ref TEXT,
-      e_lv95 REAL, n_lv95 REAL, abstand_boden_cm INTEGER,
-      exposition_falle TEXT, datum_installation TEXT, datum_abbau TEXT,
-      anzahl_zikaden INTEGER, nachweis_zikade TEXT,
-      verdachtsprobe_wss TEXT, expositionsdauer_tage INTEGER,
-      geometry BLOB
-    )`);
-
-    // Register in gpkg_contents and gpkg_geometry_columns
-    db.run(`INSERT INTO gpkg_contents VALUES ('standorte','features','Standorte','Plot-Standorte',strftime('%Y-%m-%dT%H:%M:%fZ','now'),NULL,NULL,NULL,NULL,4326)`);
-    db.run(`INSERT INTO gpkg_contents VALUES ('baeume','features','Bäume','Einzelbaum-Daten',strftime('%Y-%m-%dT%H:%M:%fZ','now'),NULL,NULL,NULL,NULL,4326)`);
-    db.run(`INSERT INTO gpkg_contents VALUES ('klebefallen','features','Klebefallen','Klebefallen-Daten',strftime('%Y-%m-%dT%H:%M:%fZ','now'),NULL,NULL,NULL,NULL,4326)`);
-    db.run(`INSERT INTO gpkg_geometry_columns VALUES ('standorte','geometry','POINT',4326,0,0)`);
-    db.run(`INSERT INTO gpkg_geometry_columns VALUES ('baeume','geometry','POINT',4326,0,0)`);
-    db.run(`INSERT INTO gpkg_geometry_columns VALUES ('klebefallen','geometry','POINT',4326,0,0)`);
-
-    // Insert standort
-    if (standort.koordinate_lat && standort.koordinate_lon) {
-      const geom = createGpkgPoint(standort.koordinate_lon, standort.koordinate_lat);
-      const gpkgZapfen = diplodia.zapfen || {};
-      db.run(`INSERT INTO standorte VALUES (1,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, [
-        standort.plot_id, standort.aufnehmer, standort.datum_t1, standort.datum_t2,
-        standort.koordinate_e_lv95, standort.koordinate_n_lv95, standort.hoehe_mue,
-        standort.vegetationshoehenstufe || null,
-        standort.exposition, standort.baumarten_mischung, standort.bodenvegetation,
-        standort.waldgesellschaft, standort.bemerkungen_standort,
-        gpkgZapfen.diplodia_zapfen_anzahl || null,
-        gpkgZapfen.diplodia_zapfen_sack_id || null,
-        gpkgZapfen.diplodia_zapfen_bemerkung || null,
-        diplodia.methodenkritik || null,
-        geom
-      ]);
-    }
-
-    // Insert baeume
-    baeume.forEach((b, i) => {
-      const diplodiaKrone = (diplodia.kronen || []).find(k => k.baum_id === b.baum_id);
-      const spinnerBaum = spinnerData.find(s => s.baum_id === b.baum_id);
-      const zikaSchaden = (blutzikade.schaeden || []).find(s => s.baum_id === b.baum_id);
-      const geom = (b.lat && b.lon) ? createGpkgPoint(b.lon, b.lat) : null;
-      db.run(`INSERT INTO baeume VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, [
-        i + 1, b.baum_id, b.bhd_klasse, b.bhd_cm, b.e_lv95, b.n_lv95,
-        b.kronenverlichtung_pct, b.bemerkungen_baum,
-        diplodiaKrone ? diplodiaKrone.befallsintensitaet_pct : null,
-        diplodiaKrone ? diplodiaKrone.befallskategorie : null,
-        spinnerBaum ? spinnerBaum.anzahl_nester : null,
-        spinnerBaum ? (spinnerBaum.befallen ? 'true' : 'false') : null,
-        zikaSchaden ? zikaSchaden.trieb1_befallene_nadeln_pct : null,
-        zikaSchaden ? zikaSchaden.trieb2_befallene_nadeln_pct : null,
-        zikaSchaden ? zikaSchaden.trieb3_befallene_nadeln_pct : null,
-        zikaSchaden ? zikaSchaden.trieb4_befallene_nadeln_pct : null,
-        zikaSchaden ? zikaSchaden.trieb5_befallene_nadeln_pct : null,
-        zikaSchaden ? (zikaSchaden.belegprobe_gesammelt ? 'ja' : 'nein') : null,
-        zikaSchaden ? zikaSchaden.belegprobe_baum_id : null,
-        zikaSchaden ? (zikaSchaden.befallen_baum ? 'ja' : 'nein') : null,
-        geom
-      ]);
-    });
-
-    // Insert klebefallen
-    const fallen = blutzikade.fallen || [];
-    fallen.forEach((f, i) => {
-      const geom = (f.lat && f.lon) ? createGpkgPoint(f.lon, f.lat) : null;
-      db.run(`INSERT INTO klebefallen VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, [
-        i + 1, f.falle_id, f.baum_ref, f.e_lv95, f.n_lv95,
-        f.abstand_boden_cm, f.exposition_falle, f.datum_installation,
-        f.datum_abbau || null, f.anzahl_zikaden != null ? f.anzahl_zikaden : null,
-        f.nachweis_zikade != null ? (f.nachweis_zikade ? 'true' : 'false') : null,
-        f.verdachtsprobe_wss != null ? (f.verdachtsprobe_wss ? 'true' : 'false') : null,
-        f.expositionsdauer_tage || null, geom
-      ]);
-    });
-
-    // Export
-    const data = db.export();
-    db.close();
-    const blob = new Blob([data], { type: 'application/geopackage+sqlite3' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `foehren_${plot_id}_${date_str}.gpkg`;
-    link.click();
-    URL.revokeObjectURL(link.href);
-  } catch (err) {
-    alert('GeoPackage-Export Fehler: ' + err.message);
-    console.error(err);
-  }
-}
-*/
 
 function updateExportStatus() {
   // Termin-Info
@@ -2990,6 +3136,44 @@ function checkEmptyState() {
   }
 }
 
+// === Kronenverlichtung Progress (Auftrag 10) ===
+function getKVColor(value) {
+  if (value <= 10) return '#4caf50';
+  if (value <= 25) return '#8bc34a';
+  if (value <= 40) return '#ffc107';
+  if (value <= 60) return '#ff9800';
+  if (value <= 75) return '#f44336';
+  return '#b71c1c';
+}
+function updateSliderWithProgress(slider_id, value) {
+  updateSliderDisplay(slider_id);
+  const progress = document.getElementById(slider_id + '-progress');
+  if (progress) {
+    const pct = parseInt(value) || 0;
+    progress.style.width = pct + '%';
+    progress.style.backgroundColor = getKVColor(pct);
+  }
+  const valueElem = document.getElementById(slider_id + '-value');
+  if (valueElem) {
+    valueElem.style.color = getKVColor(parseInt(value) || 0);
+  }
+}
+
+// === Lightbox (Auftrag 09) ===
+function openLightbox(e, src) {
+  e.stopPropagation();
+  const overlay = document.getElementById('image-lightbox');
+  const img = document.getElementById('lightbox-img');
+  img.src = src;
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  const overlay = document.getElementById('image-lightbox');
+  overlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
 // Service Worker Registration for Offline Support
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -3001,6 +3185,12 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+
+<!-- Lightbox Overlay (Auftrag 09) -->
+<div id="image-lightbox" class="lightbox-overlay" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightbox-img" src="" alt="Vue agrandie">
+</div>
 
 </body>
 </html>
