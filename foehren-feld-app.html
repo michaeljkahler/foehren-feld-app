@@ -1227,6 +1227,14 @@
     </div>
   </section>
 
+  <!-- RESULTATE -->
+  <section id="section-resultate" class="section">
+    <div class="page">
+      <h2 style="margin-bottom: 1rem; color: var(--color-primary);">📊 Resultate — Übersicht</h2>
+      <div id="resultate-dashboard"></div>
+    </div>
+  </section>
+
   <!-- EXPORT -->
   <section id="section-export" class="section">
     <div class="page">
@@ -1266,6 +1274,10 @@
   <button class="nav-btn" data-section="section-blutzikade" data-termin="12" onclick="switchSection('section-blutzikade')">
     <span class="nav-icon">🪤</span>
     <span>Blutzikade</span>
+  </button>
+  <button class="nav-btn" data-section="section-resultate" data-termin="12" onclick="switchSection('section-resultate')">
+    <span class="nav-icon">📊</span>
+    <span>Resultate</span>
   </button>
   <button class="nav-btn" data-section="section-export" data-termin="12" onclick="switchSection('section-export')">
     <span class="nav-icon">📤</span>
@@ -1379,6 +1391,9 @@ function switchSection(sectionId) {
   if (sectionId === 'section-spinner') {
     renderSpinnerZusammenfassung();
     checkSpinnerSafety();
+  }
+  if (sectionId === 'section-resultate') {
+    renderResultateDashboard();
   }
   if (sectionId === 'section-export') {
     updateExportStatus();
@@ -2015,8 +2030,8 @@ function showTreeEdit(baum_id) {
         </div>
         ` : '')}
 
-        ${tree.bhd_klasse === '>20cm' ? `
-        <!-- Spinner (B) -->
+        ${tree.bhd_klasse === '>20cm' && currentTermin === 1 ? `
+        <!-- Spinner (B) — nur Termin 1 -->
         <div style="border-top: 2px solid var(--color-border); padding-top: 1rem; margin-top: 1rem;">
           <h4 style="color: var(--color-primary); margin-bottom: 0.75rem;">🐛 Spinner — Gespinstnester</h4>
           <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 0.5rem; border-radius: 4px; margin-bottom: 0.75rem; font-size: 0.8rem;">
@@ -2194,6 +2209,197 @@ function saveTreeEdit(baum_id) {
 function closeTreeEdit() {
   const modal = document.getElementById('tree-edit-modal');
   if (modal) modal.remove();
+}
+
+function renderResultateDashboard() {
+  const container = document.getElementById('resultate-dashboard');
+  if (!container) return;
+
+  const large_trees = app.data.baeume.filter(b => b.bhd_klasse === '>20cm');
+  const small_trees = app.data.baeume.filter(b => b.bhd_klasse === '<20cm');
+  const kronen = app.data.diplodia.kronen || [];
+  const spinners = app.data.spinner || [];
+  const schaeden = app.data.blutzikade.schaeden || [];
+  const fallen = app.data.blutzikade.fallen || [];
+  const standort = app.data.standort || {};
+
+  // --- Standort ---
+  const hasGPS = standort.lat && standort.lon;
+  const hasExpo = standort.exposition && standort.exposition !== '';
+  const hasVH = standort.vegetationshoehenstufe && standort.vegetationshoehenstufe !== '';
+  const standortComplete = hasGPS && hasExpo && hasVH && standort.bestandestyp;
+  const standortIcon = standortComplete ? '✅' : '⚠️';
+
+  // --- Bäume ---
+  const largeWithGPS = large_trees.filter(t => t.lat).length;
+  const smallWithGPS = small_trees.filter(t => t.lat).length;
+
+  // --- Diplodia ---
+  const diplodia_assessed = kronen.filter(k => k.ast1_befall_pct > 0 || k.ast2_befall_pct > 0 || k.ast3_befall_pct > 0);
+  const diplodia_avg = diplodia_assessed.length > 0
+    ? diplodia_assessed.reduce((sum, k) => sum + k.befallsintensitaet_pct, 0) / diplodia_assessed.length : 0;
+  const diplodia_stark = diplodia_assessed.filter(k => k.befallskategorie === 'stark befallen').length;
+  const zapfen_anzahl = parseInt(app.data.diplodia.zapfen?.diplodia_zapfen_anzahl || 0);
+
+  // --- Spinner ---
+  const spinner_befallen = spinners.filter(s => s.befallen).length;
+  const spinner_total = spinners.length;
+  const spinner_avg_nester = spinner_total > 0 ? spinners.reduce((sum, s) => sum + s.anzahl_nester, 0) / spinner_total : 0;
+  const spinner_max = spinners.length > 0 ? Math.max(...spinners.map(s => s.anzahl_nester)) : 0;
+
+  // --- Blutzikade ---
+  const c2_befallen = schaeden.filter(s => s.befallen_baum).length;
+  const c2_total = schaeden.length;
+  const c2_avg = c2_total > 0 ? schaeden.reduce((sum, s) => sum + (s.mittl_befallene_triebe_pct || 0), 0) / c2_total : 0;
+  const fallen_installiert = fallen.filter(f => f.baum_ref).length;
+  const belegproben = schaeden.filter(s => s.belegprobe_gesammelt).length;
+
+  // --- Fortschrittsberechnung ---
+  let progress_items = 0;
+  let progress_done = 0;
+  // Standort GPS
+  progress_items++; if (hasGPS) progress_done++;
+  // Bäume gross
+  progress_items++; if (large_trees.length > 0) progress_done++;
+  // Bäume klein
+  progress_items++; if (small_trees.length > 0) progress_done++;
+  // Diplodia
+  progress_items++; if (diplodia_assessed.length > 0) progress_done++;
+  // Spinner (nur T1)
+  if (currentTermin === 1) { progress_items++; if (spinner_total > 0) progress_done++; }
+  // Blutzikade Fallen
+  progress_items++; if (fallen_installiert > 0) progress_done++;
+  // Saugschäden (nur T2)
+  if (currentTermin === 2) { progress_items++; if (c2_total > 0) progress_done++; }
+  // Zapfen
+  progress_items++; if (zapfen_anzahl > 0) progress_done++;
+
+  const progress_pct = progress_items > 0 ? Math.round((progress_done / progress_items) * 100) : 0;
+
+  let html = '';
+
+  // Gesamt-Fortschritt
+  html += `
+    <div style="background: linear-gradient(135deg, var(--color-primary), #2d5a27); color: white; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+      <div style="font-size: 1.1rem; font-weight: bold; margin-bottom: 0.5rem;">Gesamtfortschritt — Termin ${currentTermin}</div>
+      <div style="background: rgba(255,255,255,0.3); border-radius: 4px; height: 24px; overflow: hidden; margin-bottom: 0.5rem;">
+        <div style="background: white; height: 100%; width: ${progress_pct}%; border-radius: 4px; transition: width 0.3s; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: var(--color-primary); font-weight: bold;">
+          ${progress_pct}%
+        </div>
+      </div>
+      <div style="font-size: 0.85rem; opacity: 0.9;">${progress_done} / ${progress_items} Module abgeschlossen</div>
+    </div>
+  `;
+
+  // Standort
+  html += `
+    <div class="card" style="margin-bottom: 0.75rem; padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <h4 style="color: var(--color-primary); margin: 0;">🗺️ Standort</h4>
+        <span style="font-size: 1.2rem;">${standortIcon}</span>
+      </div>
+      <div style="font-size: 0.85rem; color: var(--color-text);">
+        <div>GPS: ${hasGPS ? standort.lat.toFixed(4) + '° N | ' + standort.lon.toFixed(4) + '° E' : '❌ Nicht erfasst'}</div>
+        <div>Exposition: ${hasExpo ? standort.exposition : '—'} | VH-Stufe: ${hasVH ? standort.vegetationshoehenstufe : '—'}</div>
+        <div>Bestandestyp: ${standort.bestandestyp || '—'} | Tote Föhren: ${standort.tote_foehren_gross || 0} gross / ${standort.tote_foehren_klein || 0} klein</div>
+      </div>
+    </div>
+  `;
+
+  // Bäume
+  html += `
+    <div class="card" style="margin-bottom: 0.75rem; padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <h4 style="color: var(--color-primary); margin: 0;">🌲 Bäume</h4>
+        <span style="font-size: 0.9rem; font-weight: bold;">${large_trees.length + small_trees.length} / 40</span>
+      </div>
+      <div style="display: flex; gap: 1rem; font-size: 0.85rem;">
+        <div style="flex: 1; background: #e8f5e9; padding: 0.5rem; border-radius: 4px; text-align: center;">
+          <div style="font-weight: bold;">≥20 cm</div>
+          <div style="font-size: 1.2rem; font-weight: bold; color: var(--color-primary);">${large_trees.length} / 20</div>
+          <div style="font-size: 0.75rem; color: var(--color-muted);">GPS: ${largeWithGPS}/${large_trees.length}</div>
+        </div>
+        <div style="flex: 1; background: #e3f2fd; padding: 0.5rem; border-radius: 4px; text-align: center;">
+          <div style="font-weight: bold;">&lt;20 cm</div>
+          <div style="font-size: 1.2rem; font-weight: bold; color: #1565c0;">${small_trees.length} / 20</div>
+          <div style="font-size: 0.75rem; color: var(--color-muted);">GPS: ${smallWithGPS}/${small_trees.length}</div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Diplodia
+  html += `
+    <div class="card" style="margin-bottom: 0.75rem; padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <h4 style="color: var(--color-primary); margin: 0;">🍄 Diplodia</h4>
+        <span style="font-size: 0.9rem;">${kronen.length > 0 ? '✅' : '⬜'}</span>
+      </div>
+      <div style="display: flex; gap: 0.75rem; font-size: 0.85rem;">
+        <div style="flex: 1; background: #f0f4ef; padding: 0.5rem; border-radius: 4px;">
+          <div style="font-weight: bold;">Kronenbefall</div>
+          <div>${kronen.length} / ${Math.min(large_trees.length, 10)} Bäume</div>
+          <div>Ø ${diplodia_avg.toFixed(1)}% | stark: ${diplodia_stark}</div>
+        </div>
+        <div style="flex: 1; background: #f0f4ef; padding: 0.5rem; border-radius: 4px;">
+          <div style="font-weight: bold;">Zapfen</div>
+          <div>${zapfen_anzahl} / 20 gesammelt</div>
+          <div>${zapfen_anzahl >= 20 ? '✅ Komplett' : '⚠️ Offen'}</div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Spinner
+  html += `
+    <div class="card" style="margin-bottom: 0.75rem; padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <h4 style="color: var(--color-primary); margin: 0;">🐛 Spinner</h4>
+        <span style="font-size: 0.9rem;">${spinner_total > 0 ? '✅' : '⬜'} ${currentTermin === 2 ? '(T1-Daten)' : ''}</span>
+      </div>
+      <div style="font-size: 0.85rem; background: #f0f4ef; padding: 0.5rem; border-radius: 4px;">
+        <div>Kontrolliert: ${spinner_total} Bäume (Fernglas)</div>
+        <div>Befallen: ${spinner_befallen} (${spinner_total > 0 ? ((spinner_befallen/spinner_total)*100).toFixed(0) : 0}%)</div>
+        <div>Ø Nester: ${spinner_avg_nester.toFixed(1)} | Max: ${spinner_max}</div>
+      </div>
+    </div>
+  `;
+
+  // Blutzikade
+  html += `
+    <div class="card" style="margin-bottom: 0.75rem; padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <h4 style="color: var(--color-primary); margin: 0;">🪤 Blutzikade</h4>
+        <span style="font-size: 0.9rem;">${fallen_installiert > 0 || c2_total > 0 ? '✅' : '⬜'}</span>
+      </div>
+      <div style="display: flex; gap: 0.75rem; font-size: 0.85rem;">
+        <div style="flex: 1; background: #f0f4ef; padding: 0.5rem; border-radius: 4px;">
+          <div style="font-weight: bold;">Klebefallen</div>
+          <div>${fallen_installiert} / 5 installiert</div>
+        </div>
+        <div style="flex: 1; background: #f0f4ef; padding: 0.5rem; border-radius: 4px;">
+          <div style="font-weight: bold;">Saugschäden ${currentTermin === 1 ? '(T2)' : ''}</div>
+          ${currentTermin === 2 ? `
+            <div>${c2_total} Bäume | befallen: ${c2_befallen}</div>
+            <div>Ø ${c2_avg.toFixed(1)}% | Proben: ${belegproben}</div>
+          ` : `<div style="color: var(--color-muted);">Erst bei Termin 2</div>`}
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Export-Bereitschaft
+  const exportReady = large_trees.length > 0 && hasGPS;
+  html += `
+    <div style="margin-top: 1rem; padding: 1rem; border-radius: 8px; background: ${exportReady ? '#d4edda' : '#fff3cd'}; border: 1px solid ${exportReady ? '#28a745' : '#ffc107'}; text-align: center;">
+      <div style="font-weight: bold; margin-bottom: 0.25rem;">${exportReady ? '✅ Daten exportbereit' : '⚠️ Daten noch unvollständig'}</div>
+      <div style="font-size: 0.85rem; color: var(--color-muted);">
+        ${!hasGPS ? 'Standort-GPS fehlt. ' : ''}${large_trees.length === 0 ? 'Keine Bäume ≥20cm. ' : ''}${exportReady ? 'Alle Pflichtfelder erfasst.' : ''}
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = html;
 }
 
 function initDiplodia() {
@@ -3308,24 +3514,4 @@ function updateSliderWithProgress(slider_id, value) {
 function openLightbox(e, src) {
   e.stopPropagation();
   const overlay = document.getElementById('image-lightbox');
-  const img = document.getElementById('lightbox-img');
-  img.src = src;
-  overlay.classList.add('active');
-  document.body.style.overflow = 'hidden';
-}
-function closeLightbox() {
-  const overlay = document.getElementById('image-lightbox');
-  overlay.classList.remove('active');
-  document.body.style.overflow = '';
-}
-</script>
-
-<!-- Lightbox Overlay (Auftrag 09) -->
-<div id="image-lightbox" class="lightbox-overlay" onclick="closeLightbox()">
-  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
-  <img id="lightbox-img" src="" alt="Vergrösserte Ansicht">
-  <div class="lightbox-hint">Tippen zum Schliessen</div>
-</div>
-
-</body>
-</html>
+  const img = document.getElementById('lightbox-img
