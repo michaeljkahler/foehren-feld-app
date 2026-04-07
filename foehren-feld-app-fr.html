@@ -198,6 +198,12 @@
       margin-bottom: 0.5rem;
     }
 
+    .slider-frame {
+      border: 2px solid var(--color-border);
+      border-radius: 10px;
+      padding: 0.5rem 0.75rem;
+      background: #f8f9fa;
+    }
     .slider {
       width: 100%;
       height: 48px;
@@ -205,23 +211,26 @@
       appearance: none;
       background: transparent;
       cursor: pointer;
+      pointer-events: none;
     }
 
     .slider::-webkit-slider-track {
       height: 8px;
       background: var(--color-border);
       border-radius: 4px;
+      pointer-events: none;
     }
 
     .slider::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: 24px;
-      height: 24px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       background: var(--color-primary);
       cursor: pointer;
       box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      pointer-events: auto;
     }
 
     .slider::-moz-range-track {
@@ -232,13 +241,14 @@
     }
 
     .slider::-moz-range-thumb {
-      width: 24px;
-      height: 24px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       background: var(--color-primary);
       cursor: pointer;
       border: none;
       box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      pointer-events: auto;
     }
 
     .slider-value {
@@ -246,7 +256,7 @@
       font-size: 1.5rem;
       font-weight: bold;
       color: var(--color-primary);
-      margin-top: 0.5rem;
+      margin-top: 0.25rem;
     }
 
     .species-row {
@@ -1848,9 +1858,21 @@ function renderTrees() {
     card.className = 'tree-card';
     const gps_str = tree.lat ? `${tree.lat.toFixed(4)}° N | ${tree.lon.toFixed(4)}° E (±${tree.gps_accuracy}m)` : 'Non relevé';
     const lv95_str = tree.e_lv95 ? `E ${tree.e_lv95.toLocaleString('de-CH')} | N ${tree.n_lv95.toLocaleString('de-CH')}` : '';
+
+    // Icônes de statut pour les organismes
+    const hasDiplodia = app.data.diplodia.kronen.some(k => k.baum_id === tree.baum_id && (k.ast1_befall_pct > 0 || k.ast2_befall_pct > 0 || k.ast3_befall_pct > 0));
+    const hasSpinner = (app.data.spinner || []).some(s => s.baum_id === tree.baum_id);
+    const hasSaugschaeden = (app.data.blutzikade.schaeden || []).some(s => s.baum_id === tree.baum_id && s.befallen_baum);
+    let statusIcons = '';
+    if (tree.bhd_klasse === '>20cm') {
+      statusIcons = `<span style="font-size: 0.8rem;" title="Diplodia">${hasDiplodia ? '🍄✅' : '🍄⬜'}</span> <span style="font-size: 0.8rem;" title="Spinner">${hasSpinner ? '🐛✅' : '🐛⬜'}</span>`;
+    } else {
+      statusIcons = `<span style="font-size: 0.8rem;" title="Dégâts de succion">${hasSaugschaeden ? '🪤✅' : '🪤⬜'}</span>`;
+    }
+
     card.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-        <span style="font-weight: bold; color: var(--color-primary); font-size: 1.05rem;">${tree.baum_id}</span>
+        <span style="font-weight: bold; color: var(--color-primary); font-size: 1.05rem;">${tree.baum_id} <span style="margin-left: 0.5rem;">${statusIcons}</span></span>
         <button class="btn btn-danger" style="padding: 0.5rem 0.75rem; font-size: 0.8rem;" onclick="deleteTree('${tree.baum_id}')">Supprimer</button>
       </div>
       <div class="card-info" style="margin-bottom: 0.75rem;">
@@ -1871,6 +1893,42 @@ function renderTrees() {
 function showTreeEdit(baum_id) {
   const tree = app.data.baeume.find(b => b.baum_id === baum_id);
   if (!tree) return;
+
+  // Diplodia : limite 10 arbres
+  const large_trees_ordered = app.data.baeume.filter(b => b.bhd_klasse === '>20cm');
+  const diplodia_eligible = large_trees_ordered.slice(0, 10).map(b => b.baum_id);
+  const is_diplodia_eligible = diplodia_eligible.includes(baum_id);
+  const diplodia_already_assessed = app.data.diplodia.kronen.some(k => k.baum_id === baum_id);
+  const show_diplodia = tree.bhd_klasse === '>20cm' && (is_diplodia_eligible || diplodia_already_assessed);
+
+  // Charger les données des organismes
+  let krone_data = app.data.diplodia.kronen.find(k => k.baum_id === baum_id) || {
+    ast1_befall_pct: 0, ast2_befall_pct: 0, ast3_befall_pct: 0,
+    befallsintensitaet_pct: 0, befallskategorie: ''
+  };
+  // Migration : ancien format Triebe → pourcentage
+  if (krone_data.ast1_triebe_total !== undefined) {
+    for (let i = 1; i <= 3; i++) {
+      const total = krone_data['ast' + i + '_triebe_total'] || 0;
+      const infiz = krone_data['ast' + i + '_triebe_infiziert'] || 0;
+      krone_data['ast' + i + '_befall_pct'] = total > 0 ? Math.round((infiz / total) * 100 / 5) * 5 : 0;
+      delete krone_data['ast' + i + '_triebe_total'];
+      delete krone_data['ast' + i + '_triebe_infiziert'];
+    }
+  }
+  const befallsintensitaet = calculateDiplodiaIntensity(krone_data);
+  const befallskategorie = getDiplodiaCategory(befallsintensitaet);
+
+  let spinner_data = (app.data.spinner || []).find(s => s.baum_id === baum_id) || {
+    anzahl_nester: 0, befallen: false, methode: 'Jumelles'
+  };
+
+  let schaeden_data = (app.data.blutzikade.schaeden || []).find(s => s.baum_id === baum_id) || {
+    trieb1_befallene_nadeln_pct: 0, trieb2_befallene_nadeln_pct: 0,
+    trieb3_befallene_nadeln_pct: 0, trieb4_befallene_nadeln_pct: 0,
+    trieb5_befallene_nadeln_pct: 0, belegprobe_gesammelt: false
+  };
+
   const modal_html = `
     <div id="tree-edit-modal" class="modal active">
       <div class="modal-content" style="max-width: 95%; width: 400px;">
@@ -1895,16 +1953,108 @@ function showTreeEdit(baum_id) {
           <label>Défoliation (SANASILVA) *</label>
           <img src="sanasilva-kronenverlichtung.png" alt="SANASILVA Défoliation Référence : 0% - 25% - 60% - 70%" style="width:100%; border-radius:6px; margin-bottom:0.25rem; border:1px solid var(--color-border); cursor: pointer;" onclick="openLightbox(event, 'sanasilva-kronenverlichtung.png')" title="Appuyez pour agrandir">
           <div style="text-align: center; font-size: 0.75rem; color: var(--color-muted); margin-bottom: 0.5rem;">🔍 Appuyez pour agrandir</div>
-          <div class="slider-progress-container">
-            <div class="slider-progress-bar">
-              <div class="slider-progress-fill" id="edit-kronenverlichtung-progress" style="width: ${tree.kronenverlichtung_pct || 0}%; background-color: ${getKVColor(tree.kronenverlichtung_pct || 0)};"></div>
+          <div class="slider-frame">
+            <div class="slider-progress-container">
+              <div class="slider-progress-bar">
+                <div class="slider-progress-fill" id="edit-kronenverlichtung-progress" style="width: ${tree.kronenverlichtung_pct || 0}%; background-color: ${getKVColor(tree.kronenverlichtung_pct || 0)};"></div>
+              </div>
+              <input type="range" class="slider" id="edit-kronenverlichtung" min="0" max="100" step="5" value="${tree.kronenverlichtung_pct || 0}" oninput="updateSliderWithProgress('edit-kronenverlichtung', this.value)">
+              <div class="slider-progress-labels"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+              <div class="slider-value" id="edit-kronenverlichtung-value" style="font-size: 1.1rem; font-weight: bold; color: ${getKVColor(tree.kronenverlichtung_pct || 0)};">${tree.kronenverlichtung_pct || 0}%</div>
             </div>
-            <input type="range" class="slider" id="edit-kronenverlichtung" min="0" max="100" step="5" value="${tree.kronenverlichtung_pct || 0}" oninput="updateSliderWithProgress('edit-kronenverlichtung', this.value)">
-            <div class="slider-progress-labels"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
-            <div class="slider-value" id="edit-kronenverlichtung-value" style="font-size: 1.1rem; font-weight: bold; color: ${getKVColor(tree.kronenverlichtung_pct || 0)};">${tree.kronenverlichtung_pct || 0}%</div>
           </div>
         </div>
         ` : ''}
+
+        ${show_diplodia ? `
+        <!-- Diplodia Infection couronne (A2) -->
+        <div style="border-top: 2px solid var(--color-border); padding-top: 1rem; margin-top: 1rem;">
+          <h4 style="color: var(--color-primary); margin-bottom: 0.75rem;">🍄 Diplodia — Infection couronne</h4>
+          <p style="font-size: 0.8rem; color: var(--color-muted); margin-bottom: 0.75rem;">
+            Évaluer 3 branches bien visibles — estimer le % de pousses infectées.
+          </p>
+          <div style="margin-bottom: 0.75rem;">
+            <label>Branche 1 — Pousses infectées (%) :</label>
+            <div class="slider-frame">
+              <input type="range" class="slider" min="0" max="100" step="5"
+                     id="edit-diplodia-ast1" value="${krone_data.ast1_befall_pct || 0}"
+                     oninput="this.nextElementSibling.textContent=this.value+'%'">
+              <div class="slider-value">${krone_data.ast1_befall_pct || 0}%</div>
+            </div>
+          </div>
+          <div style="margin-bottom: 0.75rem;">
+            <label>Branche 2 — Pousses infectées (%) :</label>
+            <div class="slider-frame">
+              <input type="range" class="slider" min="0" max="100" step="5"
+                     id="edit-diplodia-ast2" value="${krone_data.ast2_befall_pct || 0}"
+                     oninput="this.nextElementSibling.textContent=this.value+'%'">
+              <div class="slider-value">${krone_data.ast2_befall_pct || 0}%</div>
+            </div>
+          </div>
+          <div style="margin-bottom: 0.75rem;">
+            <label>Branche 3 — Pousses infectées (%) :</label>
+            <div class="slider-frame">
+              <input type="range" class="slider" min="0" max="100" step="5"
+                     id="edit-diplodia-ast3" value="${krone_data.ast3_befall_pct || 0}"
+                     oninput="this.nextElementSibling.textContent=this.value+'%'">
+              <div class="slider-value">${krone_data.ast3_befall_pct || 0}%</div>
+            </div>
+          </div>
+          <div style="background: #f0f4ef; padding: 0.5rem; border-radius: 4px; text-align: center; font-size: 0.9rem;">
+            Ø Intensité d'infection : <strong>${befallsintensitaet.toFixed(1)}%</strong> — ${befallskategorie}
+          </div>
+        </div>
+        ` : (tree.bhd_klasse === '>20cm' ? `
+        <div style="border-top: 2px solid var(--color-border); padding-top: 1rem; margin-top: 1rem;">
+          <div class="info-box">⚠️ Limite Diplodia (10 arbres) déjà atteinte. Cet arbre n'est pas évalué pour Diplodia.</div>
+        </div>
+        ` : '')}
+
+        ${tree.bhd_klasse === '>20cm' ? `
+        <!-- Spinner (B) -->
+        <div style="border-top: 2px solid var(--color-border); padding-top: 1rem; margin-top: 1rem;">
+          <h4 style="color: var(--color-primary); margin-bottom: 0.75rem;">🐛 Processionnaire — Nids</h4>
+          <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 0.5rem; border-radius: 4px; margin-bottom: 0.75rem; font-size: 0.8rem;">
+            ⚠️ <strong>Sécurité :</strong> Ne pas toucher les nids ! Contrôler uniquement avec des jumelles.
+          </div>
+          <div class="form-group">
+            <label>Nombre de nids :</label>
+            <input type="number" id="edit-spinner-nester" min="0" value="${spinner_data.anzahl_nester || 0}">
+          </div>
+        </div>
+        ` : ''}
+
+        ${tree.bhd_klasse === '<20cm' && currentTermin === 2 ? `
+        <!-- Cicadelle Dégâts de succion (C2) — uniquement campagne 2 -->
+        <div style="border-top: 2px solid var(--color-border); padding-top: 1rem; margin-top: 1rem;">
+          <h4 style="color: var(--color-primary); margin-bottom: 0.75rem;">🪤 Cicadelle — Dégâts de succion</h4>
+          <p style="font-size: 0.8rem; color: var(--color-muted); margin-bottom: 0.75rem;">
+            Examiner 5 pousses exposées au soleil. Dégâts = décolorations annulaires jaune-brun des aiguilles.
+          </p>
+          ${[1,2,3,4,5].map(i => `
+            <div style="margin-bottom: 0.75rem;">
+              <label>Pousse ${i} — Aiguilles infectées (%) :</label>
+              <div class="slider-frame">
+                <input type="range" class="slider" min="0" max="100" step="5"
+                       id="edit-blutzikade-trieb${i}" value="${schaeden_data['trieb' + i + '_befallene_nadeln_pct'] || 0}"
+                       oninput="this.nextElementSibling.textContent=this.value+'%'">
+                <div class="slider-value">${schaeden_data['trieb' + i + '_befallene_nadeln_pct'] || 0}%</div>
+              </div>
+            </div>
+          `).join('')}
+          <div class="form-group" style="margin-top: 0.5rem;">
+            <label>Échantillon prélevé :</label>
+            <div class="toggle-group">
+              <button type="button" class="toggle-btn ${!schaeden_data.belegprobe_gesammelt ? 'active' : ''}"
+                      onclick="document.getElementById('edit-belegprobe').value='false'; this.classList.add('active'); this.nextElementSibling.classList.remove('active')">Non</button>
+              <button type="button" class="toggle-btn ${schaeden_data.belegprobe_gesammelt ? 'active' : ''}"
+                      onclick="document.getElementById('edit-belegprobe').value='true'; this.previousElementSibling.classList.remove('active'); this.classList.add('active')">Oui</button>
+            </div>
+            <input type="hidden" id="edit-belegprobe" value="${schaeden_data.belegprobe_gesammelt || false}">
+          </div>
+        </div>
+        ` : ''}
+
         <div class="form-group">
           <label>Remarques</label>
           <textarea id="edit-bemerkungen">${tree.bemerkungen_baum || ''}</textarea>
@@ -1965,12 +2115,75 @@ function captureTreeGPS(baum_id) {
 
 function saveTreeEdit(baum_id) {
   const tree = app.data.baeume.find(b => b.baum_id === baum_id);
+  if (!tree) return;
+
+  // --- Champs existants ---
   tree.bhd_cm = parseFloat(document.getElementById('edit-bhd_cm').value) || 0;
-  tree.kronenverlichtung_pct = parseInt(document.getElementById('edit-kronenverlichtung').value) || 0;
+  const kv_elem = document.getElementById('edit-kronenverlichtung');
+  if (kv_elem) tree.kronenverlichtung_pct = parseInt(kv_elem.value) || 0;
   tree.bemerkungen_baum = document.getElementById('edit-bemerkungen').value || '';
+
+  // --- Diplodia (uniquement ≥20cm, uniquement si champs visibles) ---
+  if (tree.bhd_klasse === '>20cm') {
+    const ast1_el = document.getElementById('edit-diplodia-ast1');
+    if (ast1_el) {
+      let krone = app.data.diplodia.kronen.find(k => k.baum_id === baum_id);
+      if (!krone) {
+        krone = { baum_id: baum_id, ast1_befall_pct: 0, ast2_befall_pct: 0, ast3_befall_pct: 0, befallsintensitaet_pct: 0, befallskategorie: '' };
+        app.data.diplodia.kronen.push(krone);
+      }
+      krone.ast1_befall_pct = parseInt(document.getElementById('edit-diplodia-ast1').value) || 0;
+      krone.ast2_befall_pct = parseInt(document.getElementById('edit-diplodia-ast2').value) || 0;
+      krone.ast3_befall_pct = parseInt(document.getElementById('edit-diplodia-ast3').value) || 0;
+      krone.befallsintensitaet_pct = calculateDiplodiaIntensity(krone);
+      krone.befallskategorie = getDiplodiaCategory(krone.befallsintensitaet_pct);
+    }
+
+    // Spinner
+    const nester_el = document.getElementById('edit-spinner-nester');
+    if (nester_el) {
+      let sp = (app.data.spinner || []).find(s => s.baum_id === baum_id);
+      if (!sp) {
+        sp = { baum_id: baum_id, bhd_klasse: tree.bhd_klasse, methode: 'Jumelles', anzahl_nester: 0, befallen: false };
+        app.data.spinner.push(sp);
+      }
+      sp.anzahl_nester = parseInt(nester_el.value) || 0;
+      sp.befallen = sp.anzahl_nester > 0;
+    }
+  }
+
+  // --- Cicadelle Dégâts de succion (uniquement <20cm, uniquement T2, uniquement si champs visibles) ---
+  if (tree.bhd_klasse === '<20cm') {
+    const trieb1_el = document.getElementById('edit-blutzikade-trieb1');
+    if (trieb1_el) {
+      let schad = (app.data.blutzikade.schaeden || []).find(s => s.baum_id === baum_id);
+      if (!schad) {
+        schad = {
+          baum_id: baum_id,
+          trieb1_befallene_nadeln_pct: 0, trieb2_befallene_nadeln_pct: 0,
+          trieb3_befallene_nadeln_pct: 0, trieb4_befallene_nadeln_pct: 0,
+          trieb5_befallene_nadeln_pct: 0,
+          belegprobe_gesammelt: false, belegprobe_baum_id: null,
+          befallen_baum: false, mittl_befallene_triebe_pct: 0
+        };
+        app.data.blutzikade.schaeden.push(schad);
+      }
+      for (let i = 1; i <= 5; i++) {
+        schad['trieb' + i + '_befallene_nadeln_pct'] = parseInt(document.getElementById('edit-blutzikade-trieb' + i).value) || 0;
+      }
+      const vals = [schad.trieb1_befallene_nadeln_pct, schad.trieb2_befallene_nadeln_pct,
+                    schad.trieb3_befallene_nadeln_pct, schad.trieb4_befallene_nadeln_pct,
+                    schad.trieb5_befallene_nadeln_pct];
+      schad.mittl_befallene_triebe_pct = vals.reduce((a, b) => a + b, 0) / 5;
+      schad.befallen_baum = vals.some(v => v > 0);
+      schad.belegprobe_gesammelt = document.getElementById('edit-belegprobe')?.value === 'true';
+      schad.belegprobe_baum_id = schad.belegprobe_gesammelt ? baum_id : null;
+    }
+  }
+
   storage.save(app.data);
-  closeTreeEdit();
   renderTrees();
+  closeTreeEdit();
 }
 
 function closeTreeEdit() {
@@ -2008,110 +2221,54 @@ function initDiplodiaZapfen() {
 }
 
 function initDiplodiaKronen() {
-  const large_trees = app.data.baeume.filter(b => b.bhd_klasse === '>20cm').slice(0, 10);
+  // Legacy-Wrapper : appelle le nouveau résumé
+  renderDiplodiaZusammenfassung();
+}
+
+function renderDiplodiaZusammenfassung() {
   const container = document.getElementById('diplodia-kronen-container');
-  container.innerHTML = '';
+  if (!container) return;
+  const large_trees = app.data.baeume.filter(b => b.bhd_klasse === '>20cm').slice(0, 10);
+  const kronen = app.data.diplodia.kronen || [];
+
   if (large_trees.length === 0) {
-    container.innerHTML = '<div class="info-box" style="margin-bottom: 1rem;">⚠️ Aucun arbre DHP &gt;20 cm encore relevé. Veuillez d\'abord saisir des arbres dans le module 0.</div>';
+    container.innerHTML = '<div class="info-box">⚠️ Aucun arbre DHP ≥20 cm saisi. Veuillez d\'abord saisir des arbres dans le module 0.</div>';
     return;
   }
-  container.insertAdjacentHTML('beforeend', `
-    <div class="info-box" style="margin-bottom: 1rem;">
-      🔭 <strong>Matériel : jumelles.</strong> Par arbre, évaluer 3 branches bien visibles — estimer le % de pousses infectées.
-      <br>Arbres affichés : <strong>${large_trees.length} / 10</strong> (10 premiers DHP &gt;20 cm du module 0)
-    </div>
-  `);
-  large_trees.forEach((tree) => {
-    let krone_data = app.data.diplodia.kronen.find(k => k.baum_id === tree.baum_id);
-    if (!krone_data) {
-      krone_data = {
-        baum_id: tree.baum_id,
-        ast1_befall_pct: 0,
-        ast2_befall_pct: 0,
-        ast3_befall_pct: 0,
-        befallsintensitaet_pct: 0,
-        befallskategorie: ''
-      };
-      app.data.diplodia.kronen.push(krone_data);
-    }
-    // Migration: ancien format Triebe → pourcentage
-    if (krone_data.ast1_triebe_total !== undefined) {
-      console.log('Migration Diplodia ' + krone_data.baum_id + ': ancien format → pourcentage');
-      for (let i = 1; i <= 3; i++) {
-        const total = krone_data['ast' + i + '_triebe_total'] || 0;
-        const infiz = krone_data['ast' + i + '_triebe_infiziert'] || 0;
-        krone_data['ast' + i + '_befall_pct'] = total > 0 ? Math.round((infiz / total) * 100 / 5) * 5 : 0;
-        delete krone_data['ast' + i + '_triebe_total'];
-        delete krone_data['ast' + i + '_triebe_infiziert'];
-      }
-      krone_data.befallsintensitaet_pct = calculateDiplodiaIntensity(krone_data);
-      krone_data.befallskategorie = getDiplodiaCategory(krone_data.befallsintensitaet_pct);
-      storage.save(app.data);
-    }
-    const befallsintensitaet = calculateDiplodiaIntensity(krone_data);
-    const befallskategorie = getDiplodiaCategory(befallsintensitaet);
-    krone_data.befallsintensitaet_pct = befallsintensitaet;
-    krone_data.befallskategorie = befallskategorie;
 
-    // Tree reference info from Modul 0
-    const gpsInfo = (tree.lat && tree.lon)
-      ? `📍 ${tree.lat.toFixed(4)}° N | ${tree.lon.toFixed(4)}° E  ±${tree.gps_accuracy || '?'}m`
-      : '📍 pas de GPS';
-    const lv95Info = (tree.e_lv95 && tree.n_lv95)
-      ? `LV95: E ${Math.round(tree.e_lv95).toLocaleString('de-CH')} | N ${Math.round(tree.n_lv95).toLocaleString('de-CH')}`
-      : '';
-    const bhdInfo = tree.bhd_cm ? `DHP : ${tree.bhd_cm} cm` : '';
-    const kvInfo = tree.kronenverlichtung_pct != null ? `Défoliation : ${tree.kronenverlichtung_pct}%` : '';
-    const bemInfo = tree.bemerkungen_baum ? `📝 ${tree.bemerkungen_baum}` : '';
+  let html = '<div class="info-box" style="margin-bottom: 1rem;">📊 <strong>Aperçu Diplodia couronne</strong> — ' + kronen.length + ' / ' + large_trees.length + ' arbres saisis. Modification via le bouton ✏️.</div>';
 
-    const card_html = `
-      <div class="card" style="margin-bottom: 1rem;">
-        <div class="card-title">${tree.baum_id}</div>
-        <div style="background: #e8f5e9; border-radius: 8px; padding: 0.75rem; margin-bottom: 1rem; font-size: 0.85rem; color: var(--color-text);">
-          <div style="display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem;">
-            ${bhdInfo ? `<span><strong>${bhdInfo}</strong></span>` : ''}
-            ${kvInfo ? `<span>${kvInfo}</span>` : ''}
-          </div>
-          <div style="margin-top: 0.35rem;">${gpsInfo}</div>
-          ${lv95Info ? `<div style="margin-top: 0.2rem; padding-left: 1.4rem; font-size: 0.8rem; color: var(--color-muted);">${lv95Info}</div>` : ''}
-          ${bemInfo ? `<div style="margin-top: 0.35rem; font-style: italic;">${bemInfo}</div>` : ''}
+  large_trees.forEach(tree => {
+    const krone = kronen.find(k => k.baum_id === tree.baum_id);
+    const hasData = krone && (krone.ast1_befall_pct > 0 || krone.ast2_befall_pct > 0 || krone.ast3_befall_pct > 0);
+    const detail = krone ? krone.befallsintensitaet_pct.toFixed(1) + '% — ' + (krone.befallskategorie || 'non infecté') : 'Pas encore saisi';
+
+    html += `
+      <div class="card" style="margin-bottom: 0.5rem; padding: 0.75rem; opacity: ${krone ? 1 : 0.6}; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <strong>${tree.baum_id}</strong>
+          <span style="font-size: 0.85rem; color: var(--color-muted); margin-left: 0.5rem;">${hasData ? '🍄' : '⬜'} ${detail}</span>
         </div>
-        <div style="margin-bottom: 0.75rem;">
-          <label>Branche 1 — Pousses infectées (%) :</label>
-          <input type="range" class="slider" min="0" max="100" step="5"
-                 value="${krone_data.ast1_befall_pct || 0}"
-                 oninput="updateDiplodiaKrone('${tree.baum_id}', 'ast1_befall_pct', this.value); this.nextElementSibling.textContent=this.value+'%'">
-          <div class="slider-value">${krone_data.ast1_befall_pct || 0}%</div>
-        </div>
-        <div style="margin-bottom: 0.75rem;">
-          <label>Branche 2 — Pousses infectées (%) :</label>
-          <input type="range" class="slider" min="0" max="100" step="5"
-                 value="${krone_data.ast2_befall_pct || 0}"
-                 oninput="updateDiplodiaKrone('${tree.baum_id}', 'ast2_befall_pct', this.value); this.nextElementSibling.textContent=this.value+'%'">
-          <div class="slider-value">${krone_data.ast2_befall_pct || 0}%</div>
-        </div>
-        <div style="margin-bottom: 0.75rem;">
-          <label>Branche 3 — Pousses infectées (%) :</label>
-          <input type="range" class="slider" min="0" max="100" step="5"
-                 value="${krone_data.ast3_befall_pct || 0}"
-                 oninput="updateDiplodiaKrone('${tree.baum_id}', 'ast3_befall_pct', this.value); this.nextElementSibling.textContent=this.value+'%'">
-          <div class="slider-value">${krone_data.ast3_befall_pct || 0}%</div>
-        </div>
-        <div class="summary-card" style="margin: 0.75rem 0; padding: 1rem;">
-          <div class="summary-item">
-            <span>Intensité d'infection :</span>
-            <strong>${befallsintensitaet.toFixed(1)}%</strong>
-          </div>
-          <div class="summary-item">
-            <span>Catégorie :</span>
-            <strong>${befallskategorie}</strong>
-          </div>
-        </div>
+        <button class="btn btn-secondary" style="min-width: 44px; min-height: 44px; padding: 0.25rem 0.5rem;" onclick="showTreeEdit('${tree.baum_id}')">✏️</button>
       </div>
     `;
-    container.insertAdjacentHTML('beforeend', card_html);
   });
-  storage.save(app.data);
+
+  // Agrégation
+  const assessed = kronen.filter(k => k.ast1_befall_pct > 0 || k.ast2_befall_pct > 0 || k.ast3_befall_pct > 0);
+  if (assessed.length > 0) {
+    const avg = assessed.reduce((sum, k) => sum + k.befallsintensitaet_pct, 0) / assessed.length;
+    const stark = assessed.filter(k => k.befallskategorie === 'fortement infecté').length;
+    html += `
+      <div class="summary-card" style="margin-top: 1rem; padding: 1rem;">
+        <div class="summary-item"><span>Arbres saisis :</span> <strong>${assessed.length} / ${large_trees.length}</strong></div>
+        <div class="summary-item"><span>Ø Intensité d'infection :</span> <strong>${avg.toFixed(1)}%</strong></div>
+        <div class="summary-item"><span>Fortement infectés :</span> <strong>${stark}</strong></div>
+      </div>
+    `;
+  }
+
+  container.innerHTML = html;
 }
 
 function calculateDiplodiaIntensity(krone_data) {
@@ -2203,48 +2360,43 @@ function closeSafetyModal() {
 }
 
 function initSpinner() {
+  // Legacy-Wrapper : appelle le nouveau résumé
+  renderSpinnerZusammenfassung();
+}
+
+function renderSpinnerZusammenfassung() {
   const container = document.getElementById('spinner-trees-container');
+  if (!container) return;
   container.innerHTML = '';
   const all_trees = app.data.baeume.filter(b => b.bhd_klasse === '>20cm');
-  all_trees.forEach(tree => {
-    if (!app.data.spinner.find(s => s.baum_id === tree.baum_id)) {
-      app.data.spinner.push({
-        baum_id: tree.baum_id,
-        bhd_klasse: tree.bhd_klasse,
-        methode: 'Jumelles',
-        anzahl_nester: 0,
-        befallen: false
-      });
-    }
-  });
-  storage.save(app.data);
+  const spinners = app.data.spinner || [];
+
   if (all_trees.length === 0) {
     container.innerHTML = '<div class="info-box">⚠️ Aucun arbre DHP ≥20 cm saisi. Veuillez d\'abord saisir des arbres dans le module 0.</div>';
     return;
   }
+
+  let html = '<div class="info-box" style="margin-bottom: 1rem;">📊 <strong>Aperçu Processionnaire — Nids</strong> — Modification via le bouton ✏️.</div>';
+
   all_trees.forEach(tree => {
-    const spinner_data = app.data.spinner.find(s => s.baum_id === tree.baum_id);
-    const methode = 'Jumelles';
-    const befallen = spinner_data && spinner_data.anzahl_nester >= 1;
-    const treeGps = (tree.lat && tree.lon) ? `📍 ${tree.lat.toFixed(4)}° N | ${tree.lon.toFixed(4)}° E ±${tree.gps_accuracy||'?'}m` : '📍 pas de GPS';
-    const treeBhd = tree.bhd_cm ? `DHP : ${tree.bhd_cm} cm` : '';
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.innerHTML = `
-      <div class="card-title">${tree.baum_id} <span style="font-size: 0.85rem; color: var(--color-muted);">(${methode})</span></div>
-      <div style="background: #e8f5e9; border-radius: 8px; padding: 0.5rem 0.75rem; margin-bottom: 0.75rem; font-size: 0.85rem;">
-        <span><strong>${treeBhd}</strong></span> &nbsp; ${treeGps}
-      </div>
-      <div class="form-group" style="margin-bottom: 0.75rem;">
-        <label>Nombre de nids :</label>
-        <input type="number" min="0" value="${spinner_data ? spinner_data.anzahl_nester : 0}" onchange="updateSpinnerNester('${tree.baum_id}', this.value)" style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-border); border-radius: 4px;">
-      </div>
-      <div style="text-align: center; padding: 0.5rem; background: ${befallen ? '#ffeaa7' : '#d4edda'}; border-radius: 4px; font-size: 0.9rem;">
-        ${befallen ? '⚠️ Infecté' : '✅ Indemne'}
+    const sp = spinners.find(s => s.baum_id === tree.baum_id);
+    const nester = sp ? sp.anzahl_nester : 0;
+    const befallen = nester > 0;
+
+    html += `
+      <div class="card" style="margin-bottom: 0.5rem; padding: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <strong>${tree.baum_id}</strong>
+          <span style="font-size: 0.85rem; color: var(--color-muted); margin-left: 0.5rem;">
+            ${befallen ? '🐛 ' + nester + ' nids — ⚠️ Infecté' : '🐛 0 nids — ✅ Indemne'}
+          </span>
+        </div>
+        <button class="btn btn-secondary" style="min-width: 44px; min-height: 44px; padding: 0.25rem 0.5rem;" onclick="showTreeEdit('${tree.baum_id}')">✏️</button>
       </div>
     `;
-    container.appendChild(card);
   });
+
+  container.innerHTML = html;
   updateSpinnerSummary();
 }
 
@@ -2507,88 +2659,10 @@ function updateC1Summary() {
 }
 
 function initC2() {
-  const container = document.getElementById('c2-schaeden-container');
-  if (!container) return;
-  container.innerHTML = '';
-  const small_trees = app.data.baeume.filter(b => b.bhd_klasse === '<20cm');
-  if (!app.data.blutzikade.schaeden) {
-    app.data.blutzikade.schaeden = [];
-  }
-  small_trees.forEach(tree => {
-    let schaeden_data = app.data.blutzikade.schaeden.find(s => s.baum_id === tree.baum_id);
-    if (!schaeden_data) {
-      schaeden_data = {
-        baum_id: tree.baum_id,
-        trieb1_befallene_nadeln_pct: 0,
-        trieb2_befallene_nadeln_pct: 0,
-        trieb3_befallene_nadeln_pct: 0,
-        trieb4_befallene_nadeln_pct: 0,
-        trieb5_befallene_nadeln_pct: 0,
-        belegprobe_gesammelt: false,
-        belegprobe_baum_id: null,
-        befallen_baum: false,
-        mittl_befallene_triebe_pct: 0
-      };
-      app.data.blutzikade.schaeden.push(schaeden_data);
-    }
-    const befallen = schaeden_data.trieb1_befallene_nadeln_pct > 0 || schaeden_data.trieb2_befallene_nadeln_pct > 0 ||
-                     schaeden_data.trieb3_befallene_nadeln_pct > 0 || schaeden_data.trieb4_befallene_nadeln_pct > 0 ||
-                     schaeden_data.trieb5_befallene_nadeln_pct > 0;
-    const befallte_triebe_count = [schaeden_data.trieb1_befallene_nadeln_pct, schaeden_data.trieb2_befallene_nadeln_pct,
-                                     schaeden_data.trieb3_befallene_nadeln_pct, schaeden_data.trieb4_befallene_nadeln_pct,
-                                     schaeden_data.trieb5_befallene_nadeln_pct].filter(p => p > 0).length;
-    const treeGpsC2 = (tree.lat && tree.lon) ? `📍 ${tree.lat.toFixed(4)}° N | ${tree.lon.toFixed(4)}° E ±${tree.gps_accuracy||'?'}m` : '📍 pas de GPS';
-    const treeBhdC2 = tree.bhd_cm ? `DHP : ${tree.bhd_cm} cm` : '';
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.innerHTML = `
-      <div class="card-title">${tree.baum_id}</div>
-      <div style="background: #e8f5e9; border-radius: 8px; padding: 0.5rem 0.75rem; margin-bottom: 0.75rem; font-size: 0.85rem;">
-        <span><strong>${treeBhdC2}</strong></span> &nbsp; ${treeGpsC2}
-      </div>
-      <div style="margin-bottom: 1rem;">
-        <label>Pousse 1 – Aiguilles infectées (%)</label>
-        <input type="range" class="slider" min="0" max="100" step="5" value="${schaeden_data.trieb1_befallene_nadeln_pct}" oninput="updateC2Trieb('${tree.baum_id}', 1, this.value)">
-        <div class="slider-value" id="c2-trieb1-${tree.baum_id}-value" style="text-align: center; margin-top: 0.5rem;">${schaeden_data.trieb1_befallene_nadeln_pct}%</div>
-      </div>
-      <div style="margin-bottom: 1rem;">
-        <label>Pousse 2 – Aiguilles infectées (%)</label>
-        <input type="range" class="slider" min="0" max="100" step="5" value="${schaeden_data.trieb2_befallene_nadeln_pct}" oninput="updateC2Trieb('${tree.baum_id}', 2, this.value)">
-        <div class="slider-value" id="c2-trieb2-${tree.baum_id}-value" style="text-align: center; margin-top: 0.5rem;">${schaeden_data.trieb2_befallene_nadeln_pct}%</div>
-      </div>
-      <div style="margin-bottom: 1rem;">
-        <label>Pousse 3 – Aiguilles infectées (%)</label>
-        <input type="range" class="slider" min="0" max="100" step="5" value="${schaeden_data.trieb3_befallene_nadeln_pct}" oninput="updateC2Trieb('${tree.baum_id}', 3, this.value)">
-        <div class="slider-value" id="c2-trieb3-${tree.baum_id}-value" style="text-align: center; margin-top: 0.5rem;">${schaeden_data.trieb3_befallene_nadeln_pct}%</div>
-      </div>
-      <div style="margin-bottom: 1rem;">
-        <label>Pousse 4 – Aiguilles infectées (%)</label>
-        <input type="range" class="slider" min="0" max="100" step="5" value="${schaeden_data.trieb4_befallene_nadeln_pct}" oninput="updateC2Trieb('${tree.baum_id}', 4, this.value)">
-        <div class="slider-value" id="c2-trieb4-${tree.baum_id}-value" style="text-align: center; margin-top: 0.5rem;">${schaeden_data.trieb4_befallene_nadeln_pct}%</div>
-      </div>
-      <div style="margin-bottom: 1rem;">
-        <label>Pousse 5 – Aiguilles infectées (%)</label>
-        <input type="range" class="slider" min="0" max="100" step="5" value="${schaeden_data.trieb5_befallene_nadeln_pct}" oninput="updateC2Trieb('${tree.baum_id}', 5, this.value)">
-        <div class="slider-value" id="c2-trieb5-${tree.baum_id}-value" style="text-align: center; margin-top: 0.5rem;">${schaeden_data.trieb5_befallene_nadeln_pct}%</div>
-      </div>
-      <div style="margin-bottom: 1rem; border-top: 1px solid var(--color-border); padding-top: 1rem;">
-        <label>Échantillon prélevé :</label>
-        <div class="toggle-group">
-          <button type="button" class="toggle-btn ${!schaeden_data.belegprobe_gesammelt ? 'active' : ''}" onclick="updateC2Belegprobe('${tree.baum_id}', false)">Non</button>
-          <button type="button" class="toggle-btn ${schaeden_data.belegprobe_gesammelt ? 'active' : ''}" onclick="updateC2Belegprobe('${tree.baum_id}', true)">Oui</button>
-        </div>
-      </div>
-      <div style="background: #f0f4ef; padding: 0.75rem; border-radius: 4px; font-size: 0.9rem;">
-        <div style="margin-bottom: 0.5rem;"><strong>Statut :</strong> ${befallen ? '⚠️ Infecté (' + befallte_triebe_count + '/5 pousses)' : '✅ Indemne'}</div>
-        <div><strong>Ø Aiguilles infectées :</strong> ${(schaeden_data.mittl_befallene_triebe_pct || 0).toFixed(1)}%</div>
-      </div>
-    `;
-    container.appendChild(card);
-  });
-  storage.save(app.data);
-  updateC2Summary();
+  // Legacy-Wrapper: ruft neue Zusammenfassung auf + Probe-Init
+  renderC2Zusammenfassung();
 
-  // Initialiser prélèvement dégâts de succion
+  // Probennahme Saugschäden initialisieren
   const probe = app.data.blutzikade.saugschaeden_probe || {};
   const probeFields = {
     'saugschaeden_aeste_anzahl': 'aeste_anzahl',
@@ -2617,6 +2691,57 @@ function initC2() {
     }
   });
   updateSaugschaedenProbeStatus();
+}
+
+function renderC2Zusammenfassung() {
+  const container = document.getElementById('c2-schaeden-container');
+  if (!container) return;
+  container.innerHTML = '';
+  const small_trees = app.data.baeume.filter(b => b.bhd_klasse === '<20cm');
+  const schaeden = app.data.blutzikade.schaeden || [];
+
+  if (small_trees.length === 0) {
+    container.innerHTML = '<div class="info-box">⚠️ Aucun pin DHP &lt;20 cm enregistré.</div>';
+    return;
+  }
+
+  let html = '<div class="info-box" style="margin-bottom: 1rem;">📊 <strong>Aperçu dégâts de succion</strong> — Modification via le bouton ✏️.</div>';
+
+  small_trees.forEach(tree => {
+    const schad = schaeden.find(s => s.baum_id === tree.baum_id);
+    const befallen = schad && schad.befallen_baum;
+    const avg = schad ? (schad.mittl_befallene_triebe_pct || 0).toFixed(1) : '0.0';
+    const probe = schad && schad.belegprobe_gesammelt ? ' 📦' : '';
+
+    html += `
+      <div class="card" style="margin-bottom: 0.5rem; padding: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <strong>${tree.baum_id}</strong>
+          <span style="font-size: 0.85rem; color: var(--color-muted); margin-left: 0.5rem;">
+            ${befallen ? '🪤 Ø ' + avg + '% — ⚠️ Infecté' + probe : '🪤 Ø ' + avg + '% — ✅ Indemne' + probe}
+          </span>
+        </div>
+        <button class="btn btn-secondary" style="min-width: 44px; min-height: 44px; padding: 0.25rem 0.5rem;" onclick="showTreeEdit('${tree.baum_id}')">✏️</button>
+      </div>
+    `;
+  });
+
+  // Aggregat
+  const assessed = schaeden.filter(s => s.befallen_baum);
+  const total_assessed = schaeden.length;
+  if (total_assessed > 0) {
+    const avg_all = schaeden.reduce((sum, s) => sum + (s.mittl_befallene_triebe_pct || 0), 0) / total_assessed;
+    html += `
+      <div class="summary-card" style="margin-top: 1rem; padding: 1rem;">
+        <div class="summary-item"><span>Pins évalués :</span> <strong>${total_assessed} / ${small_trees.length}</strong></div>
+        <div class="summary-item"><span>Pins infectés :</span> <strong>${assessed.length}</strong></div>
+        <div class="summary-item"><span>Ø Aiguilles infectées :</span> <strong>${avg_all.toFixed(1)}%</strong></div>
+      </div>
+    `;
+  }
+
+  container.innerHTML = html;
+  updateC2Summary();
 }
 
 function updateSaugschaedenProbeStatus() {
@@ -3190,6 +3315,7 @@ if ('serviceWorker' in navigator) {
 <div id="image-lightbox" class="lightbox-overlay" onclick="closeLightbox()">
   <button class="lightbox-close" onclick="closeLightbox()">✕</button>
   <img id="lightbox-img" src="" alt="Vue agrandie">
+  <div class="lightbox-hint">Appuyez pour fermer</div>
 </div>
 
 </body>
