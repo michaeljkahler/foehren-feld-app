@@ -3569,4 +3569,35 @@ function updateSliderWithProgress(slider_id, value) {
 function openLightbox(e, src) {
   e.stopPropagation();
   const overlay = document.getElementById('image-lightbox');
-  const img = document.getElementById('lightbox-img
+  const img = document.getElementById('lightbox-img');
+  img.src = src;
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  const overlay = document.getElementById('image-lightbox');
+  overlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// Service Worker Registration for Offline Support
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      console.log('Service Worker registriert:', reg.scope);
+    }).catch(err => {
+      console.warn('Service Worker Registrierung fehlgeschlagen:', err);
+    });
+  });
+}
+</script>
+
+<!-- Lightbox Overlay (Auftrag 09) -->
+<div id="image-lightbox" class="lightbox-overlay" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightbox-img" src="" alt="Vergrösserte Ansicht">
+  <div class="lightbox-hint">Tippen zum Schliessen</div>
+</div>
+
+</body>
+</html>
