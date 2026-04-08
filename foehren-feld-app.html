@@ -2049,7 +2049,39 @@ function showTreeEdit(baum_id) {
         <div style="border-top: 2px solid var(--color-border); padding-top: 1rem; margin-top: 1rem;">
           <h4 style="color: var(--color-primary); margin-bottom: 0.75rem;">🪤 Blutzikade — Saugschäden</h4>
           <p style="font-size: 0.8rem; color: var(--color-muted); margin-bottom: 0.75rem;">
-            5 sonnenexponierte Triebe untersuchen. Saugschäden = ringförmige, gelb-braune Nadelverfärbungen.
+            Welches Schadbild passt am besten? Bild antippen und bestätigen.
+          </p>
+
+          <!-- Schadbild-Karussell -->
+          <div id="schadbild-karussell" style="display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.5rem; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory;">
+            <div class="schadbild-card ${schaeden_data.schadbild_bestimmung === 'blutzikade' ? 'selected' : ''}" data-schadbild="blutzikade" onclick="selectSchadbild(this, 'blutzikade')" style="scroll-snap-align: start; min-width: 140px; max-width: 140px; border: 3px solid ${schaeden_data.schadbild_bestimmung === 'blutzikade' ? '#28a745' : 'var(--color-border)'}; border-radius: 8px; padding: 0.4rem; text-align: center; cursor: pointer; flex-shrink: 0; background: ${schaeden_data.schadbild_bestimmung === 'blutzikade' ? '#d4edda' : 'white'};">
+              <img src="ref_blutzikade.jpeg" alt="Blutzikade Saugschäden" style="width: 100%; border-radius: 4px; aspect-ratio: 3/2; object-fit: cover;" onclick="openLightbox(event, 'ref_blutzikade.jpeg')">
+              <div style="font-size: 0.75rem; font-weight: bold; margin-top: 0.25rem; color: var(--color-primary);">🪤 Blutzikade</div>
+              <div style="font-size: 0.65rem; color: var(--color-muted);">Saugschäden</div>
+            </div>
+            <div class="schadbild-card ${schaeden_data.schadbild_bestimmung === 'rostpilz' ? 'selected' : ''}" data-schadbild="rostpilz" onclick="selectSchadbild(this, 'rostpilz')" style="scroll-snap-align: start; min-width: 140px; max-width: 140px; border: 3px solid ${schaeden_data.schadbild_bestimmung === 'rostpilz' ? '#28a745' : 'var(--color-border)'}; border-radius: 8px; padding: 0.4rem; text-align: center; cursor: pointer; flex-shrink: 0; background: ${schaeden_data.schadbild_bestimmung === 'rostpilz' ? '#d4edda' : 'white'};">
+              <img src="ref_rostpilz.jpeg" alt="Rostpilz Coleosporium" style="width: 100%; border-radius: 4px; aspect-ratio: 3/2; object-fit: cover;" onclick="openLightbox(event, 'ref_rostpilz.jpeg')">
+              <div style="font-size: 0.75rem; font-weight: bold; margin-top: 0.25rem; color: var(--color-primary);">🍂 Rostpilz</div>
+              <div style="font-size: 0.65rem; color: var(--color-muted);">Coleosporium</div>
+            </div>
+            <div class="schadbild-card ${schaeden_data.schadbild_bestimmung === 'kiefernschuette' ? 'selected' : ''}" data-schadbild="kiefernschuette" onclick="selectSchadbild(this, 'kiefernschuette')" style="scroll-snap-align: start; min-width: 140px; max-width: 140px; border: 3px solid ${schaeden_data.schadbild_bestimmung === 'kiefernschuette' ? '#28a745' : 'var(--color-border)'}; border-radius: 8px; padding: 0.4rem; text-align: center; cursor: pointer; flex-shrink: 0; background: ${schaeden_data.schadbild_bestimmung === 'kiefernschuette' ? '#d4edda' : 'white'};">
+              <img src="ref_kiefernschuette.jpeg" alt="Kiefernschütte Lophodermium" style="width: 100%; border-radius: 4px; aspect-ratio: 3/2; object-fit: cover;" onclick="openLightbox(event, 'ref_kiefernschuette.jpeg')">
+              <div style="font-size: 0.75rem; font-weight: bold; margin-top: 0.25rem; color: var(--color-primary);">🍂 Schütte</div>
+              <div style="font-size: 0.65rem; color: var(--color-muted);">Lophodermium</div>
+            </div>
+            <div class="schadbild-card ${schaeden_data.schadbild_bestimmung === 'unklar' ? 'selected' : ''}" data-schadbild="unklar" onclick="selectSchadbild(this, 'unklar')" style="scroll-snap-align: start; min-width: 140px; max-width: 140px; border: 3px solid ${schaeden_data.schadbild_bestimmung === 'unklar' ? '#28a745' : 'var(--color-border)'}; border-radius: 8px; padding: 0.4rem; text-align: center; cursor: pointer; flex-shrink: 0; background: ${schaeden_data.schadbild_bestimmung === 'unklar' ? '#d4edda' : 'white'}; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+              <div style="width: 100%; aspect-ratio: 3/2; background: #f5f5f5; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: var(--color-muted);">❓</div>
+              <div style="font-size: 0.75rem; font-weight: bold; margin-top: 0.25rem; color: var(--color-primary);">Unklar</div>
+              <div style="font-size: 0.65rem; color: var(--color-muted);">Nicht bestimmbar</div>
+            </div>
+          </div>
+          <input type="hidden" id="edit-schadbild" value="${schaeden_data.schadbild_bestimmung || ''}">
+          <div id="schadbild-status" style="text-align: center; padding: 0.4rem; border-radius: 4px; font-size: 0.85rem; margin-top: 0.5rem; margin-bottom: 1rem; background: ${schaeden_data.schadbild_bestimmung ? '#d4edda' : '#fff3cd'};">
+            ${schaeden_data.schadbild_bestimmung ? '✅ Bestimmt: <strong>' + ({blutzikade:'Blutzikade',rostpilz:'Rostpilz',kiefernschuette:'Kiefernschütte',unklar:'Unklar'}[schaeden_data.schadbild_bestimmung] || schaeden_data.schadbild_bestimmung) + '</strong>' : '⚠️ Bitte Schadbild auswählen'}
+          </div>
+
+          <p style="font-size: 0.8rem; color: var(--color-muted); margin-bottom: 0.75rem;">
+            5 sonnenexponierte Triebe untersuchen — Anteil befallener Nadeln in % schätzen.
           </p>
           ${[1,2,3,4,5].map(i => `
             <div style="margin-bottom: 0.75rem;">
@@ -2198,6 +2230,7 @@ function saveTreeEdit(baum_id) {
       schad.befallen_baum = vals.some(v => v > 0);
       schad.belegprobe_gesammelt = document.getElementById('edit-belegprobe')?.value === 'true';
       schad.belegprobe_baum_id = schad.belegprobe_gesammelt ? baum_id : null;
+      schad.schadbild_bestimmung = document.getElementById('edit-schadbild')?.value || '';
     }
   }
 
@@ -2209,6 +2242,25 @@ function saveTreeEdit(baum_id) {
 function closeTreeEdit() {
   const modal = document.getElementById('tree-edit-modal');
   if (modal) modal.remove();
+}
+
+function selectSchadbild(card, value) {
+  // Deselect all cards
+  const cards = card.parentElement.querySelectorAll('.schadbild-card');
+  cards.forEach(c => {
+    c.style.border = '3px solid var(--color-border)';
+    c.style.background = 'white';
+  });
+  // Select this card
+  card.style.border = '3px solid #28a745';
+  card.style.background = '#d4edda';
+  // Set hidden field
+  document.getElementById('edit-schadbild').value = value;
+  // Update status
+  const labels = {blutzikade:'Blutzikade', rostpilz:'Rostpilz', kiefernschuette:'Kiefernschütte', unklar:'Unklar'};
+  const status = document.getElementById('schadbild-status');
+  status.style.background = '#d4edda';
+  status.innerHTML = '✅ Bestimmt: <strong>' + (labels[value] || value) + '</strong>';
 }
 
 function renderResultateDashboard() {
@@ -3208,7 +3260,8 @@ function exportCSV() {
     'blutzikade_trieb1_pct', 'blutzikade_trieb2_pct',
     'blutzikade_trieb3_pct', 'blutzikade_trieb4_pct', 'blutzikade_trieb5_pct',
     'blutzikade_belegprobe', 'blutzikade_belegprobe_baum_id',
-    'blutzikade_befallen_baum', 'blutzikade_mittl_befallene_triebe_pct'
+    'blutzikade_befallen_baum', 'blutzikade_mittl_befallene_triebe_pct',
+    'blutzikade_schadbild_bestimmung'
   ];
   let baum_csv = '\uFEFF' + baum_headers.join(';') + '\n';
   app.data.baeume.forEach(baum => {
@@ -3230,7 +3283,8 @@ function exportCSV() {
       bz.belegprobe_gesammelt != null ? (bz.belegprobe_gesammelt ? 'ja' : 'nein') : '',
       csvQuote(bz.belegprobe_baum_id || ''),
       bz.befallen_baum != null ? (bz.befallen_baum ? 'ja' : 'nein') : '',
-      v(bz.mittl_befallene_triebe_pct)
+      v(bz.mittl_befallene_triebe_pct),
+      csvQuote(bz.schadbild_bestimmung || '')
     ].join(';');
     baum_csv += row + '\n';
   });
@@ -3359,7 +3413,8 @@ function exportGeoJSON() {
           blutzikade_trieb5_pct: blutzikade.trieb5_befallene_nadeln_pct || null,
           blutzikade_belegprobe: blutzikade.belegprobe_gesammelt || null,
           blutzikade_belegprobe_baum_id: blutzikade.belegprobe_baum_id || null,
-          blutzikade_befallen_baum: blutzikade.befallen_baum || null
+          blutzikade_befallen_baum: blutzikade.befallen_baum || null,
+          blutzikade_schadbild_bestimmung: blutzikade.schadbild_bestimmung || null
         }
       });
     }
