@@ -1,4 +1,4 @@
-const CACHE_NAME = 'foehren-app-v1.9.0';
+const CACHE_NAME = 'foehren-app-v2.1.0';
 const ASSETS = [
   './',
   './foehren-feld-app.html',
@@ -7,7 +7,10 @@ const ASSETS = [
   './sanasilva-kronenverlichtung.png',
   './ref_blutzikade.jpeg',
   './ref_rostpilz.jpeg',
-  './ref_kiefernschuette.jpeg'
+  './ref_kiefernschuette.jpeg',
+  './ref_scheidenruessler.jpeg',
+  './ref_blattkaefer.jpeg',
+  './ref_rotband.jpeg'
 ];
 
 // Install: cache all core assets, activate immediately

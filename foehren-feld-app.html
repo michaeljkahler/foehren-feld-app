@@ -650,6 +650,25 @@
       text-align: center;
       width: 100%;
     }
+
+    .btn-save {
+      display: block;
+      width: 100%;
+      margin-top: 1rem;
+      padding: 0.75rem;
+      background: var(--color-primary);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      min-height: 44px;
+      transition: all 0.3s;
+    }
+    .btn-save:hover {
+      background: var(--color-primary-lt);
+    }
   </style>
 </head>
 <body>
@@ -660,11 +679,7 @@
       <h1 style="margin:0;">🌲 Föhrengesundheit</h1>
       <a href="foehren-feld-app-fr.html" style="color:white; background:rgba(255,255,255,0.2); padding:0.3rem 0.6rem; border-radius:4px; text-decoration:none; font-size:0.8rem; font-weight:600;">Français</a>
     </div>
-    <p>Feldaufnahme-App v1.0</p>
-    <div class="termin-bar">
-      <button class="termin-btn active" onclick="switchTermin(1)">Termin 1 (Apr)</button>
-      <button class="termin-btn" onclick="switchTermin(2)">Termin 2 (Mai)</button>
-    </div>
+    <p>Feldaufnahme-App v2.1</p>
   </header>
 
   <!-- MODUL 0: STANDORT -->
@@ -702,6 +717,7 @@
               <label>Datum Termin 2 *</label>
               <input type="date" id="datum_t2" required>
             </div>
+            <button class="btn btn-save" onclick="confirmSave(this)">💾 Speichern</button>
           </div>
         </details>
 
@@ -755,6 +771,7 @@
               </select>
               <div id="exposition-auto-status" style="font-size: 0.8rem; color: var(--color-muted); margin-top: 0.25rem;"></div>
             </div>
+            <button class="btn btn-save" onclick="confirmSave(this)">💾 Speichern</button>
           </div>
         </details>
 
@@ -962,6 +979,7 @@
             <option value="72 - Nordalpen-Arvenwald">
           </datalist>
             </div>
+            <button class="btn btn-save" onclick="confirmSave(this)">💾 Speichern</button>
           </div>
         </details>
 
@@ -981,6 +999,7 @@
               <input type="number" id="tote_foehren_klein" min="0" value="0" placeholder="Anzahl" required>
             </div>
             <div id="tote-foehren-total" style="margin-top: 0.5rem; font-weight: bold; color: var(--color-primary);"></div>
+            <button class="btn btn-save" onclick="confirmSave(this)">💾 Speichern</button>
           </div>
         </details>
 
@@ -1012,6 +1031,7 @@
               <input type="number" id="boden_tiefe_ost" min="0" step="1" placeholder="cm" required>
             </div>
             <div id="boden-tiefe-mittelwert" style="margin-top: 0.75rem; padding: 0.75rem; background: #e8f5e9; border-radius: 8px; font-weight: bold; color: var(--color-primary);"></div>
+            <button class="btn btn-save" onclick="confirmSave(this)">💾 Speichern</button>
           </div>
         </details>
 
@@ -1023,6 +1043,7 @@
               <label>Bemerkungen</label>
               <textarea id="bemerkungen_standort" placeholder="Optional"></textarea>
             </div>
+            <button class="btn btn-save" onclick="confirmSave(this)">💾 Speichern</button>
           </div>
         </details>
 
@@ -1055,6 +1076,7 @@
               <label>Bemerkungen</label>
               <textarea id="polytrap_bemerkung" placeholder="Optional"></textarea>
             </div>
+            <button class="btn btn-save" onclick="confirmSave(this)">💾 Speichern</button>
           </div>
         </details>
 
@@ -1075,6 +1097,7 @@
               <label>Bemerkungen</label>
               <textarea id="diplodia_zapfen_bemerkung" placeholder="Optional"></textarea>
             </div>
+            <button class="btn btn-save" onclick="confirmSave(this)">💾 Speichern</button>
           </div>
         </details>
 
@@ -1087,14 +1110,15 @@
               <label>Methodenkritik</label>
               <textarea id="diplodia_methodenkritik" placeholder="Ihre Einschätzung..."></textarea>
             </div>
+            <button class="btn btn-save" onclick="confirmSave(this)">💾 Speichern</button>
           </div>
         </details>
       </form>
     </div>
   </section>
 
-  <!-- BÄUME SEKTION -->
-  <section id="section-baeume" class="section">
+  <!-- TERMIN 1 SEKTION -->
+  <section id="section-termin1" class="section">
     <div id="safety-modal" class="modal">
       <div class="modal-content">
         <div class="modal-title">⚠️ SICHERHEITSHINWEIS</div>
@@ -1116,7 +1140,7 @@
 
     <div class="page">
       <details class="field-group" open>
-        <summary>🌳 Einzelbaum-Erfassung</summary>
+        <summary>🌲 Termin 1 — Einzelbaum-Erfassung (April)</summary>
         <div class="field-group-content">
           <div class="info-box">
             💡 <strong>Hinweis:</strong> Bäume nach der Messung mit Kreide oder Bändeli markieren, damit sie bei Termin 2 wiedergefunden werden.
@@ -1137,7 +1161,38 @@
             <button class="btn" id="btn-add-large" onclick="addTree('large')">+ BHD >20 cm</button>
             <button class="btn" id="btn-add-small" onclick="addTree('small')">+ BHD <20 cm</button>
           </div>
-          <div id="trees-container"></div>
+          <div id="trees-container-t1"></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- TERMIN 2 SEKTION -->
+  <section id="section-termin2" class="section">
+    <div class="page">
+      <div id="t2-standort-summary" class="card" style="margin-bottom: 1rem;">
+        <div class="card-title">📍 Standort-Zusammenfassung</div>
+        <div class="card-info" id="t2-summary-content">Laden...</div>
+      </div>
+      <details class="field-group" open>
+        <summary>🌿 Termin 2 — Einzelbaum-Erfassung (Mai)</summary>
+        <div class="field-group-content">
+          <div class="info-box">
+            💡 <strong>Hinweis:</strong> BHD und GPS sind aus Termin 1 übernommen (readonly). Erfassen Sie die T2-spezifischen Daten.
+          </div>
+          <div style="margin-bottom: 1rem;">
+            <div class="progress-text">Bäume BHD >20 cm:</div>
+            <div class="progress-bar">
+              <div id="progress-bhd-large-t2" class="progress-fill" style="width: 0%">0 / 20</div>
+            </div>
+          </div>
+          <div style="margin-bottom: 1.5rem;">
+            <div class="progress-text">Bäume BHD <20 cm:</div>
+            <div class="progress-bar">
+              <div id="progress-bhd-small-t2" class="progress-fill" style="width: 0%">0 / 20</div>
+            </div>
+          </div>
+          <div id="trees-container-t2"></div>
         </div>
       </details>
     </div>
@@ -1180,19 +1235,23 @@
 </div>
 
 <nav>
-  <button class="nav-btn active" data-section="section-standort" data-termin="12" onclick="switchSection('section-standort')">
+  <button class="nav-btn active" data-section="section-standort" onclick="switchSection('section-standort')">
     <span class="nav-icon">🗺️</span>
     <span>Standort</span>
   </button>
-  <button class="nav-btn" data-section="section-baeume" data-termin="12" onclick="switchSection('section-baeume')">
+  <button class="nav-btn" data-section="section-termin1" onclick="switchSection('section-termin1')">
     <span class="nav-icon">🌲</span>
-    <span>Bäume</span>
+    <span>Termin 1</span>
   </button>
-  <button class="nav-btn" data-section="section-resultate" data-termin="12" onclick="switchSection('section-resultate')">
+  <button class="nav-btn" data-section="section-termin2" onclick="switchSection('section-termin2')">
+    <span class="nav-icon">🌿</span>
+    <span>Termin 2</span>
+  </button>
+  <button class="nav-btn" data-section="section-resultate" onclick="switchSection('section-resultate')">
     <span class="nav-icon">📊</span>
     <span>Resultate</span>
   </button>
-  <button class="nav-btn" data-section="section-export" data-termin="12" onclick="switchSection('section-export')">
+  <button class="nav-btn" data-section="section-export" onclick="switchSection('section-export')">
     <span class="nav-icon">📤</span>
     <span>Export</span>
   </button>
@@ -1297,8 +1356,14 @@ function switchSection(sectionId) {
     initDiplodiaZapfen();
     initDiplodiaMethodenkritik();
   }
-  if (sectionId === 'section-baeume') {
+  if (sectionId === 'section-termin1') {
+    currentTermin = 1;
     renderTrees();
+  }
+  if (sectionId === 'section-termin2') {
+    currentTermin = 2;
+    renderTrees();
+    updateT2Summary();
   }
   if (sectionId === 'section-resultate') {
     renderResultateDashboard();
@@ -1310,24 +1375,32 @@ function switchSection(sectionId) {
 
 let currentTermin = 1;
 
-function switchTermin(termin) {
-  currentTermin = termin;
-  document.querySelectorAll('.termin-btn').forEach((b, i) => {
-    b.classList.toggle('active', i === termin - 1);
-  });
-  // Show/hide nav buttons based on termin
-  document.querySelectorAll('.nav-btn').forEach(btn => {
-    const dt = btn.dataset.termin;
-    if (dt.includes(String(termin))) {
-      btn.classList.remove('hidden');
-    } else {
-      btn.classList.add('hidden');
-    }
-  });
-  // Switch to first visible section of this termin
-  const firstBtn = document.querySelector(`.nav-btn:not(.hidden)`);
-  if (firstBtn) {
-    switchSection(firstBtn.dataset.section);
+function confirmSave(btn) {
+  storage.save(app.data);
+  btn.textContent = '✅ Gespeichert';
+  btn.style.background = '#d4edda';
+  btn.style.color = '#155724';
+  setTimeout(() => {
+    btn.textContent = '💾 Speichern';
+    btn.style.background = '';
+    btn.style.color = '';
+  }, 3000);
+}
+
+function updateT2Summary() {
+  const s = app.data.standort;
+  const baeume = app.data.baeume || [];
+  const fallen = (app.data.blutzikade && app.data.blutzikade.fallen) || [];
+  const large = baeume.filter(b => b.bhd_klasse === '>20cm').length;
+  const small = baeume.filter(b => b.bhd_klasse === '<20cm').length;
+  const fallenCount = fallen.filter(f => f.hat_falle).length;
+  const hasGPS = s.koordinate_lat && s.koordinate_lon;
+  const gpsStr = hasGPS ? parseFloat(s.koordinate_lat).toFixed(4) + '° N | ' + parseFloat(s.koordinate_lon).toFixed(4) + '° E' : 'Nicht erfasst';
+  const hoehe = s.hoehe_mue ? s.hoehe_mue + ' m ü.M.' : '—';
+  const el = document.getElementById('t2-summary-content');
+  if (el) {
+    el.innerHTML = '📍 ' + (s.plot_id || '—') + ' | ' + gpsStr + ' | ' + hoehe +
+      '<br>🌲 ' + large + ' grosse + ' + small + ' kleine Bäume | 🪤 ' + fallenCount + ' Fallen installiert (T1)';
   }
 }
 
@@ -1767,18 +1840,26 @@ function deleteTree(baum_id) {
 }
 
 function renderTrees() {
-  const container = document.getElementById('trees-container');
+  const containerId = currentTermin === 2 ? 'trees-container-t2' : 'trees-container-t1';
+  const container = document.getElementById(containerId);
+  if (!container) return;
   container.innerHTML = '';
   const large_trees = app.data.baeume.filter(b => b.bhd_klasse === '>20cm');
   const small_trees = app.data.baeume.filter(b => b.bhd_klasse === '<20cm');
   const large_pct = (large_trees.length / 20) * 100;
   const small_pct = (small_trees.length / 20) * 100;
-  document.getElementById('progress-bhd-large').style.width = large_pct + '%';
-  document.getElementById('progress-bhd-large').textContent = `${large_trees.length} / 20`;
-  document.getElementById('progress-bhd-small').style.width = small_pct + '%';
-  document.getElementById('progress-bhd-small').textContent = `${small_trees.length} / 20`;
-  document.getElementById('btn-add-large').disabled = large_trees.length >= 20;
-  document.getElementById('btn-add-small').disabled = small_trees.length >= 20;
+
+  const largePctId = currentTermin === 2 ? 'progress-bhd-large-t2' : 'progress-bhd-large';
+  const smallPctId = currentTermin === 2 ? 'progress-bhd-small-t2' : 'progress-bhd-small';
+  document.getElementById(largePctId).style.width = large_pct + '%';
+  document.getElementById(largePctId).textContent = `${large_trees.length} / 20`;
+  document.getElementById(smallPctId).style.width = small_pct + '%';
+  document.getElementById(smallPctId).textContent = `${small_trees.length} / 20`;
+
+  if (currentTermin === 1) {
+    document.getElementById('btn-add-large').disabled = large_trees.length >= 20;
+    document.getElementById('btn-add-small').disabled = small_trees.length >= 20;
+  }
 
   const all_trees = [...large_trees, ...small_trees];
   all_trees.forEach((tree) => {
@@ -1793,10 +1874,20 @@ function renderTrees() {
     const hasFalle = (app.data.blutzikade.fallen || []).some(f => f.baum_ref === tree.baum_id && f.hat_falle);
     const hasSaugschaeden = (app.data.blutzikade.schaeden || []).some(s => s.baum_id === tree.baum_id && s.befallen_baum);
     let statusIcons = '';
-    if (tree.bhd_klasse === '>20cm') {
-      statusIcons = `<span style="font-size: 0.8rem;" title="Diplodia">${hasDiplodia ? '🍄✅' : '🍄⬜'}</span> <span style="font-size: 0.8rem;" title="Spinner T1">${hasSpinner ? '🐛✅' : '🐛⬜'}</span>`;
+    if (currentTermin === 1) {
+      if (tree.bhd_klasse === '>20cm') {
+        statusIcons = `<span style="font-size: 0.8rem;" title="GPS">${tree.lat ? '📍✅' : '📍⬜'}</span> <span style="font-size: 0.8rem;" title="Diplodia">${hasDiplodia ? '🍄✅' : '🍄⬜'}</span> <span style="font-size: 0.8rem;" title="Spinner T1">${hasSpinner ? '🐛✅' : '🐛⬜'}</span>`;
+      } else {
+        statusIcons = `<span style="font-size: 0.8rem;" title="GPS">${tree.lat ? '📍✅' : '📍⬜'}</span> <span style="font-size: 0.8rem;" title="Spinner T1">${hasSpinner ? '🐛✅' : '🐛⬜'}</span> <span style="font-size: 0.8rem;" title="Klebefalle">${hasFalle ? '🪤✅' : '🪤⬜'}</span>`;
+      }
     } else {
-      statusIcons = `<span style="font-size: 0.8rem;" title="Spinner T1">${hasSpinner ? '🐛✅' : '🐛⬜'}</span> <span style="font-size: 0.8rem;" title="Klebefalle">${hasFalle ? '🪤✅' : '🪤⬜'}</span> <span style="font-size: 0.8rem;" title="Saugschäden T2">${hasSaugschaeden ? '🪤✅' : '🪤⬜'}</span>`;
+      // T2
+      if (tree.bhd_klasse === '>20cm') {
+        const hasKVUpdate = tree.kronenverlichtung_pct !== undefined && tree.kronenverlichtung_pct !== null;
+        statusIcons = `<span style="font-size: 0.8rem;" title="KV updated">${hasKVUpdate ? '🌳✅' : '🌳⬜'}</span>`;
+      } else {
+        statusIcons = `<span style="font-size: 0.8rem;" title="Fallenabbau">${hasFalle ? '🪤✅' : '🪤⬜'}</span> <span style="font-size: 0.8rem;" title="Saugschäden">${hasSaugschaeden ? '🔬✅' : '🔬⬜'}</span>`;
+      }
     }
 
     card.innerHTML = `
@@ -1870,11 +1961,11 @@ function showTreeEdit(baum_id) {
       <div class="modal-content" style="max-width: 95%; width: 400px;">
         <h3 style="color: var(--color-primary); margin-bottom: 1rem;">${baum_id}</h3>
         <div class="form-group">
-          <label>BHD (cm) *</label>
-          <input type="number" id="edit-bhd_cm" step="0.1" value="${tree.bhd_cm || 0}">
+          <label>BHD (cm) ${currentTermin === 2 ? '(T1)' : '*'}</label>
+          <input type="number" id="edit-bhd_cm" step="0.1" value="${tree.bhd_cm || 0}" ${currentTermin === 2 ? 'readonly style="background:#f0f0f0;"' : ''}>
         </div>
         <div class="form-group">
-          <label>GPS Baum *</label>
+          <label>GPS Baum ${currentTermin === 2 ? '(T1)' : '*'}</label>
           <div id="edit-gps-widget" class="gps-widget">
             ${tree.lat ? `
               <div class="gps-widget-row"><span class="gps-widget-label">📍 GPS:</span> <span class="gps-widget-value">${tree.lat.toFixed(4)}° N | ${tree.lon.toFixed(4)}° E</span></div>
@@ -1882,7 +1973,7 @@ function showTreeEdit(baum_id) {
               <div class="gps-widget-row"><span class="gps-widget-label">Genauigkeit:</span> <span class="gps-widget-value">±${tree.gps_accuracy}m</span></div>
             ` : `<div class="gps-widget-row"><span class="gps-widget-label">Status:</span> <span class="gps-widget-value">Nicht erfasst</span></div>`}
           </div>
-          <button type="button" class="btn btn-full" onclick="captureTreeGPS('${baum_id}')">📍 GPS holen</button>
+          ${currentTermin === 2 ? '<div style="color:var(--color-muted);font-size:0.85rem;">GPS aus Termin 1 übernommen</div>' : '<button type="button" class="btn btn-full" onclick="captureTreeGPS(\'' + baum_id + '\')">📍 GPS holen</button>'}
         </div>
         ${tree.bhd_klasse === '>20cm' ? `
         <div class="form-group">
@@ -2034,30 +2125,24 @@ function showTreeEdit(baum_id) {
 
           <!-- Schadbild-Karussell -->
           <div id="schadbild-karussell" style="display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.5rem; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory;">
-            <div class="schadbild-card ${schaeden_data.schadbild_bestimmung === 'blutzikade' ? 'selected' : ''}" data-schadbild="blutzikade" onclick="selectSchadbild(this, 'blutzikade')" style="scroll-snap-align: start; min-width: 140px; max-width: 140px; border: 3px solid ${schaeden_data.schadbild_bestimmung === 'blutzikade' ? '#28a745' : 'var(--color-border)'}; border-radius: 8px; padding: 0.4rem; text-align: center; cursor: pointer; flex-shrink: 0; background: ${schaeden_data.schadbild_bestimmung === 'blutzikade' ? '#d4edda' : 'white'};">
-              <img src="ref_blutzikade.jpeg" alt="Blutzikade Saugschäden" style="width: 100%; border-radius: 4px; aspect-ratio: 3/2; object-fit: cover;" onclick="openLightbox(event, 'ref_blutzikade.jpeg')">
-              <div style="font-size: 0.75rem; font-weight: bold; margin-top: 0.25rem; color: var(--color-primary);">🪤 Blutzikade</div>
-              <div style="font-size: 0.65rem; color: var(--color-muted);">Saugschäden</div>
-            </div>
-            <div class="schadbild-card ${schaeden_data.schadbild_bestimmung === 'rostpilz' ? 'selected' : ''}" data-schadbild="rostpilz" onclick="selectSchadbild(this, 'rostpilz')" style="scroll-snap-align: start; min-width: 140px; max-width: 140px; border: 3px solid ${schaeden_data.schadbild_bestimmung === 'rostpilz' ? '#28a745' : 'var(--color-border)'}; border-radius: 8px; padding: 0.4rem; text-align: center; cursor: pointer; flex-shrink: 0; background: ${schaeden_data.schadbild_bestimmung === 'rostpilz' ? '#d4edda' : 'white'};">
-              <img src="ref_rostpilz.jpeg" alt="Rostpilz Coleosporium" style="width: 100%; border-radius: 4px; aspect-ratio: 3/2; object-fit: cover;" onclick="openLightbox(event, 'ref_rostpilz.jpeg')">
-              <div style="font-size: 0.75rem; font-weight: bold; margin-top: 0.25rem; color: var(--color-primary);">🍂 Rostpilz</div>
-              <div style="font-size: 0.65rem; color: var(--color-muted);">Coleosporium</div>
-            </div>
-            <div class="schadbild-card ${schaeden_data.schadbild_bestimmung === 'kiefernschuette' ? 'selected' : ''}" data-schadbild="kiefernschuette" onclick="selectSchadbild(this, 'kiefernschuette')" style="scroll-snap-align: start; min-width: 140px; max-width: 140px; border: 3px solid ${schaeden_data.schadbild_bestimmung === 'kiefernschuette' ? '#28a745' : 'var(--color-border)'}; border-radius: 8px; padding: 0.4rem; text-align: center; cursor: pointer; flex-shrink: 0; background: ${schaeden_data.schadbild_bestimmung === 'kiefernschuette' ? '#d4edda' : 'white'};">
-              <img src="ref_kiefernschuette.jpeg" alt="Kiefernschütte Lophodermium" style="width: 100%; border-radius: 4px; aspect-ratio: 3/2; object-fit: cover;" onclick="openLightbox(event, 'ref_kiefernschuette.jpeg')">
-              <div style="font-size: 0.75rem; font-weight: bold; margin-top: 0.25rem; color: var(--color-primary);">🍂 Schütte</div>
-              <div style="font-size: 0.65rem; color: var(--color-muted);">Lophodermium</div>
-            </div>
-            <div class="schadbild-card ${schaeden_data.schadbild_bestimmung === 'unklar' ? 'selected' : ''}" data-schadbild="unklar" onclick="selectSchadbild(this, 'unklar')" style="scroll-snap-align: start; min-width: 140px; max-width: 140px; border: 3px solid ${schaeden_data.schadbild_bestimmung === 'unklar' ? '#28a745' : 'var(--color-border)'}; border-radius: 8px; padding: 0.4rem; text-align: center; cursor: pointer; flex-shrink: 0; background: ${schaeden_data.schadbild_bestimmung === 'unklar' ? '#d4edda' : 'white'}; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-              <div style="width: 100%; aspect-ratio: 3/2; background: #f5f5f5; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: var(--color-muted);">❓</div>
-              <div style="font-size: 0.75rem; font-weight: bold; margin-top: 0.25rem; color: var(--color-primary);">Unklar</div>
-              <div style="font-size: 0.65rem; color: var(--color-muted);">Nicht bestimmbar</div>
-            </div>
+            ${[
+              { id: 'blutzikade', label: '🪤 Blutzikade<br><small>Haematoloma dorsata</small>', img: 'ref_blutzikade.jpeg' },
+              { id: 'rostpilz', label: '🍂 Rostpilz<br><small>Coleosporium senecionis</small>', img: 'ref_rostpilz.jpeg' },
+              { id: 'kiefernschuette', label: '🍂 Kiefernschütte<br><small>Lophodermium</small>', img: 'ref_kiefernschuette.jpeg' },
+              { id: 'scheidenruessler', label: '🐛 Scheidenrüssler<br><small>Brachonyx pineti</small>', img: 'ref_scheidenruessler.jpeg' },
+              { id: 'blattkaefer', label: '🪲 Blattkäfer<br><small>Luperus pinicola</small>', img: 'ref_blattkaefer.jpeg' },
+              { id: 'rotband', label: '🔴 Rotband<br><small>Dothistroma / Lecanosticta</small>', img: 'ref_rotband.jpeg' },
+              { id: 'unklar', label: '❓ Unklar', img: null }
+            ].map(s => `
+              <div class="schadbild-card ${schaeden_data.schadbild_bestimmung === s.id ? 'selected' : ''}" data-schadbild="${s.id}" onclick="selectSchadbild(this, '${s.id}')" style="scroll-snap-align: start; min-width: 140px; max-width: 140px; border: 3px solid ${schaeden_data.schadbild_bestimmung === s.id ? '#28a745' : 'var(--color-border)'}; border-radius: 8px; padding: 0.4rem; text-align: center; cursor: pointer; flex-shrink: 0; background: ${schaeden_data.schadbild_bestimmung === s.id ? '#d4edda' : 'white'}; ${s.id === 'unklar' ? 'display: flex; flex-direction: column; justify-content: center; align-items: center;' : ''}">
+                ${s.img ? `<img src="${s.img}" alt="${s.id}" style="width: 100%; border-radius: 4px; aspect-ratio: 3/2; object-fit: cover;" onclick="openLightbox(event, '${s.img}')">` : `<div style="width: 100%; aspect-ratio: 3/2; background: #f5f5f5; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: var(--color-muted);">❓</div>`}
+                <div style="font-size: 0.75rem; font-weight: bold; margin-top: 0.25rem; color: var(--color-primary);">${s.label}</div>
+              </div>
+            `).join('')}
           </div>
           <input type="hidden" id="edit-schadbild" value="${schaeden_data.schadbild_bestimmung || ''}">
           <div id="schadbild-status" style="text-align: center; padding: 0.4rem; border-radius: 4px; font-size: 0.85rem; margin-top: 0.5rem; margin-bottom: 1rem; background: ${schaeden_data.schadbild_bestimmung ? '#d4edda' : '#fff3cd'};">
-            ${schaeden_data.schadbild_bestimmung ? '✅ Bestimmt: <strong>' + ({blutzikade:'Blutzikade',rostpilz:'Rostpilz',kiefernschuette:'Kiefernschütte',unklar:'Unklar'}[schaeden_data.schadbild_bestimmung] || schaeden_data.schadbild_bestimmung) + '</strong>' : '⚠️ Bitte Schadbild auswählen'}
+            ${schaeden_data.schadbild_bestimmung ? '✅ Bestimmt: <strong>' + ({blutzikade:'Blutzikade',rostpilz:'Rostpilz',kiefernschuette:'Kiefernschütte',scheidenruessler:'Scheidenrüssler',blattkaefer:'Blattkäfer',rotband:'Rotband',unklar:'Unklar'}[schaeden_data.schadbild_bestimmung] || schaeden_data.schadbild_bestimmung) + '</strong>' : '⚠️ Bitte Schadbild auswählen'}
           </div>
 
           <p style="font-size: 0.8rem; color: var(--color-muted); margin-bottom: 0.75rem;">
@@ -2275,7 +2360,7 @@ function selectSchadbild(card, value) {
   // Set hidden field
   document.getElementById('edit-schadbild').value = value;
   // Update status
-  const labels = {blutzikade:'Blutzikade', rostpilz:'Rostpilz', kiefernschuette:'Kiefernschütte', unklar:'Unklar'};
+  const labels = {blutzikade:'Blutzikade', rostpilz:'Rostpilz', kiefernschuette:'Kiefernschütte', scheidenruessler:'Scheidenrüssler', blattkaefer:'Blattkäfer', rotband:'Rotband', unklar:'Unklar'};
   const status = document.getElementById('schadbild-status');
   status.style.background = '#d4edda';
   status.innerHTML = '✅ Bestimmt: <strong>' + (labels[value] || value) + '</strong>';
@@ -2294,10 +2379,10 @@ function renderResultateDashboard() {
   const standort = app.data.standort || {};
 
   // --- Standort ---
-  const hasGPS = standort.lat && standort.lon;
+  const hasGPS = standort.koordinate_lat && standort.koordinate_lon;
   const hasExpo = standort.exposition && standort.exposition !== '';
   const hasVH = standort.vegetationshoehenstufe && standort.vegetationshoehenstufe !== '';
-  const standortComplete = hasGPS && hasExpo && hasVH && standort.bestandestyp;
+  const standortComplete = hasGPS && hasExpo && hasVH && standort.waldgesellschaft;
   const standortIcon = standortComplete ? '✅' : '⚠️';
 
   // --- Bäume ---
@@ -2369,9 +2454,9 @@ function renderResultateDashboard() {
         <span style="font-size: 1.2rem;">${standortIcon}</span>
       </div>
       <div style="font-size: 0.85rem; color: var(--color-text);">
-        <div>GPS: ${hasGPS ? standort.lat.toFixed(4) + '° N | ' + standort.lon.toFixed(4) + '° E' : '❌ Nicht erfasst'}</div>
+        <div>GPS: ${hasGPS ? standort.koordinate_lat.toFixed(4) + '° N | ' + standort.koordinate_lon.toFixed(4) + '° E' : '❌ Nicht erfasst'}</div>
         <div>Exposition: ${hasExpo ? standort.exposition : '—'} | VH-Stufe: ${hasVH ? standort.vegetationshoehenstufe : '—'}</div>
-        <div>Bestandestyp: ${standort.bestandestyp || '—'} | Tote Föhren: ${standort.tote_foehren_gross || 0} gross / ${standort.tote_foehren_klein || 0} klein</div>
+        <div>Bestandestyp: ${standort.waldgesellschaft || '—'} | Tote Föhren: ${standort.tote_foehren_gross || 0} gross / ${standort.tote_foehren_klein || 0} klein</div>
       </div>
     </div>
   `;
@@ -3611,7 +3696,7 @@ function updateUI() {
 document.addEventListener('DOMContentLoaded', () => {
   updateUI();
   checkEmptyState();
-  switchTermin(1); // Termin 1 als Default beim App-Start
+  currentTermin = 1; // Termin 1 als Default beim App-Start
 });
 
 function checkEmptyState() {
@@ -3670,17 +3755,6 @@ function closeLightbox() {
   const overlay = document.getElementById('image-lightbox');
   overlay.classList.remove('active');
   document.body.style.overflow = '';
-}
-
-// Service Worker Registration for Offline Support
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').then(reg => {
-      console.log('Service Worker registriert:', reg.scope);
-    }).catch(err => {
-      console.warn('Service Worker Registrierung fehlgeschlagen:', err);
-    });
-  });
 }
 </script>
 
