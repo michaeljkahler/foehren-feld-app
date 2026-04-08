@@ -1025,7 +1025,94 @@
             </div>
           </div>
         </details>
+
+        <!-- Groupe 5: Piège à insectes / Polytrap -->
+        <details class="field-group">
+          <summary>🪤 Piège à insectes / Polytrap</summary>
+          <div class="field-group-content">
+            <div class="info-box">🪤 <strong>Consignes :</strong> 1 Polytrap au centre de la placette. GPS = GPS du site.</div>
+            <div class="form-group">
+              <label>Statut *</label>
+              <select id="polytrap_status">
+                <option value="">-- Choisir --</option>
+                <option value="installiert">Installé (C1)</option>
+                <option value="geleert_entfernt">Vidé &amp; retiré (C2)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Date d'installation</label>
+              <input type="date" id="polytrap_datum_installation">
+            </div>
+            <div class="form-group" id="polytrap-t2-fields" style="display: none;">
+              <label>Date de vidage/retrait</label>
+              <input type="date" id="polytrap_datum_abbau">
+            </div>
+            <div class="form-group" id="polytrap-t2-probe" style="display: none;">
+              <label>Désignation de l'échantillon</label>
+              <input type="text" id="polytrap_probe_id" placeholder="p. ex. PT-SH01-2026">
+            </div>
+            <div class="form-group">
+              <label>Remarques</label>
+              <textarea id="polytrap_bemerkung" placeholder="Facultatif"></textarea>
+            </div>
+          </div>
+        </details>
+
+        <!-- Groupe 6: Diplodia Récolte de cônes -->
+        <details class="field-group">
+          <summary>🍄 Diplodia — Récolte de cônes</summary>
+          <div class="field-group-content">
+            <div class="info-box">📝 <strong>Consignes :</strong> 20 cônes par peuplement récoltés au hasard. 1 cône par arbre. Mettre dans un sac en papier.</div>
+            <div class="form-group">
+              <label>Nombre de cônes récoltés *</label>
+              <input type="number" id="diplodia_zapfen_anzahl" min="0" placeholder="Objectif : 20">
+            </div>
+            <div class="form-group">
+              <label>Désignation du sac *</label>
+              <input type="text" id="diplodia_zapfen_sack_id" placeholder="p. ex. ZAP-SH01-2026">
+            </div>
+            <div class="form-group">
+              <label>Remarques</label>
+              <textarea id="diplodia_zapfen_bemerkung" placeholder="Facultatif"></textarea>
+            </div>
+          </div>
+        </details>
+
+        <!-- Groupe 7: Critique méthodologique -->
+        <details class="field-group">
+          <summary>📝 Critique méthodologique</summary>
+          <div class="field-group-content">
+            <div class="info-box">📝 L'intensité d'infection correspond-elle à votre impression générale sur le terrain ?</div>
+            <div class="form-group">
+              <label>Critique méthodologique</label>
+              <textarea id="diplodia_methodenkritik" placeholder="Votre évaluation..."></textarea>
+            </div>
+          </div>
+        </details>
       </form>
+    </div>
+
+  </section>
+
+  <!-- ARBRES SEKTION -->
+  <section id="section-baeume" class="section">
+    <div id="safety-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-title">⚠️ AVERTISSEMENT DE SÉCURITÉ</div>
+        <div style="font-weight: bold; margin-bottom: 1rem; color: var(--color-primary);">Processionnaire du pin</div>
+        <div class="modal-text">
+          Les chenilles forment à partir du 3e stade larvaire des <strong>POILS URTICANTS</strong> pouvant provoquer de fortes inflammations des muqueuses oculaires et des voies respiratoires ainsi que des allergies.
+        </div>
+        <div class="modal-list">
+          <ul>
+            <li>🚫 NE PAS toucher les chenilles</li>
+            <li>🚫 NE PAS toucher les nids</li>
+            <li>🚫 Les anciens nids abandonnés sont aussi dangereux</li>
+            <li>👖 Porter des pantalons longs</li>
+          </ul>
+        </div>
+        <button class="btn btn-full" onclick="closeSafetyModal()">J'ai compris — Continuer</button>
+      </div>
     </div>
 
     <div class="page">
@@ -1057,181 +1144,15 @@
     </div>
   </section>
 
-  <!-- MODUL A: DIPLODIA -->
-  <section id="section-diplodia" class="section">
-    <div class="page">
-      <h2 style="margin-bottom: 1rem; color: var(--color-primary);">🍄 Diplodia sapinea</h2>
-      <h3 style="margin-top: 1.5rem; margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">A1 : Infection des cônes</h3>
-      <div class="info-box">
-        📝 <strong>Consignes :</strong> Ramasser 20 cônes au hasard (pas encore dégradés) et les emporter dans un sac en papier. Étiqueter le sac : site, numéro d'arbre, date, nom.
-      </div>
-      <form id="form-diplodia-zapfen">
-        <div class="form-group">
-          <label>Nombre de cônes récoltés *</label>
-          <input type="number" id="diplodia_zapfen_anzahl" min="0" placeholder="Objectif : 20" required>
-        </div>
-        <div class="form-group">
-          <label>ID du sac *</label>
-          <input type="text" id="diplodia_zapfen_sack_id" placeholder="p. ex. ZAP-SH01-2026" required>
-        </div>
-        <div class="form-group">
-          <label>Remarques</label>
-          <textarea id="diplodia_zapfen_bemerkung" placeholder="Facultatif"></textarea>
-        </div>
-      </form>
-    </div>
-
-    <div class="page">
-      <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">A2 : Infection de la couronne (10 arbres DHP >20)</h3>
-      <div class="info-box">
-        📝 <strong>Consignes :</strong> 10 arbres choisis au hasard DHP >20 cm, par arbre 3 branches avec comptage des pousses.
-      </div>
-      <div id="diplodia-kronen-container"></div>
-    </div>
-
-    <div class="page">
-      <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">A3 : Critique méthodologique</h3>
-      <div class="info-box">
-        📝 <strong>Tâche :</strong> L'intensité d'infection calculée correspond-elle à votre impression générale sur le terrain ? Si non : pourquoi y a-t-il un écart ?
-      </div>
-      <form id="form-diplodia-methodenkritik">
-        <div class="form-group">
-          <label>Critique méthodologique *</label>
-          <textarea id="diplodia_methodenkritik" placeholder="Votre évaluation..." required></textarea>
-        </div>
-      </form>
-      <div id="diplodia-summary"></div>
-      <button class="btn btn-secondary btn-full" style="margin-top: 1.5rem;" onclick="backupToJSON()">💾 Sauvegarder l'état actuel (JSON)</button>
-    </div>
-  </section>
-
-  <!-- MODUL B: SPINNER -->
-  <section id="section-spinner" class="section">
-    <div id="safety-modal" class="modal">
-      <div class="modal-content">
-        <div class="modal-title">⚠️ AVERTISSEMENT DE SÉCURITÉ</div>
-        <div style="font-weight: bold; margin-bottom: 1rem; color: var(--color-primary);">Processionnaire du pin</div>
-        <div class="modal-text">
-          Les chenilles forment à partir du 3e stade larvaire des <strong>POILS URTICANTS</strong> pouvant provoquer de fortes inflammations des muqueuses oculaires et des voies respiratoires ainsi que des allergies.
-        </div>
-        <div class="modal-list">
-          <ul>
-            <li>🚫 NE PAS toucher les chenilles</li>
-            <li>🚫 NE PAS toucher les nids</li>
-            <li>🚫 Les anciens nids abandonnés sont aussi dangereux</li>
-            <li>👖 Porter des pantalons longs</li>
-          </ul>
-        </div>
-        <button class="btn btn-full" onclick="closeSafetyModal()">J'ai compris — Continuer</button>
-      </div>
-    </div>
-
-    <div class="page">
-      <h2 style="margin-bottom: 1rem; color: var(--color-primary);">🐛 Processionnaire du pin</h2>
-      <div class="info-box">
-        📝 <strong>Tâche :</strong> Contrôler TOUS les arbres. DHP >20 cm avec jumelles, DHP <20 cm sans instrument. Par arbre : noter le nombre de nids.
-      </div>
-      <div id="spinner-trees-container"></div>
-      <div id="spinner-summary" style="margin-top: 1.5rem;"></div>
-      <button class="btn btn-secondary btn-full" style="margin-top: 1.5rem;" onclick="backupToJSON()">💾 Sauvegarder l'état actuel (JSON)</button>
-    </div>
-  </section>
-
-  <!-- MODUL C: BLUTZIKADE -->
-  <section id="section-blutzikade" class="section">
-    <div class="page" id="c1-page">
-      <h2 style="margin-bottom: 1rem; color: var(--color-primary);">🪤 Cicadelle du pin</h2>
-      <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">C1 : Installation des pièges collants (Campagne 1)</h3>
-      <div class="info-box">
-        🪤 <strong>Consignes :</strong> Installer 5 pièges collants jaunes (Andermatt Giallo) sur de jeunes arbres exposés au soleil (DHP <20 cm) près des prairies. Fixer les pièges côté soleil (serre-câbles).
-      </div>
-      <div id="c1-fallen-container"></div>
-      <div id="c1-summary" style="margin-top: 1rem;"></div>
-    </div>
-
-    <div class="page" style="display: none;" id="c1b-page">
-      <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">C1b : Piège à insectes / Polytrap</h3>
-      <div class="info-box">
-        🪤 <strong>Consignes :</strong> Installer 1 piège Polytrap au centre de la placette.
-        Coordonnées GPS = GPS du site. Placer le piège sur un support stable, insérer le récipient de capture.
-      </div>
-      <form id="form-polytrap">
-        <div class="form-group">
-          <label>GPS Polytrap</label>
-          <div id="polytrap-gps-info" class="gps-widget" style="margin-bottom: 0.5rem;"></div>
-          <button type="button" class="btn btn-secondary btn-full" onclick="useStandortGPSForPolytrap()">📍 Reprendre GPS du site</button>
-        </div>
-        <div class="form-group">
-          <label>Statut *</label>
-          <select id="polytrap_status" required>
-            <option value="">-- Choisir --</option>
-            <option value="installiert">Installé (C1)</option>
-            <option value="geleert_entfernt">Vidé &amp; retiré (C2)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Date d'installation</label>
-          <input type="date" id="polytrap_datum_installation">
-        </div>
-        <div class="form-group" id="polytrap-t2-fields" style="display: none;">
-          <label>Date de vidange/retrait</label>
-          <input type="date" id="polytrap_datum_abbau">
-        </div>
-        <div class="form-group" id="polytrap-t2-probe" style="display: none;">
-          <label>Désignation de l'échantillon</label>
-          <input type="text" id="polytrap_probe_id" placeholder="p.ex. PT-SH01-2026">
-        </div>
-        <div class="form-group">
-          <label>Remarques</label>
-          <textarea id="polytrap_bemerkung" placeholder="Facultatif"></textarea>
-        </div>
-      </form>
-    </div>
-
-    <div class="page" style="display: none;" id="c2-page">
-      <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">C2 : Dégâts de succion (Campagne 2, DHP <20 cm)</h3>
-      <div class="info-box">
-        🔍 <strong>Consignes :</strong> Examiner 5 pousses exposées au soleil par arbre. Dégâts de succion = décolorations annulaires jaune-brun des aiguilles (anciennes pousses). Couper 3 branches (~30 cm chacune) avec des dégâts de succion visibles et les emballer dans un sac plastique pour le laboratoire (HAFL). Étiqueter le sac : site, date, nom.
-      </div>
-      <div id="c2-schaeden-container"></div>
-      <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 2px solid var(--color-border);">
-        <h4 style="margin-bottom: 0.75rem; color: var(--color-primary);">✂️ Prélèvement dégâts de succion</h4>
-        <div class="info-box">
-          ✂️ <strong>Consignes :</strong> Couper 3 branches (~30 cm chacune) avec des dégâts de succion visibles.
-          Emballer dans un sac plastique. Étiqueter le sac : site, date, nom.
-        </div>
-        <div class="form-group">
-          <label>Nombre de branches coupées *</label>
-          <input type="number" id="saugschaeden_aeste_anzahl" min="0" max="10" value="0" placeholder="Objectif : 3">
-        </div>
-        <div class="form-group">
-          <label>Désignation du sac *</label>
-          <input type="text" id="saugschaeden_sack_id" placeholder="p.ex. SS-SH01-2026">
-        </div>
-        <div class="form-group">
-          <label>Remarques prélèvement</label>
-          <textarea id="saugschaeden_probe_bemerkung" placeholder="p.ex. Branches de l'arbre X, Y, Z"></textarea>
-        </div>
-        <div id="saugschaeden-probe-status" style="margin-top: 0.5rem; padding: 0.5rem; border-radius: 4px; text-align: center;"></div>
-      </div>
-    </div>
-
-    <div class="page" style="display: none;" id="c2b-page">
-      <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">C2b : Retrait des pièges collants (Campagne 2)</h3>
-      <div class="info-box">
-        📋 <strong>Consignes de retrait :</strong> Retirer les pièges avec précaution et les envelopper dans du film cellophane. Emballer dans des sachets zip et conserver au réfrigérateur. Détermination à la HAFL sous loupe binoculaire : cicadelles adultes ~7 mm, rouge-noir. Envoyer les échantillons suspects au WSS pour validation.
-      </div>
-      <div id="c2b-fallen-container"></div>
-      <div id="blutzikade-summary" style="margin-top: 1.5rem;"></div>
-      <button class="btn btn-secondary btn-full" style="margin-top: 1.5rem;" onclick="backupToJSON()">💾 Sauvegarder l'état actuel (JSON)</button>
-    </div>
-  </section>
-
   <!-- RESULTATE -->
   <section id="section-resultate" class="section">
     <div class="page">
       <h2 style="margin-bottom: 1rem; color: var(--color-primary);">📊 Résultats — Vue d'ensemble</h2>
       <div id="resultate-dashboard"></div>
+      <div id="resultate-diplodia" style="margin-top: 1.5rem;"></div>
+      <div id="resultate-spinner" style="margin-top: 1.5rem;"></div>
+      <div id="resultate-fallen" style="margin-top: 1.5rem;"></div>
+      <div id="resultate-saugschaeden" style="margin-top: 1.5rem;"></div>
     </div>
   </section>
 
@@ -1259,21 +1180,13 @@
 </div>
 
 <nav>
-  <button class="nav-btn active" data-section="section-standort" data-termin="1" onclick="switchSection('section-standort')">
+  <button class="nav-btn active" data-section="section-standort" data-termin="12" onclick="switchSection('section-standort')">
     <span class="nav-icon">🗺️</span>
     <span>Site</span>
   </button>
-  <button class="nav-btn" data-section="section-diplodia" data-termin="1" onclick="switchSection('section-diplodia')">
-    <span class="nav-icon">🍄</span>
-    <span>Diplodia</span>
-  </button>
-  <button class="nav-btn" data-section="section-spinner" data-termin="2" onclick="switchSection('section-spinner')">
-    <span class="nav-icon">🐛</span>
-    <span>Processionnaire</span>
-  </button>
-  <button class="nav-btn" data-section="section-blutzikade" data-termin="12" onclick="switchSection('section-blutzikade')">
-    <span class="nav-icon">🪤</span>
-    <span>Cicadelle</span>
+  <button class="nav-btn" data-section="section-baeume" data-termin="12" onclick="switchSection('section-baeume')">
+    <span class="nav-icon">🌲</span>
+    <span>Arbres</span>
   </button>
   <button class="nav-btn" data-section="section-resultate" data-termin="12" onclick="switchSection('section-resultate')">
     <span class="nav-icon">📊</span>
@@ -1379,14 +1292,13 @@ function switchSection(sectionId) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
 
-  if (sectionId === 'section-diplodia') {
-    initDiplodia();
+  if (sectionId === 'section-standort') {
+    initPolytrap();
+    initDiplodiaZapfen();
+    initDiplodiaMethodenkritik();
   }
-  if (sectionId === 'section-blutzikade') {
-    updateC2C2bPages();
-  }
-  if (sectionId === 'section-spinner') {
-    checkSpinnerSafety();
+  if (sectionId === 'section-baeume') {
+    renderTrees();
   }
   if (sectionId === 'section-resultate') {
     renderResultateDashboard();
@@ -1877,12 +1789,13 @@ function renderTrees() {
     // Icônes de statut pour les organismes
     const hasDiplodia = app.data.diplodia.kronen.some(k => k.baum_id === tree.baum_id && (k.ast1_befall_pct > 0 || k.ast2_befall_pct > 0 || k.ast3_befall_pct > 0));
     const hasSpinner = (app.data.spinner || []).some(s => s.baum_id === tree.baum_id);
+    const hasFalle = (app.data.blutzikade.fallen || []).some(f => f.baum_ref === tree.baum_id && f.hat_falle);
     const hasSaugschaeden = (app.data.blutzikade.schaeden || []).some(s => s.baum_id === tree.baum_id && s.befallen_baum);
     let statusIcons = '';
     if (tree.bhd_klasse === '>20cm') {
-      statusIcons = `<span style="font-size: 0.8rem;" title="Diplodia">${hasDiplodia ? '🍄✅' : '🍄⬜'}</span> <span style="font-size: 0.8rem;" title="Spinner">${hasSpinner ? '🐛✅' : '🐛⬜'}</span>`;
+      statusIcons = `<span style="font-size: 0.8rem;" title="Spinner T1">${hasSpinner ? '🐛✅' : '🐛⬜'}</span> <span style="font-size: 0.8rem;" title="Piège collant">${hasFalle ? '🪤✅' : '🪤⬜'}</span> <span style="font-size: 0.8rem;" title="Dégâts succion T2">${hasSaugschaeden ? '🪤✅' : '🪤⬜'}</span>`;
     } else {
-      statusIcons = `<span style="font-size: 0.8rem;" title="Dégâts de succion">${hasSaugschaeden ? '🪤✅' : '🪤⬜'}</span>`;
+      statusIcons = `<span style="font-size: 0.8rem;" title="Spinner T1">${hasSpinner ? '🐛✅' : '🐛⬜'}</span> <span style="font-size: 0.8rem;" title="Piège collant">${hasFalle ? '🪤✅' : '🪤⬜'}</span> <span style="font-size: 0.8rem;" title="Dégâts succion T2">${hasSaugschaeden ? '🪤✅' : '🪤⬜'}</span>`;
     }
 
     card.innerHTML = `
@@ -1934,8 +1847,13 @@ function showTreeEdit(baum_id) {
   const befallsintensitaet = calculateDiplodiaIntensity(krone_data);
   const befallskategorie = getDiplodiaCategory(befallsintensitaet);
 
+  let falle_data = (app.data.blutzikade.fallen || []).find(f => f.baum_ref === baum_id) || {
+    hat_falle: false, abstand_boden_cm: '', exposition_falle: '', datum_installation: '', datum_abbau: '', anzahl_zikaden: 0, verdachtsprobe_wss: false
+  };
+  const kann_falle_haben = falle_data.hat_falle || (app.data.blutzikade.fallen || []).filter(f => f.baum_ref).length < 5;
+
   let spinner_data = (app.data.spinner || []).find(s => s.baum_id === baum_id) || {
-    anzahl_nester: 0, befallen: false, methode: 'Jumelles'
+    anzahl_nester: 0, befallen: false, methode: tree.bhd_klasse === '>20cm' ? 'Jumelles' : 'sans aide visuelle'
   };
 
   let schaeden_data = (app.data.blutzikade.schaeden || []).find(s => s.baum_id === baum_id) || {
@@ -2024,6 +1942,67 @@ function showTreeEdit(baum_id) {
           <div class="info-box">⚠️ Limite Diplodia (10 arbres) déjà atteinte. Cet arbre n'est pas évalué pour Diplodia.</div>
         </div>
         ` : '')}
+
+        ${tree.bhd_klasse === '<20cm' ? `
+        <!-- Klebefalle — Installation T1, Retrait T2 -->
+        <div style="border-top: 2px solid var(--color-border); padding-top: 1rem; margin-top: 1rem;">
+          <h4 style="color: var(--color-primary); margin-bottom: 0.75rem;">🪤 Piège collant</h4>
+          <div class="form-group">
+            <label>Piège installé :</label>
+            <div class="toggle-group">
+              <button type="button" class="toggle-btn ${!falle_data.hat_falle ? 'active' : ''}"
+                      ${!kann_falle_haben ? 'disabled' : ''}
+                      onclick="document.getElementById('edit-hat-falle').value='false'; this.classList.add('active'); this.nextElementSibling.classList.remove('active')">Non</button>
+              <button type="button" class="toggle-btn ${falle_data.hat_falle ? 'active' : ''}"
+                      ${!kann_falle_haben ? 'disabled' : ''}
+                      onclick="document.getElementById('edit-hat-falle').value='true'; this.previousElementSibling.classList.remove('active'); this.classList.add('active')">Oui</button>
+            </div>
+            <input type="hidden" id="edit-hat-falle" value="${falle_data.hat_falle || false}">
+          </div>
+
+          <div id="falle-details" style="display: ${falle_data.hat_falle ? 'block' : 'none'};">
+            <div class="form-group">
+              <label>Distance au sol (cm) :</label>
+              <input type="number" id="edit-falle-abstand" min="0" value="${falle_data.abstand_boden_cm || ''}">
+            </div>
+            <div class="form-group">
+              <label>Exposition :</label>
+              <select id="edit-falle-exposition">
+                <option value="">-- Choisir --</option>
+                ${['N','NO','O','SO','S','SW','W','NW'].map(e => `<option value="${e}" ${falle_data.exposition_falle === e ? 'selected' : ''}>${e}</option>`).join('')}
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Date d'installation :</label>
+              <input type="date" id="edit-falle-datum-inst" value="${falle_data.datum_installation || ''}">
+            </div>
+            <div class="form-group" id="falle-t2-fields" style="display: ${currentTermin === 2 ? 'block' : 'none'};">
+              <label>Date de retrait :</label>
+              <input type="date" id="edit-falle-datum-abbau" value="${falle_data.datum_abbau || ''}">
+            </div>
+            <div class="form-group" id="falle-t2-zikaden" style="display: ${currentTermin === 2 ? 'block' : 'none'};">
+              <label>Nombre de cicadelles :</label>
+              <input type="number" id="edit-falle-zikaden" min="0" value="${falle_data.anzahl_zikaden || 0}">
+            </div>
+            ${falle_data.datum_installation && falle_data.datum_abbau ? `
+            <div style="background: #f0f4ef; padding: 0.5rem; border-radius: 4px; font-size: 0.85rem; margin-bottom: 0.75rem;">
+              Durée d'exposition: ${Math.round((new Date(falle_data.datum_abbau) - new Date(falle_data.datum_installation)) / 86400000)} jours
+              ${(falle_data.anzahl_zikaden || 0) > 0 ? ' — ✅ Détection' : ' — ⬜ Pas de détection'}
+            </div>
+            ` : ''}
+            <div class="form-group" id="falle-t2-wss" style="display: ${currentTermin === 2 ? 'block' : 'none'};">
+              <label>Échantillon suspect WSS :</label>
+              <div class="toggle-group">
+                <button type="button" class="toggle-btn ${!falle_data.verdachtsprobe_wss ? 'active' : ''}"
+                        onclick="document.getElementById('edit-falle-wss').value='false'; this.classList.add('active'); this.nextElementSibling.classList.remove('active')">Non</button>
+                <button type="button" class="toggle-btn ${falle_data.verdachtsprobe_wss ? 'active' : ''}"
+                        onclick="document.getElementById('edit-falle-wss').value='true'; this.previousElementSibling.classList.remove('active'); this.classList.add('active')">Oui</button>
+              </div>
+              <input type="hidden" id="edit-falle-wss" value="${falle_data.verdachtsprobe_wss || false}">
+            </div>
+          </div>
+        </div>
+        ` : ''}
 
         ${tree.bhd_klasse === '>20cm' && currentTermin === 1 ? `
         <!-- Spinner (B) — nur Termin 1 -->
@@ -2115,6 +2094,21 @@ function showTreeEdit(baum_id) {
   `;
   document.body.insertAdjacentHTML('beforeend', modal_html);
   updateSliderWithProgress('edit-kronenverlichtung', document.getElementById('edit-kronenverlichtung')?.value || 0);
+
+  // Wire up Klebefalle toggle buttons
+  const falle_details = document.getElementById('falle-details');
+  if (falle_details) {
+    const hat_falle_input = document.getElementById('edit-hat-falle');
+    const toggleBtns = document.querySelectorAll('#falle-details').parentElement.querySelectorAll('.toggle-btn');
+    toggleBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        falle_details.style.display = hat_falle_input.value === 'true' ? 'block' : 'none';
+        document.getElementById('falle-t2-fields').style.display = currentTermin === 2 && hat_falle_input.value === 'true' ? 'block' : 'none';
+        document.getElementById('falle-t2-zikaden').style.display = currentTermin === 2 && hat_falle_input.value === 'true' ? 'block' : 'none';
+        document.getElementById('falle-t2-wss').style.display = currentTermin === 2 && hat_falle_input.value === 'true' ? 'block' : 'none';
+      });
+    });
+  }
 }
 
 function updateSliderDisplay(slider_id) {
@@ -2199,6 +2193,34 @@ function saveTreeEdit(baum_id) {
     }
   }
 
+  // --- Klebefalle (uniquement <20cm, T1+T2) ---
+  if (tree.bhd_klasse === '<20cm') {
+    const hat_falle_el = document.getElementById('edit-hat-falle');
+    if (hat_falle_el) {
+      let falle = (app.data.blutzikade.fallen || []).find(f => f.baum_ref === baum_id);
+      const hat_falle = hat_falle_el.value === 'true' || hat_falle_el.value === true;
+
+      if (hat_falle && !falle) {
+        falle = { baum_ref: baum_id, hat_falle: true, abstand_boden_cm: '', exposition_falle: '', datum_installation: '', datum_abbau: '', anzahl_zikaden: 0, verdachtsprobe_wss: false };
+        app.data.blutzikade.fallen.push(falle);
+      }
+
+      if (falle) {
+        falle.hat_falle = hat_falle;
+        if (hat_falle) {
+          falle.abstand_boden_cm = parseInt(document.getElementById('edit-falle-abstand')?.value) || '';
+          falle.exposition_falle = document.getElementById('edit-falle-exposition')?.value || '';
+          falle.datum_installation = document.getElementById('edit-falle-datum-inst')?.value || '';
+          if (currentTermin === 2) {
+            falle.datum_abbau = document.getElementById('edit-falle-datum-abbau')?.value || '';
+            falle.anzahl_zikaden = parseInt(document.getElementById('edit-falle-zikaden')?.value) || 0;
+            falle.verdachtsprobe_wss = document.getElementById('edit-falle-wss')?.value === 'true' || document.getElementById('edit-falle-wss')?.value === true;
+          }
+        }
+      }
+    }
+  }
+
   // --- Cicadelle Dégâts de succion (uniquement <20cm, uniquement T2, uniquement si champs visibles) ---
   if (tree.bhd_klasse === '<20cm') {
     const trieb1_el = document.getElementById('edit-blutzikade-trieb1');
@@ -2227,6 +2249,18 @@ function saveTreeEdit(baum_id) {
       schad.belegprobe_baum_id = schad.belegprobe_gesammelt ? baum_id : null;
       schad.schadbild_bestimmung = document.getElementById('edit-schadbild')?.value || '';
     }
+  }
+
+  // --- Spinner (pour tous les arbres, T1 uniquement maintenant) ---
+  const nester_el = document.getElementById('edit-spinner-nester');
+  if (nester_el) {
+    let sp = (app.data.spinner || []).find(s => s.baum_id === baum_id);
+    if (!sp) {
+      sp = { baum_id: baum_id, bhd_klasse: tree.bhd_klasse, methode: tree.bhd_klasse === '>20cm' ? 'Jumelles' : 'sans aide visuelle', anzahl_nester: 0, befallen: false };
+      app.data.spinner.push(sp);
+    }
+    sp.anzahl_nester = parseInt(nester_el.value) || 0;
+    sp.befallen = sp.anzahl_nester > 0;
   }
 
   storage.save(app.data);
@@ -2433,6 +2467,82 @@ function renderResultateDashboard() {
     </div>
   `;
 
+  container.innerHTML = html;
+
+  // Render summaries in respective containers
+  renderDiplodiaZusammenfassungResultate();
+  renderSpinnerZusammenfassungResultate();
+  renderFallenZusammenfassungResultate();
+  renderSaugschadenZusammenfassungResultate();
+}
+
+function renderDiplodiaZusammenfassungResultate() {
+  const container = document.getElementById('resultate-diplodia');
+  if (!container) return;
+  const large_trees = app.data.baeume.filter(b => b.bhd_klasse === '>20cm').slice(0, 10);
+  const kronen = app.data.diplodia.kronen || [];
+  if (large_trees.length === 0) return;
+
+  let html = '<h4 style="color: var(--color-primary); margin-bottom: 0.75rem;">🍄 Diplodia — Détails infestation couronne</h4>';
+  large_trees.forEach(tree => {
+    const krone = kronen.find(k => k.baum_id === tree.baum_id);
+    const hasData = krone && (krone.ast1_befall_pct > 0 || krone.ast2_befall_pct > 0 || krone.ast3_befall_pct > 0);
+    html += `
+      <div class="card" style="margin-bottom: 0.5rem; padding: 0.75rem; opacity: ${krone ? 1 : 0.6};">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <strong>${tree.baum_id}</strong>: ${krone ? krone.befallsintensitaet_pct.toFixed(1) + '% — ' + (krone.befallskategorie || 'non infecté') : 'Non enregistré'}
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
+
+function renderSpinnerZusammenfassungResultate() {
+  const container = document.getElementById('resultate-spinner');
+  if (!container) return;
+  const spinners = app.data.spinner || [];
+  if (spinners.length === 0) return;
+
+  const befallen = spinners.filter(s => s.befallen).length;
+  let html = `<h4 style="color: var(--color-primary); margin-bottom: 0.75rem;">🐛 Processionnaire — Saisie</h4>
+    <div class="card" style="padding: 0.75rem; margin-bottom: 0.75rem;">
+      <div>Saisis : <strong>${spinners.length} pins</strong></div>
+      <div>Infectés : <strong>${befallen} (${spinners.length > 0 ? ((befallen/spinners.length)*100).toFixed(0) : 0}%)</strong></div>
+      <div>Ø Nids : <strong>${spinners.length > 0 ? (spinners.reduce((s, x) => s + x.anzahl_nester, 0) / spinners.length).toFixed(1) : 0}</strong></div>
+    </div>`;
+  container.innerHTML = html;
+}
+
+function renderFallenZusammenfassungResultate() {
+  const container = document.getElementById('resultate-fallen');
+  if (!container) return;
+  const fallen = app.data.blutzikade.fallen || [];
+  if (fallen.length === 0) return;
+
+  const fallen_mit_nachw = fallen.filter(f => f.anzahl_zikaden && f.anzahl_zikaden > 0).length;
+  let html = `<h4 style="color: var(--color-primary); margin-bottom: 0.75rem;">🪤 Pièges collants — Résumé</h4>
+    <div class="card" style="padding: 0.75rem;">
+      <div>Installés : <strong>${fallen.length} / 5</strong></div>
+      <div>Avec cicadelles : <strong>${fallen_mit_nachw} / ${fallen.length}</strong></div>
+    </div>`;
+  container.innerHTML = html;
+}
+
+function renderSaugschadenZusammenfassungResultate() {
+  const container = document.getElementById('resultate-saugschaeden');
+  if (!container) return;
+  const schaeden = app.data.blutzikade.schaeden || [];
+  if (schaeden.length === 0 || currentTermin !== 2) return;
+
+  const befallen = schaeden.filter(s => s.befallen_baum).length;
+  let html = `<h4 style="color: var(--color-primary); margin-bottom: 0.75rem;">🪤 Dégâts succion — Résumé</h4>
+    <div class="card" style="padding: 0.75rem;">
+      <div>Arbres contrôlés : <strong>${schaeden.length}</strong></div>
+      <div>Avec dégâts : <strong>${befallen}</strong></div>
+    </div>`;
   container.innerHTML = html;
 }
 
@@ -3236,6 +3346,7 @@ function exportCSV() {
     'diplodia_ast1_befall_pct', 'diplodia_ast2_befall_pct', 'diplodia_ast3_befall_pct',
     'diplodia_befallsintensitaet_pct', 'diplodia_befallskategorie',
     'spinner_anzahl_nester', 'spinner_befallen', 'spinner_methode',
+    'hat_klebefalle',
     'blutzikade_trieb1_pct', 'blutzikade_trieb2_pct',
     'blutzikade_trieb3_pct', 'blutzikade_trieb4_pct', 'blutzikade_trieb5_pct',
     'blutzikade_belegprobe', 'blutzikade_belegprobe_baum_id',
@@ -3246,6 +3357,7 @@ function exportCSV() {
   app.data.baeume.forEach(baum => {
     const dip = (app.data.diplodia.kronen || []).find(k => k.baum_id === baum.baum_id) || {};
     const sp = (app.data.spinner || []).find(s => s.baum_id === baum.baum_id) || {};
+    const falle = (app.data.blutzikade.fallen || []).find(f => f.baum_ref === baum.baum_id) || {};
     const bz = (app.data.blutzikade.schaeden || []).find(s => s.baum_id === baum.baum_id) || {};
     const v = (val) => val != null && val !== '' ? val : '';
     const row = [
@@ -3256,6 +3368,7 @@ function exportCSV() {
       v(dip.befallsintensitaet_pct), csvQuote(dip.befallskategorie || ''),
       v(sp.anzahl_nester), sp.befallen != null ? (sp.befallen ? 'ja' : 'nein') : '',
       csvQuote(sp.methode || ''),
+      falle.hat_falle != null ? (falle.hat_falle ? 'ja' : 'nein') : '',
       v(bz.trieb1_befallene_nadeln_pct), v(bz.trieb2_befallene_nadeln_pct),
       v(bz.trieb3_befallene_nadeln_pct), v(bz.trieb4_befallene_nadeln_pct),
       v(bz.trieb5_befallene_nadeln_pct),

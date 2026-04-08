@@ -1025,7 +1025,93 @@
             </div>
           </div>
         </details>
+
+        <!-- Gruppe 5: Polytrap -->
+        <details class="field-group">
+          <summary>🪤 Insektenfalle / Polytrap</summary>
+          <div class="field-group-content">
+            <div class="info-box">🪤 <strong>Vorgaben:</strong> 1 Polytrap am Plotmittelpunkt. GPS = Standort-GPS.</div>
+            <div class="form-group">
+              <label>Status *</label>
+              <select id="polytrap_status">
+                <option value="">-- Wählen --</option>
+                <option value="installiert">Installiert (T1)</option>
+                <option value="geleert_entfernt">Geleert &amp; entfernt (T2)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Datum Installation</label>
+              <input type="date" id="polytrap_datum_installation">
+            </div>
+            <div class="form-group" id="polytrap-t2-fields" style="display: none;">
+              <label>Datum Leerung/Abbau</label>
+              <input type="date" id="polytrap_datum_abbau">
+            </div>
+            <div class="form-group" id="polytrap-t2-probe" style="display: none;">
+              <label>Fangprobe-Bezeichnung</label>
+              <input type="text" id="polytrap_probe_id" placeholder="z.B. PT-SH01-2026">
+            </div>
+            <div class="form-group">
+              <label>Bemerkungen</label>
+              <textarea id="polytrap_bemerkung" placeholder="Optional"></textarea>
+            </div>
+          </div>
+        </details>
+
+        <!-- Gruppe 6: Diplodia Zapfensammlung -->
+        <details class="field-group">
+          <summary>🍄 Diplodia — Zapfensammlung</summary>
+          <div class="field-group-content">
+            <div class="info-box">📝 <strong>Vorgaben:</strong> 20 Zapfen pro Bestand zufällig aufheben. 1 Zapfen pro Baum. In Papiersack mitnehmen.</div>
+            <div class="form-group">
+              <label>Anzahl gesammelte Zapfen *</label>
+              <input type="number" id="diplodia_zapfen_anzahl" min="0" placeholder="Ziel: 20">
+            </div>
+            <div class="form-group">
+              <label>Sack-Bezeichnung *</label>
+              <input type="text" id="diplodia_zapfen_sack_id" placeholder="z.B. ZAP-SH01-2026">
+            </div>
+            <div class="form-group">
+              <label>Bemerkungen</label>
+              <textarea id="diplodia_zapfen_bemerkung" placeholder="Optional"></textarea>
+            </div>
+          </div>
+        </details>
+
+        <!-- Gruppe 7: Methodenkritik -->
+        <details class="field-group">
+          <summary>📝 Methodenkritik</summary>
+          <div class="field-group-content">
+            <div class="info-box">📝 Stimmt die Befallsintensität mit Ihrem Gesamteindruck überein?</div>
+            <div class="form-group">
+              <label>Methodenkritik</label>
+              <textarea id="diplodia_methodenkritik" placeholder="Ihre Einschätzung..."></textarea>
+            </div>
+          </div>
+        </details>
       </form>
+    </div>
+  </section>
+
+  <!-- BÄUME SEKTION -->
+  <section id="section-baeume" class="section">
+    <div id="safety-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-title">⚠️ SICHERHEITSHINWEIS</div>
+        <div style="font-weight: bold; margin-bottom: 1rem; color: var(--color-primary);">Föhrenprozessionsspinner</div>
+        <div class="modal-text">
+          Die Raupen bilden ab dem 3. Larvenstadium <strong>BRENNHAARE</strong>, die starke Entzündungen von Augenschleimhäuten und Atemwegen sowie Allergien auslösen können.
+        </div>
+        <div class="modal-list">
+          <ul>
+            <li>🚫 Raupen NICHT berühren</li>
+            <li>🚫 Gespinstnester NICHT berühren</li>
+            <li>🚫 Auch ältere, verlassene Nester sind gefährlich</li>
+            <li>👖 Lange Hosen tragen</li>
+          </ul>
+        </div>
+        <button class="btn btn-full" onclick="closeSafetyModal()">Ich habe verstanden — Weiter</button>
+      </div>
     </div>
 
     <div class="page">
@@ -1057,181 +1143,16 @@
     </div>
   </section>
 
-  <!-- MODUL A: DIPLODIA -->
-  <section id="section-diplodia" class="section">
-    <div class="page">
-      <h2 style="margin-bottom: 1rem; color: var(--color-primary);">🍄 Diplodia sapinea</h2>
-      <h3 style="margin-top: 1.5rem; margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">A1: Zapfenbefall</h3>
-      <div class="info-box">
-        📝 <strong>Vorgaben:</strong> 20 Zapfen pro Bestand zufällig aufheben (noch nicht abgebaut, unter Föhren ≥20 cm BHD). 1 Zapfen pro Baum sammeln. In Papiersack mitnehmen. Sack beschriften: Standort, Datum, Name.
-      </div>
-      <form id="form-diplodia-zapfen">
-        <div class="form-group">
-          <label>Anzahl gesammelte Zapfen *</label>
-          <input type="number" id="diplodia_zapfen_anzahl" min="0" placeholder="Ziel: 20" required>
-        </div>
-        <div class="form-group">
-          <label>Sack-Bezeichnung *</label>
-          <input type="text" id="diplodia_zapfen_sack_id" placeholder="z.B. ZAP-SH01-2026" required>
-        </div>
-        <div class="form-group">
-          <label>Bemerkungen</label>
-          <textarea id="diplodia_zapfen_bemerkung" placeholder="Optional"></textarea>
-        </div>
-      </form>
-    </div>
-
-    <div class="page">
-      <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">A2: Kronenbefall (10 Bäume BHD >20)</h3>
-      <div class="info-box">
-        📝 <strong>Vorgaben:</strong> 10 zufällig ausgewählte Bäume BHD >20 cm, pro Baum 3 Äste — geschätzter Anteil infizierter Triebe (%).
-      </div>
-      <div id="diplodia-kronen-container"></div>
-    </div>
-
-    <div class="page">
-      <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">A3: Methodenkritik</h3>
-      <div class="info-box">
-        📝 <strong>Aufgabe:</strong> Stimmt die berechnete Befallsintensität mit Ihrem Gesamteindruck im Feld überein? Falls nein: Warum weichen sie ab?
-      </div>
-      <form id="form-diplodia-methodenkritik">
-        <div class="form-group">
-          <label>Methodenkritik *</label>
-          <textarea id="diplodia_methodenkritik" placeholder="Ihre Einschätzung..." required></textarea>
-        </div>
-      </form>
-      <div id="diplodia-summary"></div>
-      <button class="btn btn-secondary btn-full" style="margin-top: 1.5rem;" onclick="backupToJSON()">💾 Zwischenstand sichern (JSON)</button>
-    </div>
-  </section>
-
-  <!-- MODUL B: SPINNER -->
-  <section id="section-spinner" class="section">
-    <div id="safety-modal" class="modal">
-      <div class="modal-content">
-        <div class="modal-title">⚠️ SICHERHEITSHINWEIS</div>
-        <div style="font-weight: bold; margin-bottom: 1rem; color: var(--color-primary);">Föhrenprozessionsspinner</div>
-        <div class="modal-text">
-          Die Raupen bilden ab dem 3. Larvenstadium <strong>BRENNHAARE</strong>, die starke Entzündungen von Augenschleimhäuten und Atemwegen sowie Allergien auslösen können.
-        </div>
-        <div class="modal-list">
-          <ul>
-            <li>🚫 Raupen NICHT berühren</li>
-            <li>🚫 Gespinstnester NICHT berühren</li>
-            <li>🚫 Auch ältere, verlassene Nester sind gefährlich</li>
-            <li>👖 Lange Hosen tragen</li>
-          </ul>
-        </div>
-        <button class="btn btn-full" onclick="closeSafetyModal()">Ich habe verstanden — Weiter</button>
-      </div>
-    </div>
-
-    <div class="page">
-      <h2 style="margin-bottom: 1rem; color: var(--color-primary);">🐛 Föhrenprozessionsspinner</h2>
-      <div class="info-box">
-        📝 <strong>Aufgabe:</strong> Nur Bäume BHD ≥20 cm kontrollieren. Mit Fernglas nach Gespinstnestern im Kronenbereich suchen. Pro Baum: Anzahl Gespinstnester notieren.
-      </div>
-      <div id="spinner-trees-container"></div>
-      <div id="spinner-summary" style="margin-top: 1.5rem;"></div>
-      <button class="btn btn-secondary btn-full" style="margin-top: 1.5rem;" onclick="backupToJSON()">💾 Zwischenstand sichern (JSON)</button>
-    </div>
-  </section>
-
-  <!-- MODUL C: BLUTZIKADE -->
-  <section id="section-blutzikade" class="section">
-    <div class="page" id="c1-page">
-      <h2 style="margin-bottom: 1rem; color: var(--color-primary);">🪤 Kiefernblutzikade</h2>
-      <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">C1: Klebefallen Installation (Termin 1)</h3>
-      <div class="info-box">
-        🪤 <strong>Vorgaben:</strong> 5 gelbe Klebefallen (Andermatt Giallo) an sonnenexponierten Jungbäumen (BHD <20 cm) nahe Wiesen installieren. Fallen auf der Sonnenseite fixieren (Kabelbinder).
-      </div>
-      <div id="c1-fallen-container"></div>
-      <div id="c1-summary" style="margin-top: 1rem;"></div>
-    </div>
-
-    <div class="page" style="display: none;" id="c1b-page">
-      <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">C1b: Insektenfalle / Polytrap</h3>
-      <div class="info-box">
-        🪤 <strong>Vorgaben:</strong> 1 Polytrap-Insektenfalle am Plotmittelpunkt installieren.
-        GPS-Koordinaten = Standort-GPS. Falle auf stabile Unterlage stellen, Fanggefäss einsetzen.
-      </div>
-      <form id="form-polytrap">
-        <div class="form-group">
-          <label>GPS Polytrap</label>
-          <div id="polytrap-gps-info" class="gps-widget" style="margin-bottom: 0.5rem;"></div>
-          <button type="button" class="btn btn-secondary btn-full" onclick="useStandortGPSForPolytrap()">📍 Standort-GPS übernehmen</button>
-        </div>
-        <div class="form-group">
-          <label>Status *</label>
-          <select id="polytrap_status" required>
-            <option value="">-- Wählen --</option>
-            <option value="installiert">Installiert (T1)</option>
-            <option value="geleert_entfernt">Geleert &amp; entfernt (T2)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Datum Installation</label>
-          <input type="date" id="polytrap_datum_installation">
-        </div>
-        <div class="form-group" id="polytrap-t2-fields" style="display: none;">
-          <label>Datum Leerung/Abbau</label>
-          <input type="date" id="polytrap_datum_abbau">
-        </div>
-        <div class="form-group" id="polytrap-t2-probe" style="display: none;">
-          <label>Fangprobe-Bezeichnung</label>
-          <input type="text" id="polytrap_probe_id" placeholder="z.B. PT-SH01-2026">
-        </div>
-        <div class="form-group">
-          <label>Bemerkungen</label>
-          <textarea id="polytrap_bemerkung" placeholder="Optional"></textarea>
-        </div>
-      </form>
-    </div>
-
-    <div class="page" style="display: none;" id="c2-page">
-      <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">C2: Saugschäden (Termin 2, BHD <20 cm)</h3>
-      <div class="info-box">
-        🔍 <strong>Vorgaben:</strong> Pro Baum 5 sonnenexponierte Triebe untersuchen. Saugschäden = ringförmige, gelb-braune Nadelverfärbungen (ältere Nadeljahrgänge). 3 Äste (je ~30 cm) mit deutlichen Saugschäden abschneiden und in Plastiksack für Labor (HAFL) mitnehmen. Sack beschriften: Standort, Datum, Name.
-      </div>
-      <div id="c2-schaeden-container"></div>
-      <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 2px solid var(--color-border);">
-        <h4 style="margin-bottom: 0.75rem; color: var(--color-primary);">✂️ Probennahme Saugschäden</h4>
-        <div class="info-box">
-          ✂️ <strong>Vorgaben:</strong> 3 Äste (je ~30 cm) mit deutlichen Saugschäden abschneiden.
-          In Plastiksack verpacken. Sack beschriften: Standort, Datum, Name.
-        </div>
-        <div class="form-group">
-          <label>Anzahl geschnittene Äste *</label>
-          <input type="number" id="saugschaeden_aeste_anzahl" min="0" max="10" value="0" placeholder="Ziel: 3">
-        </div>
-        <div class="form-group">
-          <label>Sack-Bezeichnung *</label>
-          <input type="text" id="saugschaeden_sack_id" placeholder="z.B. SS-SH01-2026">
-        </div>
-        <div class="form-group">
-          <label>Bemerkungen Probennahme</label>
-          <textarea id="saugschaeden_probe_bemerkung" placeholder="z.B. Äste von Baum X, Y, Z"></textarea>
-        </div>
-        <div id="saugschaeden-probe-status" style="margin-top: 0.5rem; padding: 0.5rem; border-radius: 4px; text-align: center;"></div>
-      </div>
-    </div>
-
-    <div class="page" style="display: none;" id="c2b-page">
-      <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">C2b: Klebefallen Abbau (Termin 2)</h3>
-      <div class="info-box">
-        📋 <strong>Abbau-Vorgaben:</strong> Fallen vorsichtig abnehmen und in Cellophanfolie einwickeln. In Zip-Beutel verpacken und im Kühlschrank lagern. Bestimmung an HAFL unter Stereolupe: Adulte Blutzikaden ~7 mm, rot-schwarz. Verdachtsproben zur Validierung an WSS einsenden.
-      </div>
-      <div id="c2b-fallen-container"></div>
-      <div id="blutzikade-summary" style="margin-top: 1.5rem;"></div>
-      <button class="btn btn-secondary btn-full" style="margin-top: 1.5rem;" onclick="backupToJSON()">💾 Zwischenstand sichern (JSON)</button>
-    </div>
-  </section>
 
   <!-- RESULTATE -->
   <section id="section-resultate" class="section">
     <div class="page">
       <h2 style="margin-bottom: 1rem; color: var(--color-primary);">📊 Resultate — Übersicht</h2>
       <div id="resultate-dashboard"></div>
+      <div id="resultate-diplodia" style="margin-top: 1.5rem;"></div>
+      <div id="resultate-spinner" style="margin-top: 1.5rem;"></div>
+      <div id="resultate-fallen" style="margin-top: 1.5rem;"></div>
+      <div id="resultate-saugschaeden" style="margin-top: 1.5rem;"></div>
     </div>
   </section>
 
@@ -1259,21 +1180,13 @@
 </div>
 
 <nav>
-  <button class="nav-btn active" data-section="section-standort" data-termin="1" onclick="switchSection('section-standort')">
+  <button class="nav-btn active" data-section="section-standort" data-termin="12" onclick="switchSection('section-standort')">
     <span class="nav-icon">🗺️</span>
     <span>Standort</span>
   </button>
-  <button class="nav-btn" data-section="section-diplodia" data-termin="1" onclick="switchSection('section-diplodia')">
-    <span class="nav-icon">🍄</span>
-    <span>Diplodia</span>
-  </button>
-  <button class="nav-btn" data-section="section-spinner" data-termin="2" onclick="switchSection('section-spinner')">
-    <span class="nav-icon">🐛</span>
-    <span>Spinner</span>
-  </button>
-  <button class="nav-btn" data-section="section-blutzikade" data-termin="12" onclick="switchSection('section-blutzikade')">
-    <span class="nav-icon">🪤</span>
-    <span>Blutzikade</span>
+  <button class="nav-btn" data-section="section-baeume" data-termin="12" onclick="switchSection('section-baeume')">
+    <span class="nav-icon">🌲</span>
+    <span>Bäume</span>
   </button>
   <button class="nav-btn" data-section="section-resultate" data-termin="12" onclick="switchSection('section-resultate')">
     <span class="nav-icon">📊</span>
@@ -1379,18 +1292,13 @@ function switchSection(sectionId) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
 
-  if (sectionId === 'section-diplodia') {
-    renderDiplodiaZusammenfassung();
+  if (sectionId === 'section-standort') {
+    initPolytrap();
     initDiplodiaZapfen();
     initDiplodiaMethodenkritik();
   }
-  if (sectionId === 'section-blutzikade') {
-    renderC2Zusammenfassung();
-    updateC2C2bPages();
-  }
-  if (sectionId === 'section-spinner') {
-    renderSpinnerZusammenfassung();
-    checkSpinnerSafety();
+  if (sectionId === 'section-baeume') {
+    renderTrees();
   }
   if (sectionId === 'section-resultate') {
     renderResultateDashboard();
@@ -1882,12 +1790,13 @@ function renderTrees() {
     // Status-Icons für Organismen
     const hasDiplodia = app.data.diplodia.kronen.some(k => k.baum_id === tree.baum_id && (k.ast1_befall_pct > 0 || k.ast2_befall_pct > 0 || k.ast3_befall_pct > 0));
     const hasSpinner = (app.data.spinner || []).some(s => s.baum_id === tree.baum_id);
+    const hasFalle = (app.data.blutzikade.fallen || []).some(f => f.baum_ref === tree.baum_id && f.hat_falle);
     const hasSaugschaeden = (app.data.blutzikade.schaeden || []).some(s => s.baum_id === tree.baum_id && s.befallen_baum);
     let statusIcons = '';
     if (tree.bhd_klasse === '>20cm') {
-      statusIcons = `<span style="font-size: 0.8rem;" title="Diplodia">${hasDiplodia ? '🍄✅' : '🍄⬜'}</span> <span style="font-size: 0.8rem;" title="Spinner">${hasSpinner ? '🐛✅' : '🐛⬜'}</span>`;
+      statusIcons = `<span style="font-size: 0.8rem;" title="Diplodia">${hasDiplodia ? '🍄✅' : '🍄⬜'}</span> <span style="font-size: 0.8rem;" title="Spinner T1">${hasSpinner ? '🐛✅' : '🐛⬜'}</span>`;
     } else {
-      statusIcons = `<span style="font-size: 0.8rem;" title="Saugschäden">${hasSaugschaeden ? '🪤✅' : '🪤⬜'}</span>`;
+      statusIcons = `<span style="font-size: 0.8rem;" title="Spinner T1">${hasSpinner ? '🐛✅' : '🐛⬜'}</span> <span style="font-size: 0.8rem;" title="Klebefalle">${hasFalle ? '🪤✅' : '🪤⬜'}</span> <span style="font-size: 0.8rem;" title="Saugschäden T2">${hasSaugschaeden ? '🪤✅' : '🪤⬜'}</span>`;
     }
 
     card.innerHTML = `
@@ -1948,6 +1857,13 @@ function showTreeEdit(baum_id) {
     trieb3_befallene_nadeln_pct: 0, trieb4_befallene_nadeln_pct: 0,
     trieb5_befallene_nadeln_pct: 0, belegprobe_gesammelt: false
   };
+
+  let falle_data = (app.data.blutzikade.fallen || []).find(f => f.baum_ref === baum_id) || {
+    hat_falle: false, abstand_boden_cm: '', exposition_falle: '', datum_installation: '',
+    datum_abbau: '', anzahl_zikaden: 0, nachweis_zikade: false, verdachtsprobe_wss: false
+  };
+  const fallen_count = (app.data.blutzikade.fallen || []).filter(f => f.hat_falle && f.baum_ref !== baum_id).length;
+  const kann_falle_haben = falle_data.hat_falle || fallen_count < 5;
 
   const modal_html = `
     <div id="tree-edit-modal" class="modal active">
@@ -2030,17 +1946,81 @@ function showTreeEdit(baum_id) {
         </div>
         ` : '')}
 
-        ${tree.bhd_klasse === '>20cm' && currentTermin === 1 ? `
-        <!-- Spinner (B) — nur Termin 1 -->
+        ${currentTermin === 1 ? `
+        <!-- Spinner (B) — nur Termin 1, für ALLE Bäume -->
         <div style="border-top: 2px solid var(--color-border); padding-top: 1rem; margin-top: 1rem;">
           <h4 style="color: var(--color-primary); margin-bottom: 0.75rem;">🐛 Spinner — Gespinstnester</h4>
           <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 0.5rem; border-radius: 4px; margin-bottom: 0.75rem; font-size: 0.8rem;">
-            ⚠️ <strong>Sicherheit:</strong> Gespinstnester nicht berühren! Nur mit Fernglas kontrollieren.
+            ⚠️ <strong>Sicherheit:</strong> Gespinstnester nicht berühren! Nur mit ${tree.bhd_klasse === '>20cm' ? 'Fernglas' : 'Auge (ohne Hilfsmittel)'} kontrollieren.
           </div>
           <div class="form-group">
             <label>Anzahl Nester:</label>
             <input type="number" id="edit-spinner-nester" min="0" value="${spinner_data.anzahl_nester || 0}">
           </div>
+        </div>
+        ` : ''}
+
+        ${tree.bhd_klasse === '<20cm' ? `
+        <!-- Klebefalle — T1 Installation, T2 Abbau -->
+        <div style="border-top: 2px solid var(--color-border); padding-top: 1rem; margin-top: 1rem;">
+          <h4 style="color: var(--color-primary); margin-bottom: 0.75rem;">🪤 Klebefalle</h4>
+          ${!kann_falle_haben ? `<div class="info-box">⚠️ Maximum 5 Fallen pro Standort erreicht.</div>` : `
+          <div class="form-group">
+            <label>Falle installiert:</label>
+            <div class="toggle-group">
+              <button type="button" class="toggle-btn ${!falle_data.hat_falle ? 'active' : ''}"
+                      onclick="document.getElementById('edit-hat-falle').value='false'; this.classList.add('active'); this.nextElementSibling.classList.remove('active'); document.getElementById('falle-details').style.display='none'">Nein</button>
+              <button type="button" class="toggle-btn ${falle_data.hat_falle ? 'active' : ''}"
+                      onclick="document.getElementById('edit-hat-falle').value='true'; this.previousElementSibling.classList.remove('active'); this.classList.add('active'); document.getElementById('falle-details').style.display='block'">Ja</button>
+            </div>
+            <input type="hidden" id="edit-hat-falle" value="${falle_data.hat_falle || false}">
+          </div>
+          <div id="falle-details" style="display: ${falle_data.hat_falle ? 'block' : 'none'};">
+            <div class="form-group">
+              <label>Abstand Boden (cm):</label>
+              <input type="number" id="edit-falle-abstand" min="0" value="${falle_data.abstand_boden_cm || ''}">
+            </div>
+            <div class="form-group">
+              <label>Exposition Falle:</label>
+              <select id="edit-falle-exposition">
+                <option value="">-- Wählen --</option>
+                ${['N','NO','O','SO','S','SW','W','NW'].map(e => `<option value="${e}" ${falle_data.exposition_falle === e ? 'selected' : ''}>${e}</option>`).join('')}
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Datum Installation:</label>
+              <input type="date" id="edit-falle-datum-inst" value="${falle_data.datum_installation || ''}">
+            </div>
+            ${currentTermin === 2 ? `
+            <div style="border-top: 1px solid var(--color-border); padding-top: 0.75rem; margin-top: 0.75rem;">
+              <h5 style="color: var(--color-primary); margin-bottom: 0.5rem;">Abbau (Termin 2)</h5>
+              <div class="form-group">
+                <label>Datum Abbau:</label>
+                <input type="date" id="edit-falle-datum-abbau" value="${falle_data.datum_abbau || ''}">
+              </div>
+              <div class="form-group">
+                <label>Anzahl Zikaden:</label>
+                <input type="number" id="edit-falle-zikaden" min="0" value="${falle_data.anzahl_zikaden || 0}">
+              </div>
+              ${falle_data.datum_installation && falle_data.datum_abbau ? `
+              <div style="font-size: 0.8rem; color: var(--color-muted);">
+                Expositionsdauer: ${Math.round((new Date(falle_data.datum_abbau) - new Date(falle_data.datum_installation)) / 86400000)} Tage
+                ${(falle_data.anzahl_zikaden || 0) > 0 ? ' — ✅ Nachweis' : ' — ⬜ Kein Nachweis'}
+              </div>` : ''}
+              <div class="form-group" style="margin-top: 0.5rem;">
+                <label>Verdachtsprobe WSS:</label>
+                <div class="toggle-group">
+                  <button type="button" class="toggle-btn ${!falle_data.verdachtsprobe_wss ? 'active' : ''}"
+                          onclick="document.getElementById('edit-falle-wss').value='false'; this.classList.add('active'); this.nextElementSibling.classList.remove('active')">Nein</button>
+                  <button type="button" class="toggle-btn ${falle_data.verdachtsprobe_wss ? 'active' : ''}"
+                          onclick="document.getElementById('edit-falle-wss').value='true'; this.previousElementSibling.classList.remove('active'); this.classList.add('active')">Ja</button>
+                </div>
+                <input type="hidden" id="edit-falle-wss" value="${falle_data.verdachtsprobe_wss || false}">
+              </div>
+            </div>
+            ` : ''}
+          </div>
+          `}
         </div>
         ` : ''}
 
@@ -2190,17 +2170,55 @@ function saveTreeEdit(baum_id) {
       krone.befallsintensitaet_pct = calculateDiplodiaIntensity(krone);
       krone.befallskategorie = getDiplodiaCategory(krone.befallsintensitaet_pct);
     }
+  }
 
-    // Spinner
-    const nester_el = document.getElementById('edit-spinner-nester');
-    if (nester_el) {
-      let sp = (app.data.spinner || []).find(s => s.baum_id === baum_id);
-      if (!sp) {
-        sp = { baum_id: baum_id, bhd_klasse: tree.bhd_klasse, methode: 'Fernglas', anzahl_nester: 0, befallen: false };
-        app.data.spinner.push(sp);
+  // --- Spinner (ALLE Bäume, nur T1) ---
+  const nester_el = document.getElementById('edit-spinner-nester');
+  if (nester_el) {
+    let sp = (app.data.spinner || []).find(s => s.baum_id === baum_id);
+    if (!sp) {
+      sp = { baum_id: baum_id, bhd_klasse: tree.bhd_klasse, methode: tree.bhd_klasse === '>20cm' ? 'Fernglas' : 'ohne Hilfsmittel', anzahl_nester: 0, befallen: false };
+      app.data.spinner.push(sp);
+    }
+    sp.anzahl_nester = parseInt(nester_el.value) || 0;
+    sp.befallen = sp.anzahl_nester > 0;
+    sp.methode = tree.bhd_klasse === '>20cm' ? 'Fernglas' : 'ohne Hilfsmittel';
+  }
+
+  // --- Klebefalle (nur <20cm, T1+T2) ---
+  if (tree.bhd_klasse === '<20cm') {
+    const hat_falle_el = document.getElementById('edit-hat-falle');
+    if (hat_falle_el) {
+      const hat_falle = hat_falle_el.value === 'true';
+      if (!app.data.blutzikade.fallen) app.data.blutzikade.fallen = [];
+      let falle = app.data.blutzikade.fallen.find(f => f.baum_ref === baum_id);
+      if (hat_falle) {
+        if (!falle) {
+          falle = { falle_id: 'F-' + baum_id, baum_ref: baum_id };
+          app.data.blutzikade.fallen.push(falle);
+        }
+        falle.hat_falle = true;
+        falle.abstand_boden_cm = parseInt(document.getElementById('edit-falle-abstand')?.value) || 0;
+        falle.exposition_falle = document.getElementById('edit-falle-exposition')?.value || '';
+        falle.datum_installation = document.getElementById('edit-falle-datum-inst')?.value || '';
+        falle.lat = tree.lat;
+        falle.lon = tree.lon;
+        falle.e_lv95 = tree.e_lv95;
+        falle.n_lv95 = tree.n_lv95;
+        falle.gps_accuracy = tree.gps_accuracy;
+        const abbau_el = document.getElementById('edit-falle-datum-abbau');
+        if (abbau_el) {
+          falle.datum_abbau = abbau_el.value || '';
+          falle.anzahl_zikaden = parseInt(document.getElementById('edit-falle-zikaden')?.value) || 0;
+          falle.nachweis_zikade = falle.anzahl_zikaden > 0;
+          falle.verdachtsprobe_wss = document.getElementById('edit-falle-wss')?.value === 'true';
+          if (falle.datum_installation && falle.datum_abbau) {
+            falle.expositionsdauer_tage = Math.round((new Date(falle.datum_abbau) - new Date(falle.datum_installation)) / 86400000);
+          }
+        }
+      } else {
+        app.data.blutzikade.fallen = app.data.blutzikade.fallen.filter(f => f.baum_ref !== baum_id);
       }
-      sp.anzahl_nester = parseInt(nester_el.value) || 0;
-      sp.befallen = sp.anzahl_nester > 0;
     }
   }
 
@@ -2452,6 +2470,125 @@ function renderResultateDashboard() {
   `;
 
   container.innerHTML = html;
+
+  // Render summaries in respective containers
+  renderDiplodiaZusammenfassungResultate();
+  renderSpinnerZusammenfassungResultate();
+  renderFallenZusammenfassungResultate();
+  renderSaugschadenZusammenfassungResultate();
+}
+
+function renderDiplodiaZusammenfassungResultate() {
+  const container = document.getElementById('resultate-diplodia');
+  if (!container) return;
+  const large_trees = app.data.baeume.filter(b => b.bhd_klasse === '>20cm').slice(0, 10);
+  const kronen = app.data.diplodia.kronen || [];
+  if (large_trees.length === 0) return;
+
+  let html = '<h4 style="color: var(--color-primary); margin-bottom: 0.75rem;">🍄 Diplodia — Kronenbefall Details</h4>';
+  large_trees.forEach(tree => {
+    const krone = kronen.find(k => k.baum_id === tree.baum_id);
+    const hasData = krone && (krone.ast1_befall_pct > 0 || krone.ast2_befall_pct > 0 || krone.ast3_befall_pct > 0);
+    html += `
+      <div class="card" style="margin-bottom: 0.5rem; padding: 0.75rem; opacity: ${krone ? 1 : 0.6};">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <strong>${tree.baum_id}</strong>: ${krone ? krone.befallsintensitaet_pct.toFixed(1) + '% — ' + (krone.befallskategorie || 'nicht erfasst') : 'Nicht erfasst'}
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
+
+function renderSpinnerZusammenfassungResultate() {
+  const container = document.getElementById('resultate-spinner');
+  if (!container) return;
+  const spinners = app.data.spinner || [];
+  if (spinners.length === 0) return;
+
+  const befallen = spinners.filter(s => s.befallen).length;
+  let html = `<h4 style="color: var(--color-primary); margin-bottom: 0.75rem;">🐛 Spinner — Erfassung</h4>
+    <div class="card" style="padding: 0.75rem; margin-bottom: 0.75rem;">
+      <div>Erfasst: <strong>${spinners.length} Bäume</strong></div>
+      <div>Befallen: <strong>${befallen} (${spinners.length > 0 ? ((befallen/spinners.length)*100).toFixed(0) : 0}%)</strong></div>
+      <div>Ø Nester: <strong>${spinners.length > 0 ? (spinners.reduce((s, x) => s + x.anzahl_nester, 0) / spinners.length).toFixed(1) : 0}</strong></div>
+    </div>`;
+  container.innerHTML = html;
+}
+
+function renderFallenZusammenfassungResultate() {
+  const container = document.getElementById('resultate-fallen');
+  if (!container) return;
+  const fallen = app.data.blutzikade.fallen || [];
+  if (fallen.length === 0) return;
+
+  const installiert = fallen.filter(f => f.hat_falle).length;
+  const abgebaut = fallen.filter(f => f.hat_falle && f.datum_abbau).length;
+  const mit_nachweis = fallen.filter(f => f.hat_falle && f.anzahl_zikaden > 0).length;
+
+  let html = `<h4 style="color: var(--color-primary); margin-bottom: 0.75rem;">🪤 Klebefallen — Übersicht</h4>
+    <div class="card" style="padding: 0.75rem; margin-bottom: 0.75rem;">
+      <div>Installiert: <strong>${installiert} / 5</strong></div>
+      ${currentTermin === 2 ? `<div>Abgebaut: <strong>${abgebaut}</strong></div>
+      <div>Zikaden-Nachweis: <strong>${mit_nachweis}</strong></div>` : ''}
+    </div>`;
+  container.innerHTML = html;
+}
+
+function renderSaugschadenZusammenfassungResultate() {
+  const container = document.getElementById('resultate-saugschaeden');
+  if (!container) return;
+  const schaeden = app.data.blutzikade.schaeden || [];
+  if (schaeden.length === 0 || currentTermin !== 2) return;
+
+  const befallen = schaeden.filter(s => s.befallen_baum).length;
+  const proben = schaeden.filter(s => s.belegprobe_gesammelt).length;
+
+  let html = `<h4 style="color: var(--color-primary); margin-bottom: 0.75rem;">🪤 Saugschäden — Befallsübersicht</h4>
+    <div class="card" style="padding: 0.75rem; margin-bottom: 0.75rem;">
+      <div>Erfasst: <strong>${schaeden.length} Bäume</strong></div>
+      <div>Befallen: <strong>${befallen} (${schaeden.length > 0 ? ((befallen/schaeden.length)*100).toFixed(0) : 0}%)</strong></div>
+      <div>Ø Befallene Nadeln: <strong>${schaeden.length > 0 ? (schaeden.reduce((s, x) => s + (x.mittl_befallene_triebe_pct || 0), 0) / schaeden.length).toFixed(1) : 0}%</strong></div>
+      <div>Belegproben: <strong>${proben}</strong></div>
+    </div>`;
+  container.innerHTML = html;
+}
+
+function initPolytrap() {
+  const polytrap_data = app.data.blutzikade.polytrap || {};
+  const fields = {
+    'polytrap_status': 'status',
+    'polytrap_datum_installation': 'datum_installation',
+    'polytrap_datum_abbau': 'datum_abbau',
+    'polytrap_probe_id': 'probe_id',
+    'polytrap_bemerkung': 'bemerkung'
+  };
+  Object.entries(fields).forEach(([elem_id, key]) => {
+    const elem = document.getElementById(elem_id);
+    if (elem) {
+      elem.value = polytrap_data[key] || '';
+      elem.addEventListener('change', () => {
+        app.data.blutzikade.polytrap[key] = elem.value;
+        if (elem_id === 'polytrap_status') {
+          document.getElementById('polytrap-t2-fields').style.display = elem.value === 'geleert_entfernt' ? 'block' : 'none';
+          document.getElementById('polytrap-t2-probe').style.display = elem.value === 'geleert_entfernt' ? 'block' : 'none';
+        }
+        storage.save(app.data);
+      });
+      elem.addEventListener('input', () => {
+        app.data.blutzikade.polytrap[key] = elem.value;
+        storage.save(app.data);
+      });
+    }
+  });
+  // Initialize visibility
+  const status_el = document.getElementById('polytrap_status');
+  if (status_el && status_el.value === 'geleert_entfernt') {
+    document.getElementById('polytrap-t2-fields').style.display = 'block';
+    document.getElementById('polytrap-t2-probe').style.display = 'block';
+  }
 }
 
 function initDiplodia() {
@@ -2719,54 +2856,6 @@ function updateC2C2bPages() {
   initPolytrap();
   if (currentTermin === 1) initC1();
   if (currentTermin === 2) { initC2(); initC2b(); }
-}
-
-function initPolytrap() {
-  const data = app.data.blutzikade.polytrap || {};
-
-  // GPS-Info anzeigen
-  const gpsInfo = document.getElementById('polytrap-gps-info');
-  if (gpsInfo) {
-    if (data.lat && data.lon) {
-      const lv95 = wgs84ToLV95(data.lat, data.lon);
-      gpsInfo.innerHTML = `
-        <div class="gps-widget-row"><span class="gps-widget-label">📍 GPS:</span>
-        <span class="gps-widget-value">${data.lat.toFixed(4)}° N | ${data.lon.toFixed(4)}° E</span></div>
-        <div class="gps-widget-row"><span class="gps-widget-label">LV95:</span>
-        <span class="gps-widget-value">E ${lv95.E.toLocaleString('de-CH')} | N ${lv95.N.toLocaleString('de-CH')}</span></div>
-      `;
-    } else {
-      gpsInfo.innerHTML = '<div class="gps-widget-row">Noch kein GPS übernommen.</div>';
-    }
-  }
-
-  // Felder laden
-  const fields = ['polytrap_status', 'polytrap_datum_installation', 'polytrap_datum_abbau', 'polytrap_probe_id', 'polytrap_bemerkung'];
-  fields.forEach(field_id => {
-    const elem = document.getElementById(field_id);
-    if (elem) {
-      const key = field_id.replace('polytrap_', '');
-      elem.value = data[key] || '';
-      // Event-Listener nur einmal setzen
-      if (!elem.dataset.polytrapInit) {
-        elem.dataset.polytrapInit = 'true';
-        elem.addEventListener('change', () => {
-          app.data.blutzikade.polytrap[key] = elem.value;
-          storage.save(app.data);
-          togglePolytrapT2Fields();
-        });
-      }
-    }
-  });
-  togglePolytrapT2Fields();
-}
-
-function togglePolytrapT2Fields() {
-  const status = document.getElementById('polytrap_status')?.value;
-  const t2Fields = document.getElementById('polytrap-t2-fields');
-  const t2Probe = document.getElementById('polytrap-t2-probe');
-  if (t2Fields) t2Fields.style.display = status === 'geleert_entfernt' ? 'block' : 'none';
-  if (t2Probe) t2Probe.style.display = status === 'geleert_entfernt' ? 'block' : 'none';
 }
 
 function useStandortGPSForPolytrap() {
@@ -3257,6 +3346,7 @@ function exportCSV() {
     'diplodia_ast1_befall_pct', 'diplodia_ast2_befall_pct', 'diplodia_ast3_befall_pct',
     'diplodia_befallsintensitaet_pct', 'diplodia_befallskategorie',
     'spinner_anzahl_nester', 'spinner_befallen', 'spinner_methode',
+    'hat_klebefalle',
     'blutzikade_trieb1_pct', 'blutzikade_trieb2_pct',
     'blutzikade_trieb3_pct', 'blutzikade_trieb4_pct', 'blutzikade_trieb5_pct',
     'blutzikade_belegprobe', 'blutzikade_belegprobe_baum_id',
@@ -3267,6 +3357,7 @@ function exportCSV() {
   app.data.baeume.forEach(baum => {
     const dip = (app.data.diplodia.kronen || []).find(k => k.baum_id === baum.baum_id) || {};
     const sp = (app.data.spinner || []).find(s => s.baum_id === baum.baum_id) || {};
+    const falle = (app.data.blutzikade.fallen || []).find(f => f.baum_ref === baum.baum_id) || {};
     const bz = (app.data.blutzikade.schaeden || []).find(s => s.baum_id === baum.baum_id) || {};
     const v = (val) => val != null && val !== '' ? val : '';
     const row = [
@@ -3277,6 +3368,7 @@ function exportCSV() {
       v(dip.befallsintensitaet_pct), csvQuote(dip.befallskategorie || ''),
       v(sp.anzahl_nester), sp.befallen != null ? (sp.befallen ? 'ja' : 'nein') : '',
       csvQuote(sp.methode || ''),
+      falle.hat_falle != null ? (falle.hat_falle ? 'ja' : 'nein') : '',
       v(bz.trieb1_befallene_nadeln_pct), v(bz.trieb2_befallene_nadeln_pct),
       v(bz.trieb3_befallene_nadeln_pct), v(bz.trieb4_befallene_nadeln_pct),
       v(bz.trieb5_befallene_nadeln_pct),
