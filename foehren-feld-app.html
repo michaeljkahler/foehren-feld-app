@@ -790,6 +790,16 @@
               <div id="bodenvegetation-sum"></div>
             </div>
             <div class="form-group">
+              <label>Deckungsgrad Gräser &amp; Kräuter — Verjüngungsfläche BHD &lt;20 cm (%)</label>
+              <p style="font-size: 0.8rem; color: var(--color-muted); margin: -0.25rem 0 0.5rem;">
+                Geschätzter Anteil von Gräsern und Kräutern an der Gesamtbodenbedeckung im Bereich der kleinen Föhren.
+              </p>
+              <div class="slider-frame">
+                <input type="range" class="slider" id="deckungsgrad_graeser_kraeuter" min="0" max="100" step="5" value="0" oninput="document.getElementById('deckungsgrad_graeser_kraeuter_val').textContent = this.value + '%'">
+                <div class="slider-value" id="deckungsgrad_graeser_kraeuter_val" style="text-align: center; margin-top: 0.5rem; font-weight: bold;">0%</div>
+              </div>
+            </div>
+            <div class="form-group">
               <label>Waldgesellschaft (NaiS) *</label>
           <input type="text" id="waldgesellschaft" list="nais-types" placeholder="Tippen zum Suchen (Nr. oder Name)" autocomplete="off" required>
           <datalist id="nais-types">
@@ -1405,7 +1415,7 @@ function updateT2Summary() {
 }
 
 function initStandort() {
-  const fields = ['plot_id', 'aufnehmer', 'datum_t1', 'datum_t2', 'hoehe_mue', 'vegetationshoehenstufe', 'exposition', 'waldgesellschaft', 'bemerkungen_standort', 'tote_foehren_gross', 'tote_foehren_klein', 'boden_tiefe_mitte', 'boden_tiefe_nord', 'boden_tiefe_sued', 'boden_tiefe_west', 'boden_tiefe_ost'];
+  const fields = ['plot_id', 'aufnehmer', 'datum_t1', 'datum_t2', 'hoehe_mue', 'vegetationshoehenstufe', 'exposition', 'deckungsgrad_graeser_kraeuter', 'waldgesellschaft', 'bemerkungen_standort', 'tote_foehren_gross', 'tote_foehren_klein', 'boden_tiefe_mitte', 'boden_tiefe_nord', 'boden_tiefe_sued', 'boden_tiefe_west', 'boden_tiefe_ost'];
   fields.forEach(field => {
     const elem = document.getElementById(field);
     if (elem) {
@@ -1423,6 +1433,12 @@ function initStandort() {
     document.getElementById('empty-state-banner').style.display = 'block';
   } else {
     document.getElementById('empty-state-banner').style.display = 'none';
+  }
+
+  // Deckungsgrad Slider-Wert sync
+  const dgSlider = document.getElementById('deckungsgrad_graeser_kraeuter');
+  if (dgSlider) {
+    document.getElementById('deckungsgrad_graeser_kraeuter_val').textContent = dgSlider.value + '%';
   }
 
   // Tote Föhren Total (Auftrag 01)
@@ -1883,8 +1899,7 @@ function renderTrees() {
     } else {
       // T2
       if (tree.bhd_klasse === '>20cm') {
-        const hasKVUpdate = tree.kronenverlichtung_pct !== undefined && tree.kronenverlichtung_pct !== null;
-        statusIcons = `<span style="font-size: 0.8rem;" title="KV updated">${hasKVUpdate ? '🌳✅' : '🌳⬜'}</span>`;
+        statusIcons = `<span style="font-size: 0.8rem; color: var(--color-muted);" title="T1-Daten übernommen">✅ T1</span>`;
       } else {
         statusIcons = `<span style="font-size: 0.8rem;" title="Fallenabbau">${hasFalle ? '🪤✅' : '🪤⬜'}</span> <span style="font-size: 0.8rem;" title="Saugschäden">${hasSaugschaeden ? '🔬✅' : '🔬⬜'}</span>`;
       }
@@ -1975,7 +1990,7 @@ function showTreeEdit(baum_id) {
           </div>
           ${currentTermin === 2 ? '<div style="color:var(--color-muted);font-size:0.85rem;">GPS aus Termin 1 übernommen</div>' : '<button type="button" class="btn btn-full" onclick="captureTreeGPS(\'' + baum_id + '\')">📍 GPS holen</button>'}
         </div>
-        ${tree.bhd_klasse === '>20cm' ? `
+        ${tree.bhd_klasse === '>20cm' && currentTermin === 1 ? `
         <div class="form-group">
           <label>Kronenverlichtung (SANASILVA) *</label>
           <img src="sanasilva-kronenverlichtung.png" alt="SANASILVA Kronenverlichtung Referenz: 0% - 25% - 60% - 70%" style="width:100%; border-radius:6px; margin-bottom:0.25rem; border:1px solid var(--color-border); cursor: pointer;" onclick="openLightbox(event, 'sanasilva-kronenverlichtung.png')" title="Tippen zum Vergrössern">
@@ -1993,7 +2008,13 @@ function showTreeEdit(baum_id) {
         </div>
         ` : ''}
 
-        ${show_diplodia ? `
+        ${tree.bhd_klasse === '>20cm' && currentTermin === 2 ? `
+        <div class="info-box" style="margin-top: 1rem;">
+          ℹ️ Kronenverlichtung und Diplodia wurden bei Termin 1 erfasst und werden nicht aktualisiert.
+        </div>
+        ` : ''}
+
+        ${show_diplodia && currentTermin === 1 ? `
         <!-- Diplodia Kronenbefall (A2) -->
         <div style="border-top: 2px solid var(--color-border); padding-top: 1rem; margin-top: 1rem;">
           <h4 style="color: var(--color-primary); margin-bottom: 0.75rem;">🍄 Diplodia — Kronenbefall</h4>
@@ -2031,7 +2052,7 @@ function showTreeEdit(baum_id) {
             Ø Befallsintensität: <strong>${befallsintensitaet.toFixed(1)}%</strong> — ${befallskategorie}
           </div>
         </div>
-        ` : (tree.bhd_klasse === '>20cm' ? `
+        ` : (tree.bhd_klasse === '>20cm' && currentTermin === 1 ? `
         <div style="border-top: 2px solid var(--color-border); padding-top: 1rem; margin-top: 1rem;">
           <div class="info-box">⚠️ Diplodia-Limit (10 Bäume) bereits erreicht. Dieser Baum wird nicht für Diplodia erfasst.</div>
         </div>
@@ -2457,6 +2478,7 @@ function renderResultateDashboard() {
         <div>GPS: ${hasGPS ? standort.koordinate_lat.toFixed(4) + '° N | ' + standort.koordinate_lon.toFixed(4) + '° E' : '❌ Nicht erfasst'}</div>
         <div>Exposition: ${hasExpo ? standort.exposition : '—'} | VH-Stufe: ${hasVH ? standort.vegetationshoehenstufe : '—'}</div>
         <div>Bestandestyp: ${standort.waldgesellschaft || '—'} | Tote Föhren: ${standort.tote_foehren_gross || 0} gross / ${standort.tote_foehren_klein || 0} klein</div>
+        <div>Deckungsgrad Gräser/Kräuter (Verjüngung): ${standort.deckungsgrad_graeser_kraeuter || 0}%</div>
       </div>
     </div>
   `;
@@ -3392,6 +3414,7 @@ function exportCSV() {
     'hoehe_mue', 'vegetationshoehenstufe', 'exposition', 'baumarten_mischung', 'bodenvegetation',
     'waldgesellschaft', 'bemerkungen_standort',
     'tote_foehren_gross', 'tote_foehren_klein',
+    'deckungsgrad_graeser_kraeuter',
     'boden_tiefe_mitte', 'boden_tiefe_nord', 'boden_tiefe_sued', 'boden_tiefe_west', 'boden_tiefe_ost', 'boden_tiefe_mittelwert',
     'diplodia_zapfen_anzahl', 'diplodia_zapfen_sack_id', 'diplodia_zapfen_bemerkung',
     'diplodia_methodenkritik',
@@ -3406,6 +3429,7 @@ function exportCSV() {
     ].map(h => csvQuote(app.data.standort[h] != null ? app.data.standort[h] : '')),
     csvQuote(app.data.standort.tote_foehren_gross || 0),
     csvQuote(app.data.standort.tote_foehren_klein || 0),
+    csvQuote(app.data.standort.deckungsgrad_graeser_kraeuter || 0),
     ...['boden_tiefe_mitte', 'boden_tiefe_nord', 'boden_tiefe_sued', 'boden_tiefe_west', 'boden_tiefe_ost'].map(f => csvQuote(app.data.standort[f] != null ? app.data.standort[f] : '')),
     (() => { const vals = ['boden_tiefe_mitte','boden_tiefe_nord','boden_tiefe_sued','boden_tiefe_west','boden_tiefe_ost'].map(f => parseFloat(app.data.standort[f])).filter(v => !isNaN(v)); return vals.length > 0 ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : ''; })(),
     csvQuote(zapfen.diplodia_zapfen_anzahl || ''),
@@ -3537,6 +3561,7 @@ function exportGeoJSON() {
         bemerkungen_standort: app.data.standort.bemerkungen_standort,
         tote_foehren_gross: app.data.standort.tote_foehren_gross || 0,
         tote_foehren_klein: app.data.standort.tote_foehren_klein || 0,
+        deckungsgrad_graeser_kraeuter: app.data.standort.deckungsgrad_graeser_kraeuter || 0,
         boden_tiefe_mitte: app.data.standort.boden_tiefe_mitte || null,
         boden_tiefe_nord: app.data.standort.boden_tiefe_nord || null,
         boden_tiefe_sued: app.data.standort.boden_tiefe_sued || null,
