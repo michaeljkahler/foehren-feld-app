@@ -790,16 +790,6 @@
               <div id="bodenvegetation-sum"></div>
             </div>
             <div class="form-group">
-              <label>Deckungsgrad Gräser &amp; Kräuter — Verjüngungsfläche BHD &lt;20 cm (%)</label>
-              <p style="font-size: 0.8rem; color: var(--color-muted); margin: -0.25rem 0 0.5rem;">
-                Geschätzter Anteil von Gräsern und Kräutern an der Gesamtbodenbedeckung im Bereich der kleinen Föhren.
-              </p>
-              <div class="slider-frame">
-                <input type="range" class="slider" id="deckungsgrad_graeser_kraeuter" min="0" max="100" step="5" value="0" oninput="document.getElementById('deckungsgrad_graeser_kraeuter_val').textContent = this.value + '%'">
-                <div class="slider-value" id="deckungsgrad_graeser_kraeuter_val" style="text-align: center; margin-top: 0.5rem; font-weight: bold;">0%</div>
-              </div>
-            </div>
-            <div class="form-group">
               <label>Waldgesellschaft (NaiS) *</label>
           <input type="text" id="waldgesellschaft" list="nais-types" placeholder="Tippen zum Suchen (Nr. oder Name)" autocomplete="off" required>
           <datalist id="nais-types">
@@ -1184,6 +1174,16 @@
         <div class="card-title">📍 Standort-Zusammenfassung</div>
         <div class="card-info" id="t2-summary-content">Laden...</div>
       </div>
+      <div class="card" style="margin-bottom: 1rem; padding: 1rem;">
+        <label style="font-weight: bold;">🌿 Deckungsgrad Gräser &amp; Kräuter — Verjüngungsfläche BHD &lt;20 cm (%)</label>
+        <p style="font-size: 0.8rem; color: var(--color-muted); margin: 0.25rem 0 0.5rem;">
+          Geschätzter Anteil von Gräsern und Kräutern an der Gesamtbodenbedeckung im Bereich der kleinen Föhren.
+        </p>
+        <div class="slider-frame">
+          <input type="range" class="slider" id="deckungsgrad_graeser_kraeuter" min="0" max="100" step="5" value="0" oninput="document.getElementById('deckungsgrad_graeser_kraeuter_val').textContent = this.value + '%'">
+          <div class="slider-value" id="deckungsgrad_graeser_kraeuter_val" style="text-align: center; margin-top: 0.5rem; font-weight: bold;">0%</div>
+        </div>
+      </div>
       <details class="field-group" open>
         <summary>🌿 Termin 2 — Einzelbaum-Erfassung (Mai)</summary>
         <div class="field-group-content">
@@ -1374,6 +1374,7 @@ function switchSection(sectionId) {
     currentTermin = 2;
     renderTrees();
     updateT2Summary();
+    initDeckungsgradSlider();
   }
   if (sectionId === 'section-resultate') {
     renderResultateDashboard();
@@ -1397,6 +1398,22 @@ function confirmSave(btn) {
   }, 3000);
 }
 
+function initDeckungsgradSlider() {
+  const slider = document.getElementById('deckungsgrad_graeser_kraeuter');
+  if (!slider) return;
+  slider.value = app.data.standort.deckungsgrad_graeser_kraeuter || 0;
+  document.getElementById('deckungsgrad_graeser_kraeuter_val').textContent = slider.value + '%';
+  if (!slider.dataset.init) {
+    slider.dataset.init = 'true';
+    const handler = () => {
+      app.data.standort.deckungsgrad_graeser_kraeuter = parseInt(slider.value);
+      storage.save(app.data);
+    };
+    slider.addEventListener('change', handler);
+    slider.addEventListener('input', handler);
+  }
+}
+
 function updateT2Summary() {
   const s = app.data.standort;
   const baeume = app.data.baeume || [];
@@ -1415,7 +1432,7 @@ function updateT2Summary() {
 }
 
 function initStandort() {
-  const fields = ['plot_id', 'aufnehmer', 'datum_t1', 'datum_t2', 'hoehe_mue', 'vegetationshoehenstufe', 'exposition', 'deckungsgrad_graeser_kraeuter', 'waldgesellschaft', 'bemerkungen_standort', 'tote_foehren_gross', 'tote_foehren_klein', 'boden_tiefe_mitte', 'boden_tiefe_nord', 'boden_tiefe_sued', 'boden_tiefe_west', 'boden_tiefe_ost'];
+  const fields = ['plot_id', 'aufnehmer', 'datum_t1', 'datum_t2', 'hoehe_mue', 'vegetationshoehenstufe', 'exposition', 'waldgesellschaft', 'bemerkungen_standort', 'tote_foehren_gross', 'tote_foehren_klein', 'boden_tiefe_mitte', 'boden_tiefe_nord', 'boden_tiefe_sued', 'boden_tiefe_west', 'boden_tiefe_ost'];
   fields.forEach(field => {
     const elem = document.getElementById(field);
     if (elem) {
@@ -1433,12 +1450,6 @@ function initStandort() {
     document.getElementById('empty-state-banner').style.display = 'block';
   } else {
     document.getElementById('empty-state-banner').style.display = 'none';
-  }
-
-  // Deckungsgrad Slider-Wert sync
-  const dgSlider = document.getElementById('deckungsgrad_graeser_kraeuter');
-  if (dgSlider) {
-    document.getElementById('deckungsgrad_graeser_kraeuter_val').textContent = dgSlider.value + '%';
   }
 
   // Tote Föhren Total (Auftrag 01)
