@@ -679,7 +679,7 @@
       <h1 style="margin:0;">🌲 Föhrengesundheit</h1>
       <a href="foehren-feld-app-fr.html" style="color:white; background:rgba(255,255,255,0.2); padding:0.3rem 0.6rem; border-radius:4px; text-decoration:none; font-size:0.8rem; font-weight:600;">Français</a>
     </div>
-    <p>Feldaufnahme-App v2.1</p>
+    <p>Feldaufnahme-App v2.3</p>
   </header>
 
   <!-- MODUL 0: STANDORT -->
@@ -1145,6 +1145,9 @@
           <div class="info-box">
             💡 <strong>Hinweis:</strong> Bäume nach der Messung mit Kreide oder Bändeli markieren, damit sie bei Termin 2 wiedergefunden werden.
           </div>
+          <div class="info-box" style="background: #e8f0e6;">
+            🪤 <strong>Kleine Bäume (BHD &lt; 20 cm):</strong> Nur die <strong>5 Fallenbäume</strong> erfassen (Klebefalle + Spinner). Weitere 15 Bäume werden bei Termin 2 ergänzt.
+          </div>
           <div style="margin-bottom: 1rem;">
             <div class="progress-text">Bäume BHD >20 cm:</div>
             <div class="progress-bar">
@@ -1152,14 +1155,14 @@
             </div>
           </div>
           <div style="margin-bottom: 1.5rem;">
-            <div class="progress-text">Bäume BHD <20 cm:</div>
+            <div class="progress-text">Bäume BHD <20 cm (Fallenbäume):</div>
             <div class="progress-bar">
-              <div id="progress-bhd-small" class="progress-fill" style="width: 0%">0 / 20</div>
+              <div id="progress-bhd-small" class="progress-fill" style="width: 0%">0 / 5</div>
             </div>
           </div>
           <div class="btn-group">
             <button class="btn" id="btn-add-large" onclick="addTree('large')">+ BHD >20 cm</button>
-            <button class="btn" id="btn-add-small" onclick="addTree('small')">+ BHD <20 cm</button>
+            <button class="btn" id="btn-add-small" onclick="addTree('small')">+ BHD <20 cm (Fallenbaum)</button>
           </div>
           <div id="trees-container-t1"></div>
         </div>
@@ -1188,7 +1191,7 @@
         <summary>🌿 Termin 2 — Einzelbaum-Erfassung (Mai)</summary>
         <div class="field-group-content">
           <div class="info-box">
-            💡 <strong>Hinweis:</strong> BHD und GPS sind aus Termin 1 übernommen (readonly). Erfassen Sie die T2-spezifischen Daten.
+            💡 <strong>Hinweis:</strong> Grosse Bäume und die 5 Fallenbäume aus T1 werden weiter ergänzt (Saugschäden, Fallenabbau). Zusätzlich können bis zu <strong>15 neue Bäume &lt;20 cm</strong> erfasst werden (GPS, BHD, Spinner, Saugschäden).
           </div>
           <div style="margin-bottom: 1rem;">
             <div class="progress-text">Bäume BHD >20 cm:</div>
@@ -1196,11 +1199,14 @@
               <div id="progress-bhd-large-t2" class="progress-fill" style="width: 0%">0 / 20</div>
             </div>
           </div>
-          <div style="margin-bottom: 1.5rem;">
+          <div style="margin-bottom: 1rem;">
             <div class="progress-text">Bäume BHD <20 cm:</div>
             <div class="progress-bar">
               <div id="progress-bhd-small-t2" class="progress-fill" style="width: 0%">0 / 20</div>
             </div>
+          </div>
+          <div class="btn-group" style="margin-bottom: 1rem;">
+            <button class="btn" id="btn-add-small-t2" onclick="addTree('small')">+ BHD &lt;20 cm (Saugschäden)</button>
           </div>
           <div id="trees-container-t2"></div>
         </div>
@@ -1227,8 +1233,12 @@
       <h2 style="margin-bottom: 1rem; color: var(--color-primary);">📤 Daten exportieren</h2>
       <div id="export-termin-info" class="info-box" style="margin-bottom: 1rem;"></div>
       <div id="export-status" style="margin-bottom: 1rem;"></div>
-      <p style="margin-bottom: 1.5rem; color: var(--color-muted); font-size: 0.9rem;">Export enthält immer <strong>alle vorhandenen Daten</strong> aus allen Modulen.</p>
-      <button class="btn btn-full" style="margin-bottom: 0.5rem;" onclick="exportCSV()">📄 CSV exportieren (3 Dateien)</button>
+      <p style="margin-bottom: 1rem; color: var(--color-muted); font-size: 0.9rem;">Export enthält immer <strong>alle vorhandenen Daten</strong> aus allen Modulen. CSV-Dateien einzeln herunterladen (falls ein Download vom Browser blockiert wird).</p>
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;">
+        <button class="btn btn-full" onclick="exportCSV_Standort()">📄 CSV Standort-Daten</button>
+        <button class="btn btn-full" onclick="exportCSV_Baeume()">📄 CSV Baum-Daten</button>
+        <button class="btn btn-full" onclick="exportCSV_Fallen()">📄 CSV Klebefallen-Daten</button>
+      </div>
       <button class="btn btn-full" style="margin-bottom: 1.5rem;" onclick="exportGeoJSON()">🗺️ GeoJSON exportieren</button>
       <hr style="border: none; border-top: 2px solid var(--color-border); margin: 1.5rem 0;">
       <h3 style="margin-bottom: 0.75rem; color: var(--color-primary); font-size: 1rem;">💾 Datensicherung (JSON)</h3>
@@ -1817,8 +1827,11 @@ function addTree(bhd_class) {
   const prefix = bhd_class === 'large' ? 'BHD>20' : 'BHD<20';
   const klasse = bhd_class === 'large' ? '>20cm' : '<20cm';
   const bhd_trees = app.data.baeume.filter(b => b.bhd_klasse === klasse);
-  if (bhd_trees.length >= 20) {
-    alert('Maximum 20 Bäume pro Klasse erreicht');
+  const max_small = (klasse === '<20cm' && currentTermin === 1) ? 5 : 20;
+  if (bhd_trees.length >= max_small) {
+    alert(klasse === '<20cm' && currentTermin === 1
+      ? 'Maximum 5 Fallenbäume bei Termin 1. Weitere Bäume bei Termin 2 erfassen.'
+      : 'Maximum 20 Bäume pro Klasse erreicht');
     return;
   }
   // Find next free number (avoids duplicates after deletion)
@@ -1839,7 +1852,8 @@ function addTree(bhd_class) {
     n_lv95: null,
     kronenverlichtung_pct: 0,
     bemerkungen_baum: '',
-    gps_accuracy: null
+    gps_accuracy: null,
+    termin_erstellt: currentTermin
   };
   app.data.baeume.push(tree);
   storage.save(app.data);
@@ -1880,12 +1894,21 @@ function renderTrees() {
   const smallPctId = currentTermin === 2 ? 'progress-bhd-small-t2' : 'progress-bhd-small';
   document.getElementById(largePctId).style.width = large_pct + '%';
   document.getElementById(largePctId).textContent = `${large_trees.length} / 20`;
-  document.getElementById(smallPctId).style.width = small_pct + '%';
-  document.getElementById(smallPctId).textContent = `${small_trees.length} / 20`;
 
   if (currentTermin === 1) {
+    // T1: kleine Bäume auf 5 (Fallenbäume) beschränkt
+    const small_max = 5;
+    const small_pct_val = (small_trees.length / small_max) * 100;
+    document.getElementById(smallPctId).style.width = Math.min(small_pct_val, 100) + '%';
+    document.getElementById(smallPctId).textContent = `${small_trees.length} / ${small_max}`;
     document.getElementById('btn-add-large').disabled = large_trees.length >= 20;
-    document.getElementById('btn-add-small').disabled = small_trees.length >= 20;
+    document.getElementById('btn-add-small').disabled = small_trees.length >= small_max;
+  } else {
+    // T2: 20 kleine Bäume total (5 aus T1 + bis 15 neu)
+    document.getElementById(smallPctId).style.width = small_pct + '%';
+    document.getElementById(smallPctId).textContent = `${small_trees.length} / 20`;
+    const btnT2 = document.getElementById('btn-add-small-t2');
+    if (btnT2) btnT2.disabled = small_trees.length >= 20;
   }
 
   const all_trees = [...large_trees, ...small_trees];
@@ -1912,7 +1935,12 @@ function renderTrees() {
       if (tree.bhd_klasse === '>20cm') {
         statusIcons = `<span style="font-size: 0.8rem; color: var(--color-muted);" title="T1-Daten übernommen">✅ T1</span>`;
       } else {
-        statusIcons = `<span style="font-size: 0.8rem;" title="Fallenabbau">${hasFalle ? '🪤✅' : '🪤⬜'}</span> <span style="font-size: 0.8rem;" title="Saugschäden">${hasSaugschaeden ? '🔬✅' : '🔬⬜'}</span>`;
+        const isNewT2 = tree.termin_erstellt === 2;
+        const gpsIcon = isNewT2 ? `<span style="font-size: 0.8rem;" title="GPS">${tree.lat ? '📍✅' : '📍⬜'}</span> ` : '';
+        statusIcons = gpsIcon
+          + `<span style="font-size: 0.8rem;" title="Spinner">${hasSpinner ? '🐛✅' : '🐛⬜'}</span> `
+          + (!isNewT2 ? `<span style="font-size: 0.8rem;" title="Fallenabbau">${hasFalle ? '🪤✅' : '🪤⬜'}</span> ` : '')
+          + `<span style="font-size: 0.8rem;" title="Saugschäden">${hasSaugschaeden ? '🔬✅' : '🔬⬜'}</span>`;
       }
     }
 
@@ -1982,16 +2010,20 @@ function showTreeEdit(baum_id) {
   const fallen_count = (app.data.blutzikade.fallen || []).filter(f => f.hat_falle && f.baum_ref !== baum_id).length;
   const kann_falle_haben = falle_data.hat_falle || fallen_count < 5;
 
+  // Erkennen: neuer T2-Baum (BHD/GPS editierbar) vs. T1-Baum bei T2 (readonly)
+  const isNewT2Tree = currentTermin === 2 && tree.termin_erstellt === 2;
+  const bhd_readonly = currentTermin === 2 && !isNewT2Tree;
+
   const modal_html = `
     <div id="tree-edit-modal" class="modal active">
       <div class="modal-content" style="max-width: 95%; width: 400px;">
-        <h3 style="color: var(--color-primary); margin-bottom: 1rem;">${baum_id}</h3>
+        <h3 style="color: var(--color-primary); margin-bottom: 1rem;">${baum_id}${isNewT2Tree ? ' <span style="font-size: 0.7rem; color: #28a745;">(neu T2)</span>' : ''}</h3>
         <div class="form-group">
-          <label>BHD (cm) ${currentTermin === 2 ? '(T1)' : '*'}</label>
-          <input type="number" id="edit-bhd_cm" step="0.1" value="${tree.bhd_cm || 0}" ${currentTermin === 2 ? 'readonly style="background:#f0f0f0;"' : ''}>
+          <label>BHD (cm) ${bhd_readonly ? '(T1)' : '*'}</label>
+          <input type="number" id="edit-bhd_cm" step="0.1" value="${tree.bhd_cm || 0}" ${bhd_readonly ? 'readonly style="background:#f0f0f0;"' : ''}>
         </div>
         <div class="form-group">
-          <label>GPS Baum ${currentTermin === 2 ? '(T1)' : '*'}</label>
+          <label>GPS Baum ${bhd_readonly ? '(T1)' : '*'}</label>
           <div id="edit-gps-widget" class="gps-widget">
             ${tree.lat ? `
               <div class="gps-widget-row"><span class="gps-widget-label">📍 GPS:</span> <span class="gps-widget-value">${tree.lat.toFixed(4)}° N | ${tree.lon.toFixed(4)}° E</span></div>
@@ -1999,7 +2031,7 @@ function showTreeEdit(baum_id) {
               <div class="gps-widget-row"><span class="gps-widget-label">Genauigkeit:</span> <span class="gps-widget-value">±${tree.gps_accuracy}m</span></div>
             ` : `<div class="gps-widget-row"><span class="gps-widget-label">Status:</span> <span class="gps-widget-value">Nicht erfasst</span></div>`}
           </div>
-          ${currentTermin === 2 ? '<div style="color:var(--color-muted);font-size:0.85rem;">GPS aus Termin 1 übernommen</div>' : '<button type="button" class="btn btn-full" onclick="captureTreeGPS(\'' + baum_id + '\')">📍 GPS holen</button>'}
+          ${bhd_readonly ? '<div style="color:var(--color-muted);font-size:0.85rem;">GPS aus Termin 1 übernommen</div>' : '<button type="button" class="btn btn-full" onclick="captureTreeGPS(\'' + baum_id + '\')">📍 GPS holen</button>'}
         </div>
         ${tree.bhd_klasse === '>20cm' && currentTermin === 1 ? `
         <div class="form-group">
@@ -2069,8 +2101,8 @@ function showTreeEdit(baum_id) {
         </div>
         ` : '')}
 
-        ${currentTermin === 1 ? `
-        <!-- Spinner (B) — nur Termin 1, für ALLE Bäume -->
+        ${(currentTermin === 1 || (currentTermin === 2 && tree.bhd_klasse === '<20cm')) ? `
+        <!-- Spinner (B) — Termin 1 für ALLE Bäume; Termin 2 für kleine Bäume -->
         <div style="border-top: 2px solid var(--color-border); padding-top: 1rem; margin-top: 1rem;">
           <h4 style="color: var(--color-primary); margin-bottom: 0.75rem;">🐛 Spinner — Gespinstnester</h4>
           <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 0.5rem; border-radius: 4px; margin-bottom: 0.75rem; font-size: 0.8rem;">
@@ -2083,8 +2115,8 @@ function showTreeEdit(baum_id) {
         </div>
         ` : ''}
 
-        ${tree.bhd_klasse === '<20cm' ? `
-        <!-- Klebefalle — T1 Installation, T2 Abbau -->
+        ${(tree.bhd_klasse === '<20cm' && !isNewT2Tree) ? `
+        <!-- Klebefalle — T1 Installation, T2 Abbau (nur Fallenbäume aus T1) -->
         <div style="border-top: 2px solid var(--color-border); padding-top: 1rem; margin-top: 1rem;">
           <h4 style="color: var(--color-primary); margin-bottom: 0.75rem;">🪤 Klebefalle</h4>
           ${!kann_falle_haben ? `<div class="info-box">⚠️ Maximum 5 Fallen pro Standort erreicht.</div>` : `
@@ -2147,13 +2179,18 @@ function showTreeEdit(baum_id) {
         </div>
         ` : ''}
 
-        ${tree.bhd_klasse === '<20cm' && currentTermin === 2 ? `
+        ${tree.bhd_klasse === '<20cm' && currentTermin === 2 ? (() => {
+          const schadbild_raw = schaeden_data.schadbild_bestimmung || '';
+          const selectedSchadbilder = schadbild_raw.split(',').filter(x => x);
+          const schadbildLabels = {blutzikade:'Blutzikade', rostpilz:'Rostpilz', kiefernschuette:'Kiefernschütte', scheidenruessler:'Scheidenrüssler', blattkaefer:'Blattkäfer', rotband:'Rotband', unklar:'Unklar'};
+          const belegprobe_count = (app.data.blutzikade.schaeden || []).filter(s => s.belegprobe_gesammelt && s.baum_id !== baum_id).length + (schaeden_data.belegprobe_gesammelt ? 1 : 0);
+          return `
         <!-- Blutzikade Saugschäden (C2) — nur Termin 2 -->
         <div style="border-top: 2px solid var(--color-border); padding-top: 1rem; margin-top: 1rem;">
           <h4 style="color: var(--color-primary); margin-bottom: 0.75rem;">🪤 Blutzikade — Saugschäden</h4>
-          <p style="font-size: 0.8rem; color: var(--color-muted); margin-bottom: 0.75rem;">
-            Welches Schadbild passt am besten? Bild antippen und bestätigen.
-          </p>
+          <div class="info-box" style="margin-bottom: 0.75rem; font-size: 0.85rem;">
+            🔍 <strong>Fokus Blutzikade:</strong> Primär nach Saugschäden der Blutzikade suchen. Falls weitere Schadbilder erkennbar sind, können mehrere Karten ausgewählt werden (Mehrfachauswahl).
+          </div>
 
           <!-- Schadbild-Karussell -->
           <div id="schadbild-karussell" style="display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.5rem; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory;">
@@ -2165,20 +2202,22 @@ function showTreeEdit(baum_id) {
               { id: 'blattkaefer', label: '🪲 Blattkäfer<br><small>Luperus pinicola</small>', img: 'ref_blattkaefer.jpeg' },
               { id: 'rotband', label: '🔴 Rotband<br><small>Dothistroma / Lecanosticta</small>', img: 'ref_rotband.jpeg' },
               { id: 'unklar', label: '❓ Unklar', img: null }
-            ].map(s => `
-              <div class="schadbild-card ${schaeden_data.schadbild_bestimmung === s.id ? 'selected' : ''}" data-schadbild="${s.id}" onclick="selectSchadbild(this, '${s.id}')" style="scroll-snap-align: start; min-width: 140px; max-width: 140px; border: 3px solid ${schaeden_data.schadbild_bestimmung === s.id ? '#28a745' : 'var(--color-border)'}; border-radius: 8px; padding: 0.4rem; text-align: center; cursor: pointer; flex-shrink: 0; background: ${schaeden_data.schadbild_bestimmung === s.id ? '#d4edda' : 'white'}; ${s.id === 'unklar' ? 'display: flex; flex-direction: column; justify-content: center; align-items: center;' : ''}">
+            ].map(s => {
+              const isSel = selectedSchadbilder.includes(s.id);
+              return `
+              <div class="schadbild-card ${isSel ? 'selected' : ''}" data-schadbild="${s.id}" onclick="selectSchadbild(this, '${s.id}')" style="scroll-snap-align: start; min-width: 140px; max-width: 140px; border: 3px solid ${isSel ? '#28a745' : 'var(--color-border)'}; border-radius: 8px; padding: 0.4rem; text-align: center; cursor: pointer; flex-shrink: 0; background: ${isSel ? '#d4edda' : 'white'}; ${s.id === 'unklar' ? 'display: flex; flex-direction: column; justify-content: center; align-items: center;' : ''}">
                 ${s.img ? `<img src="${s.img}" alt="${s.id}" style="width: 100%; border-radius: 4px; aspect-ratio: 3/2; object-fit: cover;" onclick="openLightbox(event, '${s.img}')">` : `<div style="width: 100%; aspect-ratio: 3/2; background: #f5f5f5; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: var(--color-muted);">❓</div>`}
                 <div style="font-size: 0.75rem; font-weight: bold; margin-top: 0.25rem; color: var(--color-primary);">${s.label}</div>
-              </div>
-            `).join('')}
+              </div>`;
+            }).join('')}
           </div>
-          <input type="hidden" id="edit-schadbild" value="${schaeden_data.schadbild_bestimmung || ''}">
-          <div id="schadbild-status" style="text-align: center; padding: 0.4rem; border-radius: 4px; font-size: 0.85rem; margin-top: 0.5rem; margin-bottom: 1rem; background: ${schaeden_data.schadbild_bestimmung ? '#d4edda' : '#fff3cd'};">
-            ${schaeden_data.schadbild_bestimmung ? '✅ Bestimmt: <strong>' + ({blutzikade:'Blutzikade',rostpilz:'Rostpilz',kiefernschuette:'Kiefernschütte',scheidenruessler:'Scheidenrüssler',blattkaefer:'Blattkäfer',rotband:'Rotband',unklar:'Unklar'}[schaeden_data.schadbild_bestimmung] || schaeden_data.schadbild_bestimmung) + '</strong>' : '⚠️ Bitte Schadbild auswählen'}
+          <input type="hidden" id="edit-schadbild" value="${schadbild_raw}">
+          <div id="schadbild-status" style="text-align: center; padding: 0.4rem; border-radius: 4px; font-size: 0.85rem; margin-top: 0.5rem; margin-bottom: 1rem; background: ${selectedSchadbilder.length > 0 ? '#d4edda' : '#fff3cd'};">
+            ${selectedSchadbilder.length > 0 ? '✅ Bestimmt: <strong>' + selectedSchadbilder.map(s => schadbildLabels[s] || s).join(', ') + '</strong>' : '⚠️ Bitte Schadbild auswählen'}
           </div>
 
           <p style="font-size: 0.8rem; color: var(--color-muted); margin-bottom: 0.75rem;">
-            5 sonnenexponierte Triebe untersuchen — Anteil befallener Nadeln in % schätzen.
+            5 sonnenexponierte Triebe untersuchen — nur <strong>Blutzikade-Saugschäden</strong> beurteilen. Anteil der befallenen Nadeln (%) pro Trieb schätzen.
           </p>
           ${[1,2,3,4,5].map(i => `
             <div style="margin-bottom: 0.75rem;">
@@ -2191,18 +2230,24 @@ function showTreeEdit(baum_id) {
               </div>
             </div>
           `).join('')}
+          <div class="info-box" style="margin-top: 0.75rem; margin-bottom: 0.5rem; font-size: 0.8rem;">
+            📋 <strong>Belegproben:</strong> Min. 3, max. 5 Proben total. Max. 1 pro Baum. Je eine Probe pro Sack, idealerweise mit Schäden. Falls keine Schäden sichtbar: trotzdem 3–5 Äste sammeln und kühlen.
+          </div>
           <div class="form-group" style="margin-top: 0.5rem;">
             <label>Belegprobe gesammelt:</label>
             <div class="toggle-group">
               <button type="button" class="toggle-btn ${!schaeden_data.belegprobe_gesammelt ? 'active' : ''}"
-                      onclick="document.getElementById('edit-belegprobe').value='false'; this.classList.add('active'); this.nextElementSibling.classList.remove('active')">Nein</button>
+                      onclick="document.getElementById('edit-belegprobe').value='false'; this.classList.add('active'); this.nextElementSibling.classList.remove('active'); updateBelegprobeCounter('${baum_id}');">Nein</button>
               <button type="button" class="toggle-btn ${schaeden_data.belegprobe_gesammelt ? 'active' : ''}"
-                      onclick="document.getElementById('edit-belegprobe').value='true'; this.previousElementSibling.classList.remove('active'); this.classList.add('active')">Ja</button>
+                      onclick="(function(btn){ const currentCount = (app.data.blutzikade.schaeden || []).filter(s => s.belegprobe_gesammelt && s.baum_id !== '${baum_id}').length; if (currentCount >= 5) { alert('Maximum 5 Belegproben bereits erreicht.'); return; } document.getElementById('edit-belegprobe').value='true'; btn.classList.add('active'); btn.previousElementSibling.classList.remove('active'); updateBelegprobeCounter('${baum_id}'); })(this)">Ja</button>
             </div>
             <input type="hidden" id="edit-belegprobe" value="${schaeden_data.belegprobe_gesammelt || false}">
+            <div id="belegprobe-counter" style="font-size: 0.8rem; color: var(--color-muted); margin-top: 0.5rem; text-align: center;">
+              Belegproben: ${belegprobe_count} / 5 ${belegprobe_count < 3 ? '⚠️ Minimum 3' : '✅'}
+            </div>
           </div>
         </div>
-        ` : ''}
+        `; })() : ''}
 
         <div class="form-group">
           <label>Bemerkungen</label>
@@ -2379,23 +2424,47 @@ function closeTreeEdit() {
   if (modal) modal.remove();
 }
 
+function updateBelegprobeCounter(baum_id) {
+  const el = document.getElementById('belegprobe-counter');
+  if (!el) return;
+  const current_val = document.getElementById('edit-belegprobe')?.value === 'true' ? 1 : 0;
+  const others = (app.data.blutzikade.schaeden || []).filter(s => s.belegprobe_gesammelt && s.baum_id !== baum_id).length;
+  const total = others + current_val;
+  el.innerHTML = `Belegproben: ${total} / 5 ${total < 3 ? '⚠️ Minimum 3' : '✅'}`;
+}
+
 function selectSchadbild(card, value) {
-  // Deselect all cards
+  // Toggle: Karte an/aus (Mehrfachauswahl)
+  const isSelected = card.style.border.includes('#28a745') || card.style.borderColor === 'rgb(40, 167, 69)';
+  if (isSelected) {
+    card.style.border = '3px solid var(--color-border)';
+    card.style.background = 'white';
+  } else {
+    card.style.border = '3px solid #28a745';
+    card.style.background = '#d4edda';
+  }
+
+  // Alle aktuell selektierten Karten sammeln
   const cards = card.parentElement.querySelectorAll('.schadbild-card');
+  const selected = [];
   cards.forEach(c => {
-    c.style.border = '3px solid var(--color-border)';
-    c.style.background = 'white';
+    const selectedCard = c.style.border.includes('#28a745') || c.style.borderColor === 'rgb(40, 167, 69)';
+    if (selectedCard) selected.push(c.dataset.schadbild);
   });
-  // Select this card
-  card.style.border = '3px solid #28a745';
-  card.style.background = '#d4edda';
-  // Set hidden field
-  document.getElementById('edit-schadbild').value = value;
-  // Update status
+
+  // Hidden field: kommasepariert
+  document.getElementById('edit-schadbild').value = selected.join(',');
+
+  // Status-Anzeige aktualisieren (Mehrfach)
   const labels = {blutzikade:'Blutzikade', rostpilz:'Rostpilz', kiefernschuette:'Kiefernschütte', scheidenruessler:'Scheidenrüssler', blattkaefer:'Blattkäfer', rotband:'Rotband', unklar:'Unklar'};
   const status = document.getElementById('schadbild-status');
-  status.style.background = '#d4edda';
-  status.innerHTML = '✅ Bestimmt: <strong>' + (labels[value] || value) + '</strong>';
+  if (selected.length > 0) {
+    status.style.background = '#d4edda';
+    status.innerHTML = '✅ Bestimmt: <strong>' + selected.map(s => labels[s] || s).join(', ') + '</strong>';
+  } else {
+    status.style.background = '#fff3cd';
+    status.innerHTML = '⚠️ Bitte Schadbild auswählen';
+  }
 }
 
 function renderResultateDashboard() {
@@ -2569,7 +2638,10 @@ function renderResultateDashboard() {
           <div style="font-weight: bold;">Saugschäden ${currentTermin === 1 ? '(T2)' : ''}</div>
           ${currentTermin === 2 ? `
             <div>${c2_total} Bäume | befallen: ${c2_befallen}</div>
-            <div>Ø ${c2_avg.toFixed(1)}% | Proben: ${belegproben}</div>
+            <div>Ø ${c2_avg.toFixed(1)}%</div>
+            <div style="margin-top: 0.25rem; ${belegproben < 3 ? 'color: #dc3545; font-weight: bold;' : 'color: #28a745;'}">
+              ${belegproben < 3 ? '⚠️' : '✅'} Belegproben: ${belegproben} / 5${belegproben < 3 ? ' — Min. 3!' : ''}
+            </div>
           ` : `<div style="color: var(--color-muted);">Erst bei Termin 2</div>`}
         </div>
       </div>
@@ -2662,14 +2734,16 @@ function renderSaugschadenZusammenfassungResultate() {
   if (schaeden.length === 0 || currentTermin !== 2) return;
 
   const befallen = schaeden.filter(s => s.befallen_baum).length;
-  const proben = schaeden.filter(s => s.belegprobe_gesammelt).length;
+  const proben_baeume = schaeden.filter(s => s.belegprobe_gesammelt).map(s => s.baum_id);
+  const proben = proben_baeume.length;
 
   let html = `<h4 style="color: var(--color-primary); margin-bottom: 0.75rem;">🪤 Saugschäden — Befallsübersicht</h4>
     <div class="card" style="padding: 0.75rem; margin-bottom: 0.75rem;">
       <div>Erfasst: <strong>${schaeden.length} Bäume</strong></div>
       <div>Befallen: <strong>${befallen} (${schaeden.length > 0 ? ((befallen/schaeden.length)*100).toFixed(0) : 0}%)</strong></div>
       <div>Ø Befallene Nadeln: <strong>${schaeden.length > 0 ? (schaeden.reduce((s, x) => s + (x.mittl_befallene_triebe_pct || 0), 0) / schaeden.length).toFixed(1) : 0}%</strong></div>
-      <div>Belegproben: <strong>${proben}</strong></div>
+      <div style="margin-top: 0.5rem;">Belegproben: <strong>${proben} / 5</strong> ${proben > 0 ? `<span style="color: var(--color-muted); font-size: 0.85rem;">(${proben_baeume.join(', ')})</span>` : ''}</div>
+      ${proben < 3 ? `<div style="color: #dc3545; font-weight: bold; margin-top: 0.25rem;">⚠️ Minimum 3 Belegproben benötigt!</div>` : (proben >= 3 ? `<div style="color: #28a745; margin-top: 0.25rem;">✅ Minimum erreicht</div>` : '')}
     </div>`;
   container.innerHTML = html;
 }
@@ -3413,12 +3487,11 @@ function backupToJSON() {
   URL.revokeObjectURL(url);
 }
 
-function exportCSV() {
+function exportCSV_Standort() {
   const plot_id = app.data.standort.plot_id || 'unknown';
   const date_str = today();
   const zapfen = app.data.diplodia.zapfen || {};
 
-  // 1. Standort CSV — Standortinfos + Diplodia-Zapfen + Methodenkritik
   const standort_headers = [
     'plot_id', 'aufnehmer', 'datum_t1', 'datum_t2',
     'koordinate_lat', 'koordinate_lon', 'koordinate_e_lv95', 'koordinate_n_lv95',
@@ -3458,10 +3531,14 @@ function exportCSV() {
   ];
   const standort_csv = '\uFEFF' + standort_headers.join(';') + '\n' + standort_vals.join(';');
   downloadCSV(standort_csv, `foehren_${plot_id}_${date_str}_standort.csv`);
+}
 
-  // 2. Baeume CSV — Alle Module als Spalten
+function exportCSV_Baeume() {
+  const plot_id = app.data.standort.plot_id || 'unknown';
+  const date_str = today();
+
   const baum_headers = [
-    'baum_id', 'bhd_klasse', 'bhd_cm', 'lat', 'lon', 'e_lv95', 'n_lv95',
+    'baum_id', 'bhd_klasse', 'bhd_cm', 'termin_erstellt', 'lat', 'lon', 'e_lv95', 'n_lv95',
     'gps_accuracy', 'kronenverlichtung_pct', 'bemerkungen_baum',
     'diplodia_ast1_befall_pct', 'diplodia_ast2_befall_pct', 'diplodia_ast3_befall_pct',
     'diplodia_befallsintensitaet_pct', 'diplodia_befallskategorie',
@@ -3481,7 +3558,7 @@ function exportCSV() {
     const bz = (app.data.blutzikade.schaeden || []).find(s => s.baum_id === baum.baum_id) || {};
     const v = (val) => val != null && val !== '' ? val : '';
     const row = [
-      csvQuote(baum.baum_id), csvQuote(baum.bhd_klasse), v(baum.bhd_cm),
+      csvQuote(baum.baum_id), csvQuote(baum.bhd_klasse), v(baum.bhd_cm), v(baum.termin_erstellt),
       v(baum.lat), v(baum.lon), v(baum.e_lv95), v(baum.n_lv95),
       v(baum.gps_accuracy), v(baum.kronenverlichtung_pct), csvQuote(baum.bemerkungen_baum || ''),
       v(dip.ast1_befall_pct), v(dip.ast2_befall_pct), v(dip.ast3_befall_pct),
@@ -3501,8 +3578,11 @@ function exportCSV() {
     baum_csv += row + '\n';
   });
   downloadCSV(baum_csv, `foehren_${plot_id}_${date_str}_baeume.csv`);
+}
 
-  // 3. Fallen CSV — Klebefallen (immer exportieren, auch wenn leer)
+function exportCSV_Fallen() {
+  const plot_id = app.data.standort.plot_id || 'unknown';
+  const date_str = today();
   const fallen = app.data.blutzikade.fallen || [];
   const fallen_headers = [
     'falle_id', 'baum_ref', 'lat', 'lon', 'e_lv95', 'n_lv95',
@@ -3526,6 +3606,15 @@ function exportCSV() {
     fallen_csv += row + '\n';
   });
   downloadCSV(fallen_csv, `foehren_${plot_id}_${date_str}_fallen.csv`);
+}
+
+// Convenience wrapper: alle 3 nacheinander (für Rückwärtskompatibilität)
+async function exportCSV() {
+  exportCSV_Standort();
+  await new Promise(r => setTimeout(r, 300));
+  exportCSV_Baeume();
+  await new Promise(r => setTimeout(r, 300));
+  exportCSV_Fallen();
 }
 
 function csvQuote(val) {

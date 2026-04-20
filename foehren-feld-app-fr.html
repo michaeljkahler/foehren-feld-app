@@ -675,7 +675,7 @@
       <h1 style="margin:0;">🌲 Santé des pins</h1>
       <a href="foehren-feld-app.html" style="color:white; background:rgba(255,255,255,0.2); padding:0.3rem 0.6rem; border-radius:4px; text-decoration:none; font-size:0.8rem; font-weight:600;">Deutsch</a>
     </div>
-    <p>Application de relevé terrain v2.1</p>
+    <p>Application de relevé terrain v2.3</p>
   </header>
 
   <!-- MODUL 0: STANDORT -->
@@ -1142,6 +1142,9 @@
           <div class="info-box">
             💡 <strong>Note :</strong> Marquer les arbres après la mesure à la craie ou avec un ruban pour les retrouver au terme 2.
           </div>
+          <div class="info-box" style="background: #e8f0e6;">
+            🪤 <strong>Petits arbres (DHP &lt; 20 cm) :</strong> Ne relever que les <strong>5 arbres à pièges</strong> (piège collant + processionnaire). Les 15 arbres supplémentaires seront ajoutés au terme 2.
+          </div>
           <div style="margin-bottom: 1rem;">
             <div class="progress-text">Arbres DHP >20 cm :</div>
             <div class="progress-bar">
@@ -1149,14 +1152,14 @@
             </div>
           </div>
           <div style="margin-bottom: 1.5rem;">
-            <div class="progress-text">Arbres DHP <20 cm :</div>
+            <div class="progress-text">Arbres DHP <20 cm (arbres à pièges) :</div>
             <div class="progress-bar">
-              <div id="progress-bhd-small-t1" class="progress-fill" style="width: 0%">0 / 20</div>
+              <div id="progress-bhd-small-t1" class="progress-fill" style="width: 0%">0 / 5</div>
             </div>
           </div>
           <div class="btn-group">
             <button class="btn" id="btn-add-large-t1" onclick="addTree('large')">+ DHP >20 cm</button>
-            <button class="btn" id="btn-add-small-t1" onclick="addTree('small')">+ DHP <20 cm</button>
+            <button class="btn" id="btn-add-small-t1" onclick="addTree('small')">+ DHP <20 cm (arbre à pièges)</button>
           </div>
           <div id="trees-container-t1"></div>
         </div>
@@ -1184,7 +1187,7 @@
         <summary>🌿 Terme 2 — Relevé par arbre (mai)</summary>
         <div class="field-group-content">
           <div class="info-box">
-            💡 <strong>Note :</strong> Le DHP et le GPS sont repris du terme 1 (lecture seule). Saisissez les données spécifiques au T2.
+            💡 <strong>Remarque :</strong> Les grands arbres et les 5 arbres à pièges du terme 1 sont complétés (dégâts de succion, démontage des pièges). En plus, jusqu'à <strong>15 nouveaux arbres &lt;20 cm</strong> peuvent être saisis (GPS, DHP, processionnaire, dégâts de succion).
           </div>
           <div style="margin-bottom: 1rem;">
             <div class="progress-text">Arbres DHP >20 cm :</div>
@@ -1197,6 +1200,9 @@
             <div class="progress-bar">
               <div id="progress-bhd-small-t2" class="progress-fill" style="width: 0%">0 / 20</div>
             </div>
+          </div>
+          <div class="btn-group" style="margin-bottom: 1rem;">
+            <button class="btn" id="btn-add-small-t2" onclick="addTree('small')">+ DHP &lt;20 cm (dégâts de succion)</button>
           </div>
           <div id="trees-container-t2"></div>
         </div>
@@ -1222,8 +1228,12 @@
       <h2 style="margin-bottom: 1rem; color: var(--color-primary);">📤 Exporter les données</h2>
       <div id="export-termin-info" class="info-box" style="margin-bottom: 1rem;"></div>
       <div id="export-status" style="margin-bottom: 1rem;"></div>
-      <p style="margin-bottom: 1.5rem; color: var(--color-muted); font-size: 0.9rem;">L'export contient toujours <strong>toutes les données disponibles</strong> de tous les modules.</p>
-      <button class="btn btn-full" style="margin-bottom: 0.5rem;" onclick="exportCSV()">📄 Exporter CSV (3 fichiers)</button>
+      <p style="margin-bottom: 1rem; color: var(--color-muted); font-size: 0.9rem;">L'export contient toujours <strong>toutes les données</strong> de tous les modules. Télécharger les CSV séparément (au cas où un téléchargement serait bloqué).</p>
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;">
+        <button class="btn btn-full" onclick="exportCSV_Standort()">📄 CSV Données site</button>
+        <button class="btn btn-full" onclick="exportCSV_Baeume()">📄 CSV Données arbres</button>
+        <button class="btn btn-full" onclick="exportCSV_Fallen()">📄 CSV Données pièges collants</button>
+      </div>
       <button class="btn btn-full" style="margin-bottom: 1.5rem;" onclick="exportGeoJSON()">🗺️ Exporter GeoJSON</button>
       <hr style="border: none; border-top: 2px solid var(--color-border); margin: 1.5rem 0;">
       <h3 style="margin-bottom: 0.75rem; color: var(--color-primary); font-size: 1rem;">💾 Sauvegarde des données (JSON)</h3>
@@ -1811,8 +1821,11 @@ function addTree(bhd_class) {
   const prefix = bhd_class === 'large' ? 'BHD>20' : 'BHD<20';
   const klasse = bhd_class === 'large' ? '>20cm' : '<20cm';
   const bhd_trees = app.data.baeume.filter(b => b.bhd_klasse === klasse);
-  if (bhd_trees.length >= 20) {
-    alert('Maximum de 20 arbres par classe atteint');
+  const max_small = (klasse === '<20cm' && currentTermin === 1) ? 5 : 20;
+  if (bhd_trees.length >= max_small) {
+    alert(klasse === '<20cm' && currentTermin === 1
+      ? 'Maximum 5 arbres à pièges au terme 1. Ajouter les arbres suivants au terme 2.'
+      : 'Maximum 20 arbres par classe atteint');
     return;
   }
   // Find next free number (avoids duplicates after deletion)
@@ -1833,7 +1846,8 @@ function addTree(bhd_class) {
     n_lv95: null,
     kronenverlichtung_pct: 0,
     bemerkungen_baum: '',
-    gps_accuracy: null
+    gps_accuracy: null,
+    termin_erstellt: currentTermin
   };
   app.data.baeume.push(tree);
   storage.save(app.data);
@@ -1863,17 +1877,32 @@ function deleteTree(baum_id) {
 function renderTrees() {
   const suffix = currentTermin === 1 ? '-t1' : '-t2';
   const container = document.getElementById('trees-container' + suffix);
+  if (!container) return;
   container.innerHTML = '';
   const large_trees = app.data.baeume.filter(b => b.bhd_klasse === '>20cm');
   const small_trees = app.data.baeume.filter(b => b.bhd_klasse === '<20cm');
   const large_pct = (large_trees.length / 20) * 100;
   const small_pct = (small_trees.length / 20) * 100;
-  document.getElementById('progress-bhd-large' + suffix).style.width = large_pct + '%';
-  document.getElementById('progress-bhd-large' + suffix).textContent = `${large_trees.length} / 20`;
-  document.getElementById('progress-bhd-small' + suffix).style.width = small_pct + '%';
-  document.getElementById('progress-bhd-small' + suffix).textContent = `${small_trees.length} / 20`;
-  document.getElementById('btn-add-large' + suffix).disabled = large_trees.length >= 20;
-  document.getElementById('btn-add-small' + suffix).disabled = small_trees.length >= 20;
+  const largePctId = 'progress-bhd-large' + suffix;
+  const smallPctId = 'progress-bhd-small' + suffix;
+  document.getElementById(largePctId).style.width = large_pct + '%';
+  document.getElementById(largePctId).textContent = `${large_trees.length} / 20`;
+
+  if (currentTermin === 1) {
+    // T1 : petits arbres limités à 5 (arbres à pièges)
+    const small_max = 5;
+    const small_pct_val = (small_trees.length / small_max) * 100;
+    document.getElementById(smallPctId).style.width = Math.min(small_pct_val, 100) + '%';
+    document.getElementById(smallPctId).textContent = `${small_trees.length} / ${small_max}`;
+    document.getElementById('btn-add-large-t1').disabled = large_trees.length >= 20;
+    document.getElementById('btn-add-small-t1').disabled = small_trees.length >= small_max;
+  } else {
+    // T2 : 20 petits arbres au total (5 de T1 + jusqu'à 15 nouveaux)
+    document.getElementById(smallPctId).style.width = small_pct + '%';
+    document.getElementById(smallPctId).textContent = `${small_trees.length} / 20`;
+    const btnT2 = document.getElementById('btn-add-small-t2');
+    if (btnT2) btnT2.disabled = small_trees.length >= 20;
+  }
 
   const all_trees = [...large_trees, ...small_trees];
   all_trees.forEach((tree) => {
@@ -1899,7 +1928,12 @@ function renderTrees() {
       if (tree.bhd_klasse === '>20cm') {
         statusIcons = `<span style="font-size: 0.8rem; color: var(--color-muted);" title="Données T1 reprises">✅ T1</span>`;
       } else {
-        statusIcons = `<span style="font-size: 0.8rem;" title="Retrait piège">${hasFalle ? '🪤✅' : '🪤⬜'}</span> <span style="font-size: 0.8rem;" title="Dégâts succion">${hasSaugschaeden ? '🔬✅' : '🔬⬜'}</span>`;
+        const isNewT2 = tree.termin_erstellt === 2;
+        const gpsIcon = isNewT2 ? `<span style="font-size: 0.8rem;" title="GPS">${tree.lat ? '📍✅' : '📍⬜'}</span> ` : '';
+        statusIcons = gpsIcon
+          + `<span style="font-size: 0.8rem;" title="Processionnaire">${hasSpinner ? '🐛✅' : '🐛⬜'}</span> `
+          + (!isNewT2 ? `<span style="font-size: 0.8rem;" title="Démontage piège">${hasFalle ? '🪤✅' : '🪤⬜'}</span> ` : '')
+          + `<span style="font-size: 0.8rem;" title="Dégâts de succion">${hasSaugschaeden ? '🔬✅' : '🔬⬜'}</span>`;
       }
     }
 
@@ -1967,16 +2001,20 @@ function showTreeEdit(baum_id) {
     trieb5_befallene_nadeln_pct: 0, belegprobe_gesammelt: false
   };
 
+  // Détecter : nouvel arbre T2 (DHP/GPS éditables) vs arbre de T1 vu en T2 (lecture seule)
+  const isNewT2Tree = currentTermin === 2 && tree.termin_erstellt === 2;
+  const bhd_readonly = currentTermin === 2 && !isNewT2Tree;
+
   const modal_html = `
     <div id="tree-edit-modal" class="modal active">
       <div class="modal-content" style="max-width: 95%; width: 400px;">
-        <h3 style="color: var(--color-primary); margin-bottom: 1rem;">${baum_id}</h3>
+        <h3 style="color: var(--color-primary); margin-bottom: 1rem;">${baum_id}${isNewT2Tree ? ' <span style="font-size: 0.7rem; color: #28a745;">(nouveau T2)</span>' : ''}</h3>
         <div class="form-group">
-          <label>DHP (cm) *</label>
-          <input type="number" id="edit-bhd_cm" step="0.1" value="${tree.bhd_cm || 0}" ${currentTermin === 2 ? 'readonly style="background:#f0f0f0;"' : ''}>
+          <label>DHP (cm) ${bhd_readonly ? '(T1)' : '*'}</label>
+          <input type="number" id="edit-bhd_cm" step="0.1" value="${tree.bhd_cm || 0}" ${bhd_readonly ? 'readonly style="background:#f0f0f0;"' : ''}>
         </div>
         <div class="form-group">
-          <label>GPS arbre *</label>
+          <label>GPS arbre ${bhd_readonly ? '(T1)' : '*'}</label>
           <div id="edit-gps-widget" class="gps-widget">
             ${tree.lat ? `
               <div class="gps-widget-row"><span class="gps-widget-label">📍 GPS:</span> <span class="gps-widget-value">${tree.lat.toFixed(4)}° N | ${tree.lon.toFixed(4)}° E</span></div>
@@ -1984,7 +2022,7 @@ function showTreeEdit(baum_id) {
               <div class="gps-widget-row"><span class="gps-widget-label">Précision :</span> <span class="gps-widget-value">±${tree.gps_accuracy}m</span></div>
             ` : `<div class="gps-widget-row"><span class="gps-widget-label">Statut :</span> <span class="gps-widget-value">Non relevé</span></div>`}
           </div>
-          ${currentTermin === 2 ? '<div style="color:var(--color-muted);font-size:0.85rem;">GPS repris du terme 1</div>' : '<button type="button" class="btn btn-full" onclick="captureTreeGPS(\'' + baum_id + '\')">📍 Obtenir GPS</button>'}
+          ${bhd_readonly ? '<div style="color:var(--color-muted);font-size:0.85rem;">GPS repris du terme 1</div>' : '<button type="button" class="btn btn-full" onclick="captureTreeGPS(\'' + baum_id + '\')">📍 Obtenir GPS</button>'}
         </div>
         ${tree.bhd_klasse === '>20cm' && currentTermin === 1 ? `
         <div class="form-group">
@@ -2054,7 +2092,7 @@ function showTreeEdit(baum_id) {
         </div>
         ` : '')}
 
-        ${tree.bhd_klasse === '<20cm' ? `
+        ${(tree.bhd_klasse === '<20cm' && !isNewT2Tree) ? `
         <!-- Klebefalle — Installation T1, Retrait T2 -->
         <div style="border-top: 2px solid var(--color-border); padding-top: 1rem; margin-top: 1rem;">
           <h4 style="color: var(--color-primary); margin-bottom: 0.75rem;">🪤 Piège collant</h4>
@@ -2115,12 +2153,12 @@ function showTreeEdit(baum_id) {
         </div>
         ` : ''}
 
-        ${tree.bhd_klasse === '>20cm' && currentTermin === 1 ? `
-        <!-- Spinner (B) — nur Termin 1 -->
+        ${(currentTermin === 1 || (currentTermin === 2 && tree.bhd_klasse === '<20cm')) ? `
+        <!-- Processionnaire (B) — Terme 1 pour TOUS les arbres ; Terme 2 pour les petits arbres -->
         <div style="border-top: 2px solid var(--color-border); padding-top: 1rem; margin-top: 1rem;">
           <h4 style="color: var(--color-primary); margin-bottom: 0.75rem;">🐛 Processionnaire — Nids</h4>
           <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 0.5rem; border-radius: 4px; margin-bottom: 0.75rem; font-size: 0.8rem;">
-            ⚠️ <strong>Sécurité :</strong> Ne pas toucher les nids ! Contrôler uniquement avec des jumelles.
+            ⚠️ <strong>Sécurité :</strong> Ne pas toucher les nids ! Contrôler uniquement avec ${tree.bhd_klasse === '>20cm' ? 'des jumelles' : 'l\'œil (sans aide visuelle)'}.
           </div>
           <div class="form-group">
             <label>Nombre de nids :</label>
@@ -2129,42 +2167,49 @@ function showTreeEdit(baum_id) {
         </div>
         ` : ''}
 
-        ${tree.bhd_klasse === '<20cm' && currentTermin === 2 ? `
-        <!-- Cicadelle Dégâts de succion (C2) — uniquement campagne 2 -->
+        ${tree.bhd_klasse === '<20cm' && currentTermin === 2 ? (() => {
+          const schadbild_raw = schaeden_data.schadbild_bestimmung || '';
+          const selectedSchadbilder = schadbild_raw.split(',').filter(x => x);
+          const schadbildLabels = {blutzikade:'Cicadelle', rostpilz:'Rouille', kiefernschuette:'Rouge cryptogamique', scheidenruessler:'Charançon des gaines', blattkaefer:'Chrysomèle', rotband:'Bande rouge', unklar:'Incertain'};
+          const belegprobe_count = (app.data.blutzikade.schaeden || []).filter(s => s.belegprobe_gesammelt && s.baum_id !== baum_id).length + (schaeden_data.belegprobe_gesammelt ? 1 : 0);
+          return `
+        <!-- Cicadelle Dégâts de succion (C2) — uniquement terme 2 -->
         <div style="border-top: 2px solid var(--color-border); padding-top: 1rem; margin-top: 1rem;">
           <h4 style="color: var(--color-primary); margin-bottom: 0.75rem;">🪤 Cicadelle — Dégâts de succion</h4>
-          <p style="font-size: 0.8rem; color: var(--color-muted); margin-bottom: 0.75rem;">
-            Quel type de dégât correspond le mieux ? Appuyez sur l'image pour sélectionner.
-          </p>
+          <div class="info-box" style="margin-bottom: 0.75rem; font-size: 0.85rem;">
+            🔍 <strong>Focus cicadelle :</strong> Rechercher en priorité les dégâts de succion de la cicadelle. Si d'autres symptômes sont visibles, plusieurs cartes peuvent être sélectionnées (sélection multiple).
+          </div>
 
           <!-- Carrousel d'identification des dégâts -->
           <div id="schadbild-karussell" style="display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.5rem; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory;">
             ${[
               { id: 'blutzikade', label: '🪤 Cicadelle<br><small>Haematoloma dorsata</small>', img: 'ref_blutzikade.jpeg' },
               { id: 'rostpilz', label: '🍂 Rouille<br><small>Coleosporium senecionis</small>', img: 'ref_rostpilz.jpeg' },
-              { id: 'kiefernschuette', label: '🍂 Chute des aiguilles<br><small>Lophodermium</small>', img: 'ref_kiefernschuette.jpeg' },
-              { id: 'scheidenruessler', label: '🐛 Charançon<br><small>Brachonyx pineti</small>', img: 'ref_scheidenruessler.jpeg' },
+              { id: 'kiefernschuette', label: '🍂 Rouge cryptogamique<br><small>Lophodermium</small>', img: 'ref_kiefernschuette.jpeg' },
+              { id: 'scheidenruessler', label: '🐛 Charançon des gaines<br><small>Brachonyx pineti</small>', img: 'ref_scheidenruessler.jpeg' },
               { id: 'blattkaefer', label: '🪲 Chrysomèle<br><small>Luperus pinicola</small>', img: 'ref_blattkaefer.jpeg' },
               { id: 'rotband', label: '🔴 Bande rouge<br><small>Dothistroma / Lecanosticta</small>', img: 'ref_rotband.jpeg' },
-              { id: 'unklar', label: '❓ Indéterminé', img: null }
-            ].map(s => `
-              <div class="schadbild-card ${schaeden_data.schadbild_bestimmung === s.id ? 'selected' : ''}" data-schadbild="${s.id}" onclick="selectSchadbild(this, '${s.id}')" style="scroll-snap-align: start; min-width: 140px; max-width: 140px; border: 3px solid ${schaeden_data.schadbild_bestimmung === s.id ? '#28a745' : 'var(--color-border)'}; border-radius: 8px; padding: 0.4rem; text-align: center; cursor: pointer; flex-shrink: 0; background: ${schaeden_data.schadbild_bestimmung === s.id ? '#d4edda' : 'white'}; ${s.id === 'unklar' ? 'display: flex; flex-direction: column; justify-content: center; align-items: center;' : ''}">
+              { id: 'unklar', label: '❓ Incertain', img: null }
+            ].map(s => {
+              const isSel = selectedSchadbilder.includes(s.id);
+              return `
+              <div class="schadbild-card ${isSel ? 'selected' : ''}" data-schadbild="${s.id}" onclick="selectSchadbild(this, '${s.id}')" style="scroll-snap-align: start; min-width: 140px; max-width: 140px; border: 3px solid ${isSel ? '#28a745' : 'var(--color-border)'}; border-radius: 8px; padding: 0.4rem; text-align: center; cursor: pointer; flex-shrink: 0; background: ${isSel ? '#d4edda' : 'white'}; ${s.id === 'unklar' ? 'display: flex; flex-direction: column; justify-content: center; align-items: center;' : ''}">
                 ${s.img ? `<img src="${s.img}" alt="${s.id}" style="width: 100%; border-radius: 4px; aspect-ratio: 3/2; object-fit: cover;" onclick="openLightbox(event, '${s.img}')">` : `<div style="width: 100%; aspect-ratio: 3/2; background: #f5f5f5; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: var(--color-muted);">❓</div>`}
                 <div style="font-size: 0.75rem; font-weight: bold; margin-top: 0.25rem; color: var(--color-primary);">${s.label}</div>
-              </div>
-            `).join('')}
+              </div>`;
+            }).join('')}
           </div>
-          <input type="hidden" id="edit-schadbild" value="${schaeden_data.schadbild_bestimmung || ''}">
-          <div id="schadbild-status" style="text-align: center; padding: 0.4rem; border-radius: 4px; font-size: 0.85rem; margin-top: 0.5rem; margin-bottom: 1rem; background: ${schaeden_data.schadbild_bestimmung ? '#d4edda' : '#fff3cd'};">
-            ${schaeden_data.schadbild_bestimmung ? '✅ Identifié : <strong>' + ({blutzikade:'Cicadelle',rostpilz:'Rouille',kiefernschuette:'Chute des aiguilles',scheidenruessler:'Charançon',blattkaefer:'Chrysomèle',rotband:'Bande rouge',unklar:'Indéterminé'}[schaeden_data.schadbild_bestimmung] || schaeden_data.schadbild_bestimmung) + '</strong>' : '⚠️ Veuillez sélectionner le type de dégât'}
+          <input type="hidden" id="edit-schadbild" value="${schadbild_raw}">
+          <div id="schadbild-status" style="text-align: center; padding: 0.4rem; border-radius: 4px; font-size: 0.85rem; margin-top: 0.5rem; margin-bottom: 1rem; background: ${selectedSchadbilder.length > 0 ? '#d4edda' : '#fff3cd'};">
+            ${selectedSchadbilder.length > 0 ? '✅ Déterminé : <strong>' + selectedSchadbilder.map(s => schadbildLabels[s] || s).join(', ') + '</strong>' : '⚠️ Veuillez sélectionner un symptôme'}
           </div>
 
           <p style="font-size: 0.8rem; color: var(--color-muted); margin-bottom: 0.75rem;">
-            Examiner 5 pousses exposées au soleil — estimer le % d'aiguilles infectées.
+            5 pousses exposées au soleil — évaluer uniquement les <strong>dégâts de succion de la cicadelle</strong>. Estimer le pourcentage d'aiguilles atteintes par pousse.
           </p>
           ${[1,2,3,4,5].map(i => `
             <div style="margin-bottom: 0.75rem;">
-              <label>Pousse ${i} — Aiguilles infectées (%) :</label>
+              <label>Pousse ${i} — Aiguilles atteintes (%) :</label>
               <div class="slider-frame">
                 <input type="range" class="slider" min="0" max="100" step="5"
                        id="edit-blutzikade-trieb${i}" value="${schaeden_data['trieb' + i + '_befallene_nadeln_pct'] || 0}"
@@ -2173,18 +2218,24 @@ function showTreeEdit(baum_id) {
               </div>
             </div>
           `).join('')}
+          <div class="info-box" style="margin-top: 0.75rem; margin-bottom: 0.5rem; font-size: 0.8rem;">
+            📋 <strong>Échantillons :</strong> Min. 3, max. 5 échantillons au total. Max. 1 par arbre. Un échantillon par sac, de préférence avec des dégâts. Si aucun dégât visible : collecter quand même 3–5 rameaux et réfrigérer.
+          </div>
           <div class="form-group" style="margin-top: 0.5rem;">
             <label>Échantillon prélevé :</label>
             <div class="toggle-group">
               <button type="button" class="toggle-btn ${!schaeden_data.belegprobe_gesammelt ? 'active' : ''}"
-                      onclick="document.getElementById('edit-belegprobe').value='false'; this.classList.add('active'); this.nextElementSibling.classList.remove('active')">Non</button>
+                      onclick="document.getElementById('edit-belegprobe').value='false'; this.classList.add('active'); this.nextElementSibling.classList.remove('active'); updateBelegprobeCounter('${baum_id}');">Non</button>
               <button type="button" class="toggle-btn ${schaeden_data.belegprobe_gesammelt ? 'active' : ''}"
-                      onclick="document.getElementById('edit-belegprobe').value='true'; this.previousElementSibling.classList.remove('active'); this.classList.add('active')">Oui</button>
+                      onclick="(function(btn){ const currentCount = (app.data.blutzikade.schaeden || []).filter(s => s.belegprobe_gesammelt && s.baum_id !== '${baum_id}').length; if (currentCount >= 5) { alert('Maximum 5 échantillons déjà atteints.'); return; } document.getElementById('edit-belegprobe').value='true'; btn.classList.add('active'); btn.previousElementSibling.classList.remove('active'); updateBelegprobeCounter('${baum_id}'); })(this)">Oui</button>
             </div>
             <input type="hidden" id="edit-belegprobe" value="${schaeden_data.belegprobe_gesammelt || false}">
+            <div id="belegprobe-counter" style="font-size: 0.8rem; color: var(--color-muted); margin-top: 0.5rem; text-align: center;">
+              Échantillons: ${belegprobe_count} / 5 ${belegprobe_count < 3 ? '⚠️ Min. 3' : '✅'}
+            </div>
           </div>
         </div>
-        ` : ''}
+        `; })() : ''}
 
         <div class="form-group">
           <label>Remarques</label>
@@ -2378,18 +2429,40 @@ function closeTreeEdit() {
   if (modal) modal.remove();
 }
 
+function updateBelegprobeCounter(baum_id) {
+  const el = document.getElementById('belegprobe-counter');
+  if (!el) return;
+  const current_val = document.getElementById('edit-belegprobe')?.value === 'true' ? 1 : 0;
+  const others = (app.data.blutzikade.schaeden || []).filter(s => s.belegprobe_gesammelt && s.baum_id !== baum_id).length;
+  const total = others + current_val;
+  el.innerHTML = `Échantillons: ${total} / 5 ${total < 3 ? '⚠️ Min. 3' : '✅'}`;
+}
+
 function selectSchadbild(card, value) {
-  // Toutes les cartes désélectionner
+  const isSelected = card.style.border.includes('#28a745') || card.style.borderColor === 'rgb(40, 167, 69)';
+  if (isSelected) {
+    card.style.border = '3px solid var(--color-border)';
+    card.style.background = 'white';
+  } else {
+    card.style.border = '3px solid #28a745';
+    card.style.background = '#d4edda';
+  }
   const cards = card.parentElement.querySelectorAll('.schadbild-card');
-  cards.forEach(c => { c.style.border = '3px solid var(--color-border)'; c.style.background = 'white'; });
-  // Carte sélectionnée
-  card.style.border = '3px solid #28a745';
-  card.style.background = '#d4edda';
-  document.getElementById('edit-schadbild').value = value;
-  const labels = {blutzikade:'Cicadelle', rostpilz:'Rouille', kiefernschuette:'Chute des aiguilles', scheidenruessler:'Charançon', blattkaefer:'Chrysomèle', rotband:'Bande rouge', unklar:'Indéterminé'};
+  const selected = [];
+  cards.forEach(c => {
+    const selectedCard = c.style.border.includes('#28a745') || c.style.borderColor === 'rgb(40, 167, 69)';
+    if (selectedCard) selected.push(c.dataset.schadbild);
+  });
+  document.getElementById('edit-schadbild').value = selected.join(',');
+  const labels = {blutzikade:'Cicadelle', rostpilz:'Rouille', kiefernschuette:'Rouge cryptogamique', scheidenruessler:'Charançon des gaines', blattkaefer:'Chrysomèle', rotband:'Bande rouge', unklar:'Incertain'};
   const status = document.getElementById('schadbild-status');
-  status.style.background = '#d4edda';
-  status.innerHTML = '✅ Identifié : <strong>' + (labels[value] || value) + '</strong>';
+  if (selected.length > 0) {
+    status.style.background = '#d4edda';
+    status.innerHTML = '✅ Déterminé : <strong>' + selected.map(s => labels[s] || s).join(', ') + '</strong>';
+  } else {
+    status.style.background = '#fff3cd';
+    status.innerHTML = '⚠️ Veuillez sélectionner un symptôme';
+  }
 }
 
 function renderResultateDashboard() {
@@ -2555,7 +2628,10 @@ function renderResultateDashboard() {
           <div style="font-weight: bold;">Dégâts succion ${currentTermin === 1 ? '(P2)' : ''}</div>
           ${currentTermin === 2 ? `
             <div>${c2_total} pins | infectés : ${c2_befallen}</div>
-            <div>Ø ${c2_avg.toFixed(1)}% | Échantillons : ${belegproben}</div>
+            <div>Ø ${c2_avg.toFixed(1)}%</div>
+            <div style="margin-top: 0.25rem; ${belegproben < 3 ? 'color: #dc3545; font-weight: bold;' : 'color: #28a745;'}">
+              ${belegproben < 3 ? '⚠️' : '✅'} Échantillons : ${belegproben} / 5${belegproben < 3 ? ' — Min. 3 !' : ''}
+            </div>
           ` : `<div style="color: var(--color-muted);">Au passage 2 uniquement</div>`}
         </div>
       </div>
@@ -2644,10 +2720,16 @@ function renderSaugschadenZusammenfassungResultate() {
   if (schaeden.length === 0 || currentTermin !== 2) return;
 
   const befallen = schaeden.filter(s => s.befallen_baum).length;
-  let html = `<h4 style="color: var(--color-primary); margin-bottom: 0.75rem;">🪤 Dégâts succion — Résumé</h4>
+  const proben_baeume = schaeden.filter(s => s.belegprobe_gesammelt).map(s => s.baum_id);
+  const proben = proben_baeume.length;
+
+  let html = `<h4 style="color: var(--color-primary); margin-bottom: 0.75rem;">🪤 Dégâts de succion — Résumé</h4>
     <div class="card" style="padding: 0.75rem;">
       <div>Arbres contrôlés : <strong>${schaeden.length}</strong></div>
-      <div>Avec dégâts : <strong>${befallen}</strong></div>
+      <div>Avec dégâts : <strong>${befallen} (${schaeden.length > 0 ? ((befallen/schaeden.length)*100).toFixed(0) : 0}%)</strong></div>
+      <div>Ø Aiguilles atteintes : <strong>${schaeden.length > 0 ? (schaeden.reduce((s, x) => s + (x.mittl_befallene_triebe_pct || 0), 0) / schaeden.length).toFixed(1) : 0}%</strong></div>
+      <div style="margin-top: 0.5rem;">Échantillons : <strong>${proben} / 5</strong> ${proben > 0 ? `<span style="color: var(--color-muted); font-size: 0.85rem;">(${proben_baeume.join(', ')})</span>` : ''}</div>
+      ${proben < 3 ? `<div style="color: #dc3545; font-weight: bold; margin-top: 0.25rem;">⚠️ Minimum 3 échantillons requis !</div>` : (proben >= 3 ? `<div style="color: #28a745; margin-top: 0.25rem;">✅ Minimum atteint</div>` : '')}
     </div>`;
   container.innerHTML = html;
 }
@@ -3401,12 +3483,11 @@ function backupToJSON() {
   URL.revokeObjectURL(url);
 }
 
-function exportCSV() {
+function exportCSV_Standort() {
   const plot_id = app.data.standort.plot_id || 'unknown';
   const date_str = today();
   const zapfen = app.data.diplodia.zapfen || {};
 
-  // 1. Standort CSV — Standortinfos + Diplodia-Zapfen + Methodenkritik
   const standort_headers = [
     'plot_id', 'aufnehmer', 'datum_t1', 'datum_t2',
     'koordinate_lat', 'koordinate_lon', 'koordinate_e_lv95', 'koordinate_n_lv95',
@@ -3446,10 +3527,14 @@ function exportCSV() {
   ];
   const standort_csv = '\uFEFF' + standort_headers.join(';') + '\n' + standort_vals.join(';');
   downloadCSV(standort_csv, `foehren_${plot_id}_${date_str}_standort.csv`);
+}
 
-  // 2. Baeume CSV — Alle Module als Spalten
+function exportCSV_Baeume() {
+  const plot_id = app.data.standort.plot_id || 'unknown';
+  const date_str = today();
+
   const baum_headers = [
-    'baum_id', 'bhd_klasse', 'bhd_cm', 'lat', 'lon', 'e_lv95', 'n_lv95',
+    'baum_id', 'bhd_klasse', 'bhd_cm', 'termin_erstellt', 'lat', 'lon', 'e_lv95', 'n_lv95',
     'gps_accuracy', 'kronenverlichtung_pct', 'bemerkungen_baum',
     'diplodia_ast1_befall_pct', 'diplodia_ast2_befall_pct', 'diplodia_ast3_befall_pct',
     'diplodia_befallsintensitaet_pct', 'diplodia_befallskategorie',
@@ -3469,7 +3554,7 @@ function exportCSV() {
     const bz = (app.data.blutzikade.schaeden || []).find(s => s.baum_id === baum.baum_id) || {};
     const v = (val) => val != null && val !== '' ? val : '';
     const row = [
-      csvQuote(baum.baum_id), csvQuote(baum.bhd_klasse), v(baum.bhd_cm),
+      csvQuote(baum.baum_id), csvQuote(baum.bhd_klasse), v(baum.bhd_cm), v(baum.termin_erstellt),
       v(baum.lat), v(baum.lon), v(baum.e_lv95), v(baum.n_lv95),
       v(baum.gps_accuracy), v(baum.kronenverlichtung_pct), csvQuote(baum.bemerkungen_baum || ''),
       v(dip.ast1_befall_pct), v(dip.ast2_befall_pct), v(dip.ast3_befall_pct),
@@ -3489,8 +3574,11 @@ function exportCSV() {
     baum_csv += row + '\n';
   });
   downloadCSV(baum_csv, `foehren_${plot_id}_${date_str}_baeume.csv`);
+}
 
-  // 3. Fallen CSV — Klebefallen (immer exportieren, auch wenn leer)
+function exportCSV_Fallen() {
+  const plot_id = app.data.standort.plot_id || 'unknown';
+  const date_str = today();
   const fallen = app.data.blutzikade.fallen || [];
   const fallen_headers = [
     'falle_id', 'baum_ref', 'lat', 'lon', 'e_lv95', 'n_lv95',
@@ -3514,6 +3602,15 @@ function exportCSV() {
     fallen_csv += row + '\n';
   });
   downloadCSV(fallen_csv, `foehren_${plot_id}_${date_str}_fallen.csv`);
+}
+
+// Wrapper de commodité : les 3 exports l'un après l'autre (compatibilité)
+async function exportCSV() {
+  exportCSV_Standort();
+  await new Promise(r => setTimeout(r, 300));
+  exportCSV_Baeume();
+  await new Promise(r => setTimeout(r, 300));
+  exportCSV_Fallen();
 }
 
 function csvQuote(val) {
